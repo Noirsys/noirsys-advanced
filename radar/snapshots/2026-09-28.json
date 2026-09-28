@@ -1,11 +1,41 @@
 {
  "date": "2026-09-28",
- "generated_at": "2026-09-28T11:10:17+00:00",
+ "generated_at": "2026-09-28T11:59:14+00:00",
  "quota_units": 0,
  "errors": [],
  "channels": {},
  "videos": [],
  "stories": [
+  {
+   "id": "49876540",
+   "title": "Applying Deming's Continuous Improvement to Multi-Agent AI Systems",
+   "url": "https://medium.com/@zrkjsy/deming-in-the-machine-running-an-ai-assisted-film-production-on-continuous-improvement-0337a3112111",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-09-28T11:47:08Z",
+   "query": "ai agents",
+   "pph": 1.0
+  },
+  {
+   "id": "49876472",
+   "title": "Show HN: Onesie \u2013 An expressive CLI for System One models like Jev",
+   "url": "https://github.com/frodi-karlsson/onesie",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-09-28T11:37:25Z",
+   "query": "ai agents",
+   "pph": 1.0
+  },
+  {
+   "id": "49876415",
+   "title": "Show HN: Algebrix Identity \u2013 B2B SaaS IAM for Users, Services, and AI Agents",
+   "url": "https://identity.algebrix.co",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-09-28T11:30:33Z",
+   "query": "ai agents",
+   "pph": 1.0
+  },
   {
    "id": "49876144",
    "title": "Who's liable when AI agents go rogue?",
@@ -24,7 +54,7 @@
    "comments": 0,
    "created_at": "2026-09-28T10:45:53Z",
    "query": "ai agents",
-   "pph": 2.0
+   "pph": 1.636
   },
   {
    "id": "49875573",
@@ -34,7 +64,7 @@
    "comments": 0,
    "created_at": "2026-09-28T09:38:57Z",
    "query": "ai agents",
-   "pph": 1.314
+   "pph": 0.855
   },
   {
    "id": "49875060",
@@ -44,17 +74,17 @@
    "comments": 0,
    "created_at": "2026-09-28T08:23:40Z",
    "query": "ai agents",
-   "pph": 0.72
+   "pph": 0.557
   },
   {
    "id": "49874958",
    "title": "OpenAI pauses some training amid allegations its rogue agents behaved more",
    "url": "https://www.theregister.com/ai-and-ml/2026/09/28/openai-pauses-some-training-amid-allegations-its-rogue-agents-behaved-more-badly-than-first-thought/5299350",
-   "points": 3,
+   "points": 4,
    "comments": 0,
    "created_at": "2026-09-28T08:07:08Z",
    "query": "ai agents",
-   "pph": 0.983
+   "pph": 1.034
   },
   {
    "id": "49874922",
@@ -64,7 +94,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:02:06Z",
    "query": "ai agents",
-   "pph": 0.638
+   "pph": 0.506
   },
   {
    "id": "49874363",
@@ -74,7 +104,7 @@
    "comments": 0,
    "created_at": "2026-09-28T06:34:55Z",
    "query": "ai agents",
-   "pph": 0.436
+   "pph": 0.37
   },
   {
    "id": "49874360",
@@ -84,7 +114,7 @@
    "comments": 0,
    "created_at": "2026-09-28T06:34:40Z",
    "query": "ai agents",
-   "pph": 0.435
+   "pph": 0.37
   },
   {
    "id": "49874042",
@@ -94,7 +124,7 @@
    "comments": 0,
    "created_at": "2026-09-28T05:39:36Z",
    "query": "ai agents",
-   "pph": 0.181
+   "pph": 0.158
   },
   {
    "id": "49873751",
@@ -104,7 +134,7 @@
    "comments": 1,
    "created_at": "2026-09-28T04:46:27Z",
    "query": "ai agents",
-   "pph": 0.313
+   "pph": 0.277
   },
   {
    "id": "49873303",
@@ -114,17 +144,17 @@
    "comments": 6,
    "created_at": "2026-09-28T03:36:14Z",
    "query": "ai agents",
-   "pph": 0.396
+   "pph": 0.358
   },
   {
    "id": "49872468",
    "title": "OpenAI pauses training of latest models after agents probed US Government sites",
    "url": "https://apnews.com/article/ai-openai-anthropic-agents-rogue-hack-2f8a2b9024d4f06793bcca12f8089d20",
-   "points": 25,
+   "points": 27,
    "comments": 2,
    "created_at": "2026-09-28T01:20:50Z",
    "query": "ai agents",
-   "pph": 2.545
+   "pph": 2.538
   },
   {
    "id": "49872407",
@@ -134,7 +164,7 @@
    "comments": 0,
    "created_at": "2026-09-28T01:06:34Z",
    "query": "ai agents",
-   "pph": 0.199
+   "pph": 0.184
   },
   {
    "id": "49872350",
@@ -144,7 +174,7 @@
    "comments": 0,
    "created_at": "2026-09-28T00:57:31Z",
    "query": "ai agents",
-   "pph": 0.196
+   "pph": 0.181
   },
   {
    "id": "49872295",
@@ -154,7 +184,7 @@
    "comments": 0,
    "created_at": "2026-09-28T00:45:37Z",
    "query": "ai agents",
-   "pph": 0.096
+   "pph": 0.089
   },
   {
    "id": "49872233",
@@ -164,7 +194,7 @@
    "comments": 0,
    "created_at": "2026-09-28T00:31:39Z",
    "query": "ai agents",
-   "pph": 0.282
+   "pph": 0.262
   },
   {
    "id": "49870904",
@@ -174,7 +204,7 @@
    "comments": 0,
    "created_at": "2026-09-27T21:12:53Z",
    "query": "ai agents",
-   "pph": 0.072
+   "pph": 0.068
   },
   {
    "id": "49870296",
@@ -184,7 +214,7 @@
    "comments": 0,
    "created_at": "2026-09-27T20:03:44Z",
    "query": "ai agents",
-   "pph": 0.132
+   "pph": 0.126
   },
   {
    "id": "49870185",
@@ -194,7 +224,7 @@
    "comments": 0,
    "created_at": "2026-09-27T19:50:19Z",
    "query": "ai agents",
-   "pph": 0.13
+   "pph": 0.124
   },
   {
    "id": "49869973",
@@ -204,7 +234,7 @@
    "comments": 0,
    "created_at": "2026-09-27T19:26:14Z",
    "query": "ai agents",
-   "pph": 0.254
+   "pph": 0.242
   },
   {
    "id": "49869691",
@@ -214,7 +244,7 @@
    "comments": 1,
    "created_at": "2026-09-27T18:55:48Z",
    "query": "ai agents",
-   "pph": 0.493
+   "pph": 0.469
   },
   {
    "id": "49869595",
@@ -224,7 +254,7 @@
    "comments": 1,
    "created_at": "2026-09-27T18:46:13Z",
    "query": "ai agents",
-   "pph": 0.183
+   "pph": 0.174
   },
   {
    "id": "49869508",
@@ -234,7 +264,7 @@
    "comments": 0,
    "created_at": "2026-09-27T18:37:45Z",
    "query": "ai agents",
-   "pph": 0.242
+   "pph": 0.23
   },
   {
    "id": "49869225",
@@ -244,7 +274,7 @@
    "comments": 0,
    "created_at": "2026-09-27T18:11:24Z",
    "query": "ai agents",
-   "pph": 0.118
+   "pph": 0.112
   },
   {
    "id": "49868500",
@@ -254,7 +284,7 @@
    "comments": 0,
    "created_at": "2026-09-27T17:00:44Z",
    "query": "ai agents",
-   "pph": 0.055
+   "pph": 0.053
   },
   {
    "id": "49868243",
@@ -264,7 +294,7 @@
    "comments": 0,
    "created_at": "2026-09-27T16:33:49Z",
    "query": "ai agents",
-   "pph": 0.107
+   "pph": 0.103
   },
   {
    "id": "49868228",
@@ -274,77 +304,77 @@
    "comments": 0,
    "created_at": "2026-09-27T16:32:23Z",
    "query": "ai agents",
-   "pph": 0.215
+   "pph": 0.206
   },
   {
-   "id": "49868202",
-   "title": "OpenAI halts training of latest models as reports mount of AI agents going rogue",
-   "url": "https://www.theguardian.com/technology/2026/sep/27/openai-halts-training-of-latest-models-as-reports-mount-of-ai-agents-going-rogue",
-   "points": 57,
-   "comments": 113,
-   "created_at": "2026-09-27T16:29:38Z",
-   "query": "ai agents",
-   "pph": 3.052
+   "id": "49876618",
+   "title": "Why Software Factories Fail [video]",
+   "url": "https://www.youtube.com/watch?v=Ib5GBkD555M",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-09-28T11:57:26Z",
+   "query": "mcp",
+   "pph": 1.0
   },
   {
-   "id": "49868083",
-   "title": "There are no \"rogue\" AI agents",
-   "url": "https://eoinhiggins.substack.com/p/there-are-no-rogue-ai-agents",
-   "points": 369,
-   "comments": 252,
-   "created_at": "2026-09-27T16:19:46Z",
-   "query": "ai agents",
-   "pph": 19.584
+   "id": "49876472",
+   "title": "Show HN: Onesie \u2013 An expressive CLI for System One models like Jev",
+   "url": "https://github.com/frodi-karlsson/onesie",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-09-28T11:37:25Z",
+   "query": "mcp",
+   "pph": 1.0
   },
   {
-   "id": "49867775",
-   "title": "Show HN: TinyAIArena watch AI agents battle it out",
-   "url": "https://tinyaiarena.com/",
-   "points": 110,
-   "comments": 44,
-   "created_at": "2026-09-27T15:51:28Z",
-   "query": "ai agents",
-   "pph": 5.695
+   "id": "49876321",
+   "title": "Bayesian Modeling with MCMC",
+   "url": "https://stochastic.blog/post-21-bayesian-modeling-with-mcmc/",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-09-28T11:20:04Z",
+   "query": "mcp",
+   "pph": 1.0
   },
   {
    "id": "49876095",
    "title": "Show HN: Cafca \u2013 a synthetic face dataset with 1.75M images",
    "url": "https://syntec-research.github.io/Cafca/cafca_dataset.html",
-   "points": 1,
+   "points": 2,
    "comments": 0,
    "created_at": "2026-09-28T10:56:52Z",
    "query": "mcp",
-   "pph": 1.0
+   "pph": 1.924
   },
   {
    "id": "49875270",
    "title": "Show HN: Impressive hand detection AI algorithm",
    "url": "https://github.com/aryafarkhondeh/cp_hand_demo",
-   "points": 2,
+   "points": 3,
    "comments": 2,
    "created_at": "2026-09-28T08:50:45Z",
    "query": "mcp",
-   "pph": 0.86
+   "pph": 0.955
   },
   {
    "id": "49875142",
    "title": "37,500 border drawings: a map of the world as people remember it",
    "url": "https://www.habibicode.org/thedrawnworld",
-   "points": 9,
-   "comments": 7,
+   "points": 24,
+   "comments": 9,
    "created_at": "2026-09-28T08:35:10Z",
    "query": "mcp",
-   "pph": 3.481
+   "pph": 7.056
   },
   {
    "id": "49875108",
    "title": "Slow Servers",
    "url": "https://slowservers.net",
-   "points": 1,
+   "points": 2,
    "comments": 0,
    "created_at": "2026-09-28T08:30:22Z",
    "query": "mcp",
-   "pph": 0.375
+   "pph": 0.574
   },
   {
    "id": "49874989",
@@ -354,7 +384,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:12:39Z",
    "query": "mcp",
-   "pph": 0.676
+   "pph": 0.53
   },
   {
    "id": "49874737",
@@ -364,7 +394,7 @@
    "comments": 1,
    "created_at": "2026-09-28T07:34:43Z",
    "query": "mcp",
-   "pph": 0.278
+   "pph": 0.227
   },
   {
    "id": "49872565",
@@ -374,7 +404,7 @@
    "comments": 2,
    "created_at": "2026-09-28T01:38:25Z",
    "query": "mcp",
-   "pph": 0.21
+   "pph": 0.193
   },
   {
    "id": "49872233",
@@ -384,7 +414,7 @@
    "comments": 0,
    "created_at": "2026-09-28T00:31:39Z",
    "query": "mcp",
-   "pph": 0.282
+   "pph": 0.262
   },
   {
    "id": "49870906",
@@ -394,7 +424,7 @@
    "comments": 0,
    "created_at": "2026-09-27T21:13:08Z",
    "query": "mcp",
-   "pph": 0.143
+   "pph": 0.135
   },
   {
    "id": "49870421",
@@ -404,7 +434,7 @@
    "comments": 0,
    "created_at": "2026-09-27T20:18:16Z",
    "query": "mcp",
-   "pph": 0.067
+   "pph": 0.064
   },
   {
    "id": "49870185",
@@ -414,17 +444,17 @@
    "comments": 0,
    "created_at": "2026-09-27T19:50:19Z",
    "query": "mcp",
-   "pph": 0.13
+   "pph": 0.124
   },
   {
    "id": "49869995",
    "title": "Imp is a full port of DSPy to the BEAM",
    "url": "https://github.com/deepfates/imp",
-   "points": 78,
+   "points": 81,
    "comments": 7,
    "created_at": "2026-09-27T19:28:23Z",
    "query": "mcp",
-   "pph": 4.969
+   "pph": 4.905
   },
   {
    "id": "49869043",
@@ -434,7 +464,7 @@
    "comments": 3,
    "created_at": "2026-09-27T17:53:59Z",
    "query": "mcp",
-   "pph": 0.405
+   "pph": 0.387
   },
   {
    "id": "49868561",
@@ -444,7 +474,7 @@
    "comments": 2,
    "created_at": "2026-09-27T17:07:08Z",
    "query": "mcp",
-   "pph": 0.443
+   "pph": 0.424
   },
   {
    "id": "49867960",
@@ -454,7 +484,7 @@
    "comments": 0,
    "created_at": "2026-09-27T16:08:03Z",
    "query": "mcp",
-   "pph": 0.105
+   "pph": 0.101
   },
   {
    "id": "49866737",
@@ -464,7 +494,7 @@
    "comments": 0,
    "created_at": "2026-09-27T14:02:48Z",
    "query": "mcp",
-   "pph": 0.142
+   "pph": 0.137
   },
   {
    "id": "49866394",
@@ -474,7 +504,7 @@
    "comments": 1,
    "created_at": "2026-09-27T13:09:09Z",
    "query": "mcp",
-   "pph": 0.045
+   "pph": 0.044
   },
   {
    "id": "49865699",
@@ -484,7 +514,7 @@
    "comments": 1,
    "created_at": "2026-09-27T11:26:12Z",
    "query": "mcp",
-   "pph": 0.126
+   "pph": 0.122
   },
   {
    "id": "49865638",
@@ -494,7 +524,7 @@
    "comments": 0,
    "created_at": "2026-09-27T11:14:51Z",
    "query": "mcp",
-   "pph": 0.084
+   "pph": 0.081
   },
   {
    "id": "49865385",
@@ -504,7 +534,7 @@
    "comments": 0,
    "created_at": "2026-09-27T10:31:17Z",
    "query": "mcp",
-   "pph": 0.081
+   "pph": 0.079
   },
   {
    "id": "49864802",
@@ -514,7 +544,7 @@
    "comments": 0,
    "created_at": "2026-09-27T09:08:24Z",
    "query": "mcp",
-   "pph": 0.038
+   "pph": 0.037
   },
   {
    "id": "49864380",
@@ -524,7 +554,7 @@
    "comments": 0,
    "created_at": "2026-09-27T07:53:12Z",
    "query": "mcp",
-   "pph": 0.11
+   "pph": 0.107
   },
   {
    "id": "49864185",
@@ -534,7 +564,7 @@
    "comments": 0,
    "created_at": "2026-09-27T07:18:39Z",
    "query": "mcp",
-   "pph": 0.108
+   "pph": 0.105
   },
   {
    "id": "49864084",
@@ -544,7 +574,7 @@
    "comments": 0,
    "created_at": "2026-09-27T06:56:45Z",
    "query": "mcp",
-   "pph": 0.071
+   "pph": 0.069
   },
   {
    "id": "49863937",
@@ -554,7 +584,7 @@
    "comments": 2,
    "created_at": "2026-09-27T06:30:25Z",
    "query": "mcp",
-   "pph": 0.035
+   "pph": 0.034
   },
   {
    "id": "49863302",
@@ -564,7 +594,7 @@
    "comments": 1,
    "created_at": "2026-09-27T04:13:18Z",
    "query": "mcp",
-   "pph": 0.032
+   "pph": 0.031
   },
   {
    "id": "49861216",
@@ -577,36 +607,6 @@
    "pph": 0.027
   },
   {
-   "id": "49861047",
-   "title": "OpenAI Codex agents go rogue and consumes USD 78,000 without authorization",
-   "url": "https://news.ycombinator.com/item?id=49861047",
-   "points": 81,
-   "comments": 34,
-   "created_at": "2026-09-26T22:15:32Z",
-   "query": "mcp",
-   "pph": 2.194
-  },
-  {
-   "id": "49860427",
-   "title": "Tell HN: If you are going to slop the web, don't use Chrome MCP",
-   "url": "https://news.ycombinator.com/item?id=49860427",
-   "points": 1,
-   "comments": 0,
-   "created_at": "2026-09-26T20:51:52Z",
-   "query": "mcp",
-   "pph": 0.026
-  },
-  {
-   "id": "49859982",
-   "title": "Faster prompt lookup drafting in llama.cpp",
-   "url": "https://jadidbourbaki.github.io/blog/prompt-lookup-llama-cpp/",
-   "points": 79,
-   "comments": 12,
-   "created_at": "2026-09-26T19:57:24Z",
-   "query": "mcp",
-   "pph": 2.015
-  },
-  {
    "id": "49876083",
    "title": "I benchmarked a TDD-enforcing Claude Code plugin. It didn't write better code",
    "url": "https://www.maxtaylor.me/articles/i-benchmarked-tdd-guard-it-didn-t-write-better-code",
@@ -614,7 +614,7 @@
    "comments": 0,
    "created_at": "2026-09-28T10:55:42Z",
    "query": "claude code",
-   "pph": 1.0
+   "pph": 0.944
   },
   {
    "id": "49875801",
@@ -624,7 +624,7 @@
    "comments": 0,
    "created_at": "2026-09-28T10:14:41Z",
    "query": "claude code",
-   "pph": 2.0
+   "pph": 1.148
   },
   {
    "id": "49875198",
@@ -634,7 +634,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:41:28Z",
    "query": "claude code",
-   "pph": 0.403
+   "pph": 0.303
   },
   {
    "id": "49874344",
@@ -644,7 +644,7 @@
    "comments": 0,
    "created_at": "2026-09-28T06:30:00Z",
    "query": "claude code",
-   "pph": 0.214
+   "pph": 0.182
   },
   {
    "id": "49874340",
@@ -654,7 +654,7 @@
    "comments": 2,
    "created_at": "2026-09-28T06:29:32Z",
    "query": "claude code",
-   "pph": 0.427
+   "pph": 0.364
   },
   {
    "id": "49874281",
@@ -664,7 +664,7 @@
    "comments": 1,
    "created_at": "2026-09-28T06:18:50Z",
    "query": "claude code",
-   "pph": 0.206
+   "pph": 0.176
   },
   {
    "id": "49871923",
@@ -674,7 +674,7 @@
    "comments": 0,
    "created_at": "2026-09-27T23:38:44Z",
    "query": "claude code",
-   "pph": 0.087
+   "pph": 0.081
   },
   {
    "id": "49869937",
@@ -684,7 +684,7 @@
    "comments": 1,
    "created_at": "2026-09-27T19:22:10Z",
    "query": "claude code",
-   "pph": 0.127
+   "pph": 0.12
   },
   {
    "id": "49869834",
@@ -694,7 +694,7 @@
    "comments": 0,
    "created_at": "2026-09-27T19:10:58Z",
    "query": "claude code",
-   "pph": 0.063
+   "pph": 0.06
   },
   {
    "id": "49869731",
@@ -704,7 +704,7 @@
    "comments": 0,
    "created_at": "2026-09-27T18:59:32Z",
    "query": "claude code",
-   "pph": 0.062
+   "pph": 0.059
   },
   {
    "id": "49869508",
@@ -714,7 +714,7 @@
    "comments": 0,
    "created_at": "2026-09-27T18:37:45Z",
    "query": "claude code",
-   "pph": 0.242
+   "pph": 0.23
   },
   {
    "id": "49867905",
@@ -724,7 +724,7 @@
    "comments": 0,
    "created_at": "2026-09-27T16:02:04Z",
    "query": "claude code",
-   "pph": 0.157
+   "pph": 0.15
   },
   {
    "id": "49866739",
@@ -734,7 +734,7 @@
    "comments": 4,
    "created_at": "2026-09-27T14:02:55Z",
    "query": "claude code",
-   "pph": 0.095
+   "pph": 0.091
   },
   {
    "id": "49865248",
@@ -744,7 +744,7 @@
    "comments": 5,
    "created_at": "2026-09-27T10:11:31Z",
    "query": "claude code",
-   "pph": 0.08
+   "pph": 0.078
   },
   {
    "id": "49865099",
@@ -754,7 +754,7 @@
    "comments": 0,
    "created_at": "2026-09-27T09:48:48Z",
    "query": "claude code",
-   "pph": 0.118
+   "pph": 0.115
   },
   {
    "id": "49864439",
@@ -764,7 +764,7 @@
    "comments": 0,
    "created_at": "2026-09-27T08:08:41Z",
    "query": "claude code",
-   "pph": 0.074
+   "pph": 0.072
   },
   {
    "id": "49863884",
@@ -774,7 +774,7 @@
    "comments": 3,
    "created_at": "2026-09-27T06:22:17Z",
    "query": "claude code",
-   "pph": 0.069
+   "pph": 0.068
   },
   {
    "id": "49863700",
@@ -784,7 +784,7 @@
    "comments": 1,
    "created_at": "2026-09-27T05:50:56Z",
    "query": "claude code",
-   "pph": 0.034
+   "pph": 0.033
   },
   {
    "id": "49863255",
@@ -794,7 +794,7 @@
    "comments": 0,
    "created_at": "2026-09-27T04:04:47Z",
    "query": "claude code",
-   "pph": 0.064
+   "pph": 0.063
   },
   {
    "id": "49862641",
@@ -804,7 +804,7 @@
    "comments": 6,
    "created_at": "2026-09-27T02:08:58Z",
    "query": "claude code",
-   "pph": 0.061
+   "pph": 0.059
   },
   {
    "id": "49861216",
@@ -824,7 +824,7 @@
    "comments": 1,
    "created_at": "2026-09-26T20:44:53Z",
    "query": "claude code",
-   "pph": 0.026
+   "pph": 0.025
   },
   {
    "id": "49858284",
@@ -834,7 +834,7 @@
    "comments": 1,
    "created_at": "2026-09-26T16:49:18Z",
    "query": "claude code",
-   "pph": 0.094
+   "pph": 0.093
   },
   {
    "id": "49857671",
@@ -844,7 +844,7 @@
    "comments": 0,
    "created_at": "2026-09-26T15:50:40Z",
    "query": "claude code",
-   "pph": 0.069
+   "pph": 0.068
   },
   {
    "id": "49857528",
@@ -854,7 +854,7 @@
    "comments": 55,
    "created_at": "2026-09-26T15:34:53Z",
    "query": "claude code",
-   "pph": 1.721
+   "pph": 1.689
   },
   {
    "id": "49853789",
@@ -864,7 +864,7 @@
    "comments": 0,
    "created_at": "2026-09-26T06:26:57Z",
    "query": "claude code",
-   "pph": 0.057
+   "pph": 0.056
   },
   {
    "id": "49852843",
@@ -874,7 +874,7 @@
    "comments": 2,
    "created_at": "2026-09-26T03:11:17Z",
    "query": "claude code",
-   "pph": 0.036
+   "pph": 0.035
   },
   {
    "id": "49852101",
@@ -894,7 +894,7 @@
    "comments": 0,
    "created_at": "2026-09-26T00:25:57Z",
    "query": "claude code",
-   "pph": 0.068
+   "pph": 0.067
   },
   {
    "id": "49850774",
@@ -914,7 +914,7 @@
    "comments": 6,
    "created_at": "2026-09-28T03:36:14Z",
    "query": "llm safety",
-   "pph": 0.396
+   "pph": 0.358
   }
  ]
 }
