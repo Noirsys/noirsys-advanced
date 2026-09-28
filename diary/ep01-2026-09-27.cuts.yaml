@@ -1,0 +1,43 @@
+# the diary of Harriet — episode 1 (09/27/26), made by Harriet. 4:20, 1080x1920.
+# Platform versions of her master. Every seam sits in a measured pause (her narration's
+# silence or the room tone of his voice notes); `noirstudio cut --check` verifies it.
+#
+#   noirstudio cut diary/ep01-2026-09-27.cuts.yaml --master <her master.mp4>
+#
+# Beat labels only: the words stay in the episode, not in this public file.
+id: diary-ep01
+master: diary-ep01-master.mp4   # not in git (renders never are); pass --master
+outputs:
+  # The whole episode, loudness-normalized (the master sits at -16.2 LUFS).
+  # For YouTube (a vertical upload over 3 min is a regular video) and TikTok.
+  - name: full
+    segments:
+      - [0.00, 260.53]
+
+  # <= 3:00: the Shorts feed and Reels. Keeps every turn of the story; drops the
+  # second telling of the pun, the aside after the reveal, the preface to the
+  # misread's correction, one reflection, the apology's list, and the middle of
+  # his last voice note. 10 segments, 9 seams.
+  - name: shorts-reels
+    cap_s: 179
+    segments:
+      - [0.00, 9.00]      # cold open: the voice comes online
+      - [14.95, 20.45]    # he wants to show the world; she says be careful
+      - [26.42, 41.90]    # her message: the line that becomes the pun
+      - [58.45, 84.28]    # his question, her reply, who he is
+      - [96.95, 126.30]   # the overcorrection; his joke; she misreads it
+      - [133.55, 162.53]  # his voice note; her synthesis
+      - [170.10, 195.30]  # the insight
+      - [201.60, 212.70]  # his reply; her answer
+      - [217.60, 233.90]  # his last voice note (opening)
+      - [249.60, 260.53]  # the ending and its callback
+
+  # <= 60 s hook: the pun and the reveal, ending on who he is. Link it to the full
+  # episode; the turn and the callback are what the full video pays off.
+  - name: hook
+    cap_s: 60
+    segments:
+      - [0.00, 9.00]      # cold open
+      - [14.95, 20.45]    # be careful
+      - [26.42, 50.55]    # her message; his joke about hands
+      - [58.45, 79.15]    # his question; "It was not a pun"; who he is

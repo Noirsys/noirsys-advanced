@@ -13,6 +13,8 @@
     noirstudio draft agent-log --entry 2 --activity ... --brief ...   LLM-draft the next entry (rules enforced)
     noirstudio draft short my-slug --topic "..." | draft titles "..."
     noirstudio loop agent-log [--push --pr]      the whole daily loop in one command (what CI runs)
+    noirstudio harriet pitch [-n 3] | inbox       Harriet pitches diary stories from her memory (private inbox)
+    noirstudio cut specs/diary/<ep>.cuts.yaml --master EP.mp4   platform versions of a finished episode
 """
 
 from __future__ import annotations
@@ -208,6 +210,74 @@ def _cmd_loop(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_harriet(args: argparse.Namespace) -> int:
+    from . import harriet as h
+    from .llm import LLMError
+
+    root = Path(args.dir)
+    if args.harriet_cmd == "inbox":
+        files = sorted(p for p in root.glob("*.md") if p.name != "README.md") if root.exists() else []
+        for p in files:
+            s = h.read_status(p)
+            print(f"{str(s.get('status', '?')):<9} {str(s.get('sensitivity', '?')):<7} {p.name} — {s.get('title', '')}")
+        print(f"{len(files)} pitch(es) in {root}" if files else f"no pitches in {root}")
+        return 0
+    try:
+        kept, dropped = h.mine_pitches(n=args.n, theme=args.theme, since=args.since,
+                                       avoid=h.told_titles(root) if root.exists() else [])
+    except LLMError as exc:
+        print(f"HARRIET: {exc}", file=sys.stderr)
+        return 2
+    for reason in dropped:
+        print(f"dropped {reason}", file=sys.stderr)
+    if args.json:
+        print(h.dump_json(kept))
+    else:
+        for path in h.write_inbox(kept, root):
+            print(f"wrote {path}")
+        if kept:
+            print("Read them; set `status: approved` on the ones worth telling. They stay out of git.")
+    return 0 if kept else 2
+
+
+def _cmd_cut(args: argparse.Namespace) -> int:
+    from .cut import CutError, load_plan, plan_problems, probe, run_plan, seam_warnings, silences
+    from .ffmpeg import FFmpegError
+
+    try:
+        plan = load_plan(Path(args.plan))
+    except (CutError, FileNotFoundError) as exc:
+        print(f"INVALID: {exc}", file=sys.stderr)
+        return 1
+    candidates = [Path(args.master)] if args.master else (
+        [Path(plan.master), plan.source.parent / plan.master] if plan.master else [])
+    master = next((c for c in candidates if c.exists()), None)
+    if master is None:
+        print(f"master not found ({', '.join(map(str, candidates)) or 'none named'}); pass --master PATH", file=sys.stderr)
+        return 1
+    try:
+        if args.check:
+            info = probe(master)
+            problems = plan_problems(plan, info["duration"])
+            pauses = silences(master, plan.pause_db, plan.min_pause_s)
+            for line in problems + seam_warnings(plan, pauses, info["duration"]):
+                print(line)
+            for o in plan.outputs:
+                print(f"{o.name:<14} {o.duration:7.2f}s  cap {o.cap_s or '-'}  {len(o.segments)} segment(s)")
+            return 1 if problems else 0
+        report = run_plan(plan, master, Path(args.out or f"renders/{plan.id}"), only=args.only,
+                          log=lambda m: print(m, file=sys.stderr))
+    except (CutError, FFmpegError) as exc:
+        print(f"CUT FAILED: {exc}", file=sys.stderr)
+        return 2
+    for w in report["seam_warnings"]:
+        print(f"warning: {w}", file=sys.stderr)
+    for o in report["outputs"]:
+        loud = o["loudness"]
+        print(f"{o['name']:<14} {o['duration_s']:7.2f}s  {loud['lufs']:+.1f} LUFS  {loud['true_peak_db']:+.1f} dBTP  {o['path']}")
+    return 0
+
+
 def _cmd_fonts(_args: argparse.Namespace) -> int:
     for p in sorted(FONTS_DIR.glob("*.ttf")):
         print(f"{p.name:<36} family='{font_family_name(p)}'")
@@ -300,6 +370,23 @@ def build_parser() -> argparse.ArgumentParser:
     lp.add_argument("--youtube", choices=["auto", "on", "off"], default="auto")
     lp.add_argument("--debug", action="store_true")
     lp.set_defaults(fn=_cmd_loop)
+
+    hr = sub.add_parser("harriet", help="ask Harriet for diary stories from her memory (HARRIET_STORIES_URL)")
+    hr.add_argument("harriet_cmd", choices=["pitch", "inbox"])
+    hr.add_argument("-n", type=int, default=3, help="how many stories she curates (default 3)")
+    hr.add_argument("--theme", default="", help="optional focus, e.g. 'the week the voice came online'")
+    hr.add_argument("--since", default="", help="only moments from this date on")
+    hr.add_argument("--dir", default="stories/inbox", help="where pitches are kept (git-ignored: his private life)")
+    hr.add_argument("--json", action="store_true", help="print the pitches as JSON instead of writing files")
+    hr.set_defaults(fn=_cmd_harriet)
+
+    ct = sub.add_parser("cut", help="cut a finished master into platform versions from a cut plan (YAML)")
+    ct.add_argument("plan", help="e.g. specs/diary/2026-09-27.cuts.yaml")
+    ct.add_argument("--master", help="the master video (default: the plan's `master`)")
+    ct.add_argument("--out", help="output directory (default renders/<plan id>)")
+    ct.add_argument("--only", action="append", default=[], help="render just this output (repeatable)")
+    ct.add_argument("--check", action="store_true", help="validate the plan and its seams; render nothing")
+    ct.set_defaults(fn=_cmd_cut)
     return p
 
 

@@ -153,8 +153,9 @@ class LLMClient:
         }
         if json_mode:
             body["response_format"] = {"type": "json_object"}
-        headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json",
-                   "Accept": "application/json", **self.extra_headers}
+        headers = {"Content-Type": "application/json", "Accept": "application/json", **self.extra_headers}
+        if self.api_key:  # a key-less server, or one whose proxy injects the credential, gets no header
+            headers["Authorization"] = f"Bearer {self.api_key}"
         t0 = time.time()
         data = self.transport(f"{self.base_url.rstrip('/')}/chat/completions", headers, body, self.timeout)
         self.usage.seconds += time.time() - t0

@@ -5,6 +5,10 @@ renders/
 *.wav
 *.mp3
 
+# Harriet's story pitches describe his private life, and this repo is public
+stories/*
+!stories/README.md
+
 # python
 __pycache__/
 *.pyc
