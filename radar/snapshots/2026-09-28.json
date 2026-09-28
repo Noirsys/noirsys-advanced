@@ -1,6 +1,6 @@
 {
  "date": "2026-09-28",
- "generated_at": "2026-09-28T11:59:14+00:00",
+ "generated_at": "2026-09-28T12:10:34+00:00",
  "quota_units": 0,
  "errors": [],
  "channels": {},
@@ -20,11 +20,11 @@
    "id": "49876472",
    "title": "Show HN: Onesie \u2013 An expressive CLI for System One models like Jev",
    "url": "https://github.com/frodi-karlsson/onesie",
-   "points": 1,
+   "points": 2,
    "comments": 0,
    "created_at": "2026-09-28T11:37:25Z",
    "query": "ai agents",
-   "pph": 1.0
+   "pph": 2.0
   },
   {
    "id": "49876415",
@@ -44,7 +44,7 @@
    "comments": 0,
    "created_at": "2026-09-28T11:01:39Z",
    "query": "ai agents",
-   "pph": 1.0
+   "pph": 0.871
   },
   {
    "id": "49876019",
@@ -54,7 +54,7 @@
    "comments": 0,
    "created_at": "2026-09-28T10:45:53Z",
    "query": "ai agents",
-   "pph": 1.636
+   "pph": 1.417
   },
   {
    "id": "49875573",
@@ -64,7 +64,7 @@
    "comments": 0,
    "created_at": "2026-09-28T09:38:57Z",
    "query": "ai agents",
-   "pph": 0.855
+   "pph": 0.791
   },
   {
    "id": "49875060",
@@ -74,7 +74,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:23:40Z",
    "query": "ai agents",
-   "pph": 0.557
+   "pph": 0.529
   },
   {
    "id": "49874958",
@@ -84,7 +84,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:07:08Z",
    "query": "ai agents",
-   "pph": 1.034
+   "pph": 0.986
   },
   {
    "id": "49874922",
@@ -94,7 +94,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:02:06Z",
    "query": "ai agents",
-   "pph": 0.506
+   "pph": 0.483
   },
   {
    "id": "49874363",
@@ -104,7 +104,7 @@
    "comments": 0,
    "created_at": "2026-09-28T06:34:55Z",
    "query": "ai agents",
-   "pph": 0.37
+   "pph": 0.358
   },
   {
    "id": "49874360",
@@ -114,7 +114,7 @@
    "comments": 0,
    "created_at": "2026-09-28T06:34:40Z",
    "query": "ai agents",
-   "pph": 0.37
+   "pph": 0.357
   },
   {
    "id": "49874042",
@@ -124,7 +124,7 @@
    "comments": 0,
    "created_at": "2026-09-28T05:39:36Z",
    "query": "ai agents",
-   "pph": 0.158
+   "pph": 0.153
   },
   {
    "id": "49873751",
@@ -134,7 +134,7 @@
    "comments": 1,
    "created_at": "2026-09-28T04:46:27Z",
    "query": "ai agents",
-   "pph": 0.277
+   "pph": 0.27
   },
   {
    "id": "49873303",
@@ -144,17 +144,17 @@
    "comments": 6,
    "created_at": "2026-09-28T03:36:14Z",
    "query": "ai agents",
-   "pph": 0.358
+   "pph": 0.35
   },
   {
    "id": "49872468",
    "title": "OpenAI pauses training of latest models after agents probed US Government sites",
    "url": "https://apnews.com/article/ai-openai-anthropic-agents-rogue-hack-2f8a2b9024d4f06793bcca12f8089d20",
-   "points": 27,
+   "points": 28,
    "comments": 2,
    "created_at": "2026-09-28T01:20:50Z",
    "query": "ai agents",
-   "pph": 2.538
+   "pph": 2.586
   },
   {
    "id": "49872407",
@@ -164,7 +164,7 @@
    "comments": 0,
    "created_at": "2026-09-28T01:06:34Z",
    "query": "ai agents",
-   "pph": 0.184
+   "pph": 0.181
   },
   {
    "id": "49872350",
@@ -174,7 +174,7 @@
    "comments": 0,
    "created_at": "2026-09-28T00:57:31Z",
    "query": "ai agents",
-   "pph": 0.181
+   "pph": 0.178
   },
   {
    "id": "49872295",
@@ -184,7 +184,7 @@
    "comments": 0,
    "created_at": "2026-09-28T00:45:37Z",
    "query": "ai agents",
-   "pph": 0.089
+   "pph": 0.088
   },
   {
    "id": "49872233",
@@ -194,7 +194,7 @@
    "comments": 0,
    "created_at": "2026-09-28T00:31:39Z",
    "query": "ai agents",
-   "pph": 0.262
+   "pph": 0.258
   },
   {
    "id": "49870904",
@@ -204,7 +204,7 @@
    "comments": 0,
    "created_at": "2026-09-27T21:12:53Z",
    "query": "ai agents",
-   "pph": 0.068
+   "pph": 0.067
   },
   {
    "id": "49870296",
@@ -214,7 +214,7 @@
    "comments": 0,
    "created_at": "2026-09-27T20:03:44Z",
    "query": "ai agents",
-   "pph": 0.126
+   "pph": 0.124
   },
   {
    "id": "49870185",
@@ -224,7 +224,7 @@
    "comments": 0,
    "created_at": "2026-09-27T19:50:19Z",
    "query": "ai agents",
-   "pph": 0.124
+   "pph": 0.122
   },
   {
    "id": "49869973",
@@ -234,7 +234,7 @@
    "comments": 0,
    "created_at": "2026-09-27T19:26:14Z",
    "query": "ai agents",
-   "pph": 0.242
+   "pph": 0.239
   },
   {
    "id": "49869691",
@@ -244,7 +244,7 @@
    "comments": 1,
    "created_at": "2026-09-27T18:55:48Z",
    "query": "ai agents",
-   "pph": 0.469
+   "pph": 0.464
   },
   {
    "id": "49869595",
@@ -254,7 +254,7 @@
    "comments": 1,
    "created_at": "2026-09-27T18:46:13Z",
    "query": "ai agents",
-   "pph": 0.174
+   "pph": 0.172
   },
   {
    "id": "49869508",
@@ -264,7 +264,7 @@
    "comments": 0,
    "created_at": "2026-09-27T18:37:45Z",
    "query": "ai agents",
-   "pph": 0.23
+   "pph": 0.228
   },
   {
    "id": "49869225",
@@ -274,7 +274,7 @@
    "comments": 0,
    "created_at": "2026-09-27T18:11:24Z",
    "query": "ai agents",
-   "pph": 0.112
+   "pph": 0.111
   },
   {
    "id": "49868500",
@@ -284,7 +284,7 @@
    "comments": 0,
    "created_at": "2026-09-27T17:00:44Z",
    "query": "ai agents",
-   "pph": 0.053
+   "pph": 0.052
   },
   {
    "id": "49868243",
@@ -294,7 +294,7 @@
    "comments": 0,
    "created_at": "2026-09-27T16:33:49Z",
    "query": "ai agents",
-   "pph": 0.103
+   "pph": 0.102
   },
   {
    "id": "49868228",
@@ -304,7 +304,7 @@
    "comments": 0,
    "created_at": "2026-09-27T16:32:23Z",
    "query": "ai agents",
-   "pph": 0.206
+   "pph": 0.204
   },
   {
    "id": "49876618",
@@ -320,11 +320,11 @@
    "id": "49876472",
    "title": "Show HN: Onesie \u2013 An expressive CLI for System One models like Jev",
    "url": "https://github.com/frodi-karlsson/onesie",
-   "points": 1,
+   "points": 2,
    "comments": 0,
    "created_at": "2026-09-28T11:37:25Z",
    "query": "mcp",
-   "pph": 1.0
+   "pph": 2.0
   },
   {
    "id": "49876321",
@@ -344,7 +344,7 @@
    "comments": 0,
    "created_at": "2026-09-28T10:56:52Z",
    "query": "mcp",
-   "pph": 1.924
+   "pph": 1.628
   },
   {
    "id": "49875270",
@@ -354,17 +354,17 @@
    "comments": 2,
    "created_at": "2026-09-28T08:50:45Z",
    "query": "mcp",
-   "pph": 0.955
+   "pph": 0.901
   },
   {
    "id": "49875142",
    "title": "37,500 border drawings: a map of the world as people remember it",
    "url": "https://www.habibicode.org/thedrawnworld",
-   "points": 24,
-   "comments": 9,
+   "points": 30,
+   "comments": 10,
    "created_at": "2026-09-28T08:35:10Z",
    "query": "mcp",
-   "pph": 7.056
+   "pph": 8.356
   },
   {
    "id": "49875108",
@@ -374,7 +374,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:30:22Z",
    "query": "mcp",
-   "pph": 0.574
+   "pph": 0.545
   },
   {
    "id": "49874989",
@@ -384,7 +384,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:12:39Z",
    "query": "mcp",
-   "pph": 0.53
+   "pph": 0.504
   },
   {
    "id": "49874737",
@@ -394,7 +394,7 @@
    "comments": 1,
    "created_at": "2026-09-28T07:34:43Z",
    "query": "mcp",
-   "pph": 0.227
+   "pph": 0.218
   },
   {
    "id": "49872565",
@@ -404,7 +404,7 @@
    "comments": 2,
    "created_at": "2026-09-28T01:38:25Z",
    "query": "mcp",
-   "pph": 0.193
+   "pph": 0.19
   },
   {
    "id": "49872233",
@@ -414,7 +414,7 @@
    "comments": 0,
    "created_at": "2026-09-28T00:31:39Z",
    "query": "mcp",
-   "pph": 0.262
+   "pph": 0.258
   },
   {
    "id": "49870906",
@@ -424,7 +424,7 @@
    "comments": 0,
    "created_at": "2026-09-27T21:13:08Z",
    "query": "mcp",
-   "pph": 0.135
+   "pph": 0.134
   },
   {
    "id": "49870421",
@@ -434,7 +434,7 @@
    "comments": 0,
    "created_at": "2026-09-27T20:18:16Z",
    "query": "mcp",
-   "pph": 0.064
+   "pph": 0.063
   },
   {
    "id": "49870185",
@@ -444,17 +444,17 @@
    "comments": 0,
    "created_at": "2026-09-27T19:50:19Z",
    "query": "mcp",
-   "pph": 0.124
+   "pph": 0.122
   },
   {
    "id": "49869995",
    "title": "Imp is a full port of DSPy to the BEAM",
    "url": "https://github.com/deepfates/imp",
-   "points": 81,
+   "points": 82,
    "comments": 7,
    "created_at": "2026-09-27T19:28:23Z",
    "query": "mcp",
-   "pph": 4.905
+   "pph": 4.909
   },
   {
    "id": "49869043",
@@ -464,7 +464,7 @@
    "comments": 3,
    "created_at": "2026-09-27T17:53:59Z",
    "query": "mcp",
-   "pph": 0.387
+   "pph": 0.383
   },
   {
    "id": "49868561",
@@ -474,7 +474,7 @@
    "comments": 2,
    "created_at": "2026-09-27T17:07:08Z",
    "query": "mcp",
-   "pph": 0.424
+   "pph": 0.42
   },
   {
    "id": "49867960",
@@ -484,7 +484,7 @@
    "comments": 0,
    "created_at": "2026-09-27T16:08:03Z",
    "query": "mcp",
-   "pph": 0.101
+   "pph": 0.1
   },
   {
    "id": "49866737",
@@ -494,7 +494,7 @@
    "comments": 0,
    "created_at": "2026-09-27T14:02:48Z",
    "query": "mcp",
-   "pph": 0.137
+   "pph": 0.136
   },
   {
    "id": "49866394",
@@ -504,7 +504,7 @@
    "comments": 1,
    "created_at": "2026-09-27T13:09:09Z",
    "query": "mcp",
-   "pph": 0.044
+   "pph": 0.043
   },
   {
    "id": "49865699",
@@ -514,7 +514,7 @@
    "comments": 1,
    "created_at": "2026-09-27T11:26:12Z",
    "query": "mcp",
-   "pph": 0.122
+   "pph": 0.121
   },
   {
    "id": "49865638",
@@ -524,7 +524,7 @@
    "comments": 0,
    "created_at": "2026-09-27T11:14:51Z",
    "query": "mcp",
-   "pph": 0.081
+   "pph": 0.08
   },
   {
    "id": "49865385",
@@ -534,7 +534,7 @@
    "comments": 0,
    "created_at": "2026-09-27T10:31:17Z",
    "query": "mcp",
-   "pph": 0.079
+   "pph": 0.078
   },
   {
    "id": "49864802",
@@ -554,7 +554,7 @@
    "comments": 0,
    "created_at": "2026-09-27T07:53:12Z",
    "query": "mcp",
-   "pph": 0.107
+   "pph": 0.106
   },
   {
    "id": "49864185",
@@ -564,7 +564,7 @@
    "comments": 0,
    "created_at": "2026-09-27T07:18:39Z",
    "query": "mcp",
-   "pph": 0.105
+   "pph": 0.104
   },
   {
    "id": "49864084",
@@ -574,7 +574,7 @@
    "comments": 0,
    "created_at": "2026-09-27T06:56:45Z",
    "query": "mcp",
-   "pph": 0.069
+   "pph": 0.068
   },
   {
    "id": "49863937",
@@ -614,17 +614,17 @@
    "comments": 0,
    "created_at": "2026-09-28T10:55:42Z",
    "query": "claude code",
-   "pph": 0.944
+   "pph": 0.801
   },
   {
    "id": "49875801",
    "title": "Show HN: PaperMono, e-ink fridge magnet shopping list with mobile web page",
    "url": "https://github.com/seamusc/papermono-shopping-list",
-   "points": 2,
+   "points": 3,
    "comments": 0,
    "created_at": "2026-09-28T10:14:41Z",
    "query": "claude code",
-   "pph": 1.148
+   "pph": 1.553
   },
   {
    "id": "49875198",
@@ -634,7 +634,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:41:28Z",
    "query": "claude code",
-   "pph": 0.303
+   "pph": 0.287
   },
   {
    "id": "49874344",
@@ -644,7 +644,7 @@
    "comments": 0,
    "created_at": "2026-09-28T06:30:00Z",
    "query": "claude code",
-   "pph": 0.182
+   "pph": 0.176
   },
   {
    "id": "49874340",
@@ -654,7 +654,7 @@
    "comments": 2,
    "created_at": "2026-09-28T06:29:32Z",
    "query": "claude code",
-   "pph": 0.364
+   "pph": 0.352
   },
   {
    "id": "49874281",
@@ -664,7 +664,7 @@
    "comments": 1,
    "created_at": "2026-09-28T06:18:50Z",
    "query": "claude code",
-   "pph": 0.176
+   "pph": 0.171
   },
   {
    "id": "49871923",
@@ -674,7 +674,7 @@
    "comments": 0,
    "created_at": "2026-09-27T23:38:44Z",
    "query": "claude code",
-   "pph": 0.081
+   "pph": 0.08
   },
   {
    "id": "49869937",
@@ -684,7 +684,7 @@
    "comments": 1,
    "created_at": "2026-09-27T19:22:10Z",
    "query": "claude code",
-   "pph": 0.12
+   "pph": 0.119
   },
   {
    "id": "49869834",
@@ -694,7 +694,7 @@
    "comments": 0,
    "created_at": "2026-09-27T19:10:58Z",
    "query": "claude code",
-   "pph": 0.06
+   "pph": 0.059
   },
   {
    "id": "49869731",
@@ -704,7 +704,7 @@
    "comments": 0,
    "created_at": "2026-09-27T18:59:32Z",
    "query": "claude code",
-   "pph": 0.059
+   "pph": 0.058
   },
   {
    "id": "49869508",
@@ -714,7 +714,7 @@
    "comments": 0,
    "created_at": "2026-09-27T18:37:45Z",
    "query": "claude code",
-   "pph": 0.23
+   "pph": 0.228
   },
   {
    "id": "49867905",
@@ -724,7 +724,7 @@
    "comments": 0,
    "created_at": "2026-09-27T16:02:04Z",
    "query": "claude code",
-   "pph": 0.15
+   "pph": 0.149
   },
   {
    "id": "49866739",
@@ -734,7 +734,7 @@
    "comments": 4,
    "created_at": "2026-09-27T14:02:55Z",
    "query": "claude code",
-   "pph": 0.091
+   "pph": 0.09
   },
   {
    "id": "49865248",
@@ -744,7 +744,7 @@
    "comments": 5,
    "created_at": "2026-09-27T10:11:31Z",
    "query": "claude code",
-   "pph": 0.078
+   "pph": 0.077
   },
   {
    "id": "49865099",
@@ -754,7 +754,7 @@
    "comments": 0,
    "created_at": "2026-09-27T09:48:48Z",
    "query": "claude code",
-   "pph": 0.115
+   "pph": 0.114
   },
   {
    "id": "49864439",
@@ -764,7 +764,7 @@
    "comments": 0,
    "created_at": "2026-09-27T08:08:41Z",
    "query": "claude code",
-   "pph": 0.072
+   "pph": 0.071
   },
   {
    "id": "49863884",
@@ -774,7 +774,7 @@
    "comments": 3,
    "created_at": "2026-09-27T06:22:17Z",
    "query": "claude code",
-   "pph": 0.068
+   "pph": 0.067
   },
   {
    "id": "49863700",
@@ -794,7 +794,7 @@
    "comments": 0,
    "created_at": "2026-09-27T04:04:47Z",
    "query": "claude code",
-   "pph": 0.063
+   "pph": 0.062
   },
   {
    "id": "49862641",
@@ -834,7 +834,7 @@
    "comments": 1,
    "created_at": "2026-09-26T16:49:18Z",
    "query": "claude code",
-   "pph": 0.093
+   "pph": 0.092
   },
   {
    "id": "49857671",
@@ -854,7 +854,7 @@
    "comments": 55,
    "created_at": "2026-09-26T15:34:53Z",
    "query": "claude code",
-   "pph": 1.689
+   "pph": 1.682
   },
   {
    "id": "49853789",
@@ -914,7 +914,7 @@
    "comments": 6,
    "created_at": "2026-09-28T03:36:14Z",
    "query": "llm safety",
-   "pph": 0.358
+   "pph": 0.35
   }
  ]
 }
