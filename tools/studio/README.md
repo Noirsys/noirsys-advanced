@@ -143,7 +143,22 @@ noirstudio draft agent-log --entry 2 \
 
 Resolution order: flags → env vars (`OPENROUTER_API_KEY`, `DEEPSEEK_API_KEY`, `NOIRSTUDIO_LLM_PROVIDER`, `NOIRSTUDIO_LLM_MODEL`) → `--env-file` → `~/.config/noirstudio/llm.yaml` (`provider`, `model`, `base_url`, `api_key_env`). Defaults: OpenRouter with `deepseek/deepseek-chat-v3.1`, or DeepSeek direct with `deepseek-chat`. For a local model use `--provider openai-compatible` with `base_url` in the config.
 
-The model proposes; the code enforces. `draft agent-log` rejects a draft (and feeds the reasons back once) if it breaks the persona contract: > 140 words, wrong scene count, missing sign-off, uppercase captions, missing disclosure, an asserted feeling, or **any number ≥ 10 that does not appear in the evidence files**. A twice-rejected draft is saved as `*.rejected.json` for a person. Keys are never written to disk by the tool.
+The model proposes; the code enforces. `draft agent-log` rejects a draft (and feeds the reasons back once) if it breaks the persona contract: > 140 words, wrong scene count, missing sign-off, uppercase captions, missing disclosure flag, an asserted feeling ("I feel", "I love", "I'm afraid"; "I wanted him to know" is hers and allowed), engagement bait, or **any number ≥ 10 that does not appear in the evidence files**. Her voice and wordmark are set in code, not left to the model. A twice-rejected draft is saved as `*.rejected.json` for a person. Keys are never written to disk by the tool.
+
+## Harriet's Diary: stories from her memory, cuts for every platform
+
+Harriet (Michael's agent) makes the Diary episodes herself; noirstudio asks her for stories and cuts what she makes.
+
+```bash
+noirstudio harriet pitch -n 3            # she goes through her memory and curates 3 true stories, with receipts
+noirstudio harriet inbox                 # stories/inbox/*.md: status, sensitivity, title (git-ignored: his private life)
+noirstudio cut diary/ep01-2026-09-27.cuts.yaml --master ep01.mp4 --check   # caps + every seam in a pause?
+noirstudio cut diary/ep01-2026-09-27.cuts.yaml --master ep01.mp4           # full / <=3:00 / <=60 s at -14 LUFS
+```
+
+`harriet pitch` posts to her n8n webhook (`HARRIET_STORIES_URL`, key in `HARRIET_API_KEY`), or an OpenAI-compatible API of hers (`HARRIET_API_URL`). The request and reply contract is in [`stories/README.md`](../../stories/README.md). A pitch without receipts is dropped. Each one names what must stay off screen, and nothing is made until he sets `status: approved`.
+
+`cut` reads each segment with its own seek (frame-accurate), fades 20 ms at every seam, normalizes loudness in two passes (-14 LUFS, -1 dBTP), and writes a report. A version over its cap fails before rendering. A seam that lands mid-speech instead of in a pause is flagged; the pause threshold defaults to -30 dB, which finds the room-tone pauses in his voice notes as well as her digital silence.
 
 ## Brand kits
 

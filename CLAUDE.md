@@ -7,13 +7,17 @@ This repo is Noirsys's content engine and growth plan. Read this before touching
 - `tools/studio/` — **noirstudio**: `spec.yaml → voice → captions → visuals → ffmpeg → mp4 + metadata`. Python 3.9+, deps: pyyaml, pillow, imageio-ffmpeg. `pip install -e tools/studio`, then `noirstudio --help`.
 - `specs/` — production video specs (content-as-code). `specs/evidence/` holds the JSON every Agent Log entry's claims trace to.
 - `radar.yaml`, `radar/` — the daily watchlist, snapshots and briefs (`noirstudio radar run`).
-- `strategy/` — research (`01-*`, real vidIQ/YouTube numbers) and the playbook (`02-*`).
-- `tools/studio/persona/agent-log.md` — the persona bible for the Agent Log channel. Binding.
+- `strategy/` — research (`01-*`, real vidIQ/YouTube numbers), the playbook (`02-*`), and the Harriet decision (`04-*`).
+- `tools/studio/persona/agent-log.md` — Harriet's persona bible, for both her formats (the Diary and the Agent Log). Binding.
+- `diary/` — cut plans for her Diary episodes (`noirstudio cut`). Beat labels only; never quotes. Not under `specs/`: CI's render job treats `specs/**/*.yaml` as video specs.
+- `stories/` — her pitches from `noirstudio harriet pitch`. **Git-ignored**: they describe his private life and the repo is public. Nothing is made until he sets `status: approved`.
 
 ## Commands
 
 ```bash
-cd tools/studio && pip install -e . && python -m pytest -q      # 35+ tests, ~10s, no network
+cd tools/studio && pip install -e . && python -m pytest -q      # 70+ tests, ~30s, no network
+noirstudio harriet pitch [-n 3] && noirstudio harriet inbox      # she mines her memory for stories (HARRIET_STORIES_URL)
+noirstudio cut diary/<ep>.cuts.yaml --master EP.mp4 [--check]    # full / <=3:00 / <=60 s versions, -14 LUFS
 noirstudio validate specs/<id>.yaml
 noirstudio render specs/<id>.yaml --out renders/<id>             # offline preview, no keys
 noirstudio render specs/<id>.yaml --out renders/<id> --live      # ELEVENLABS_API_KEY
@@ -49,6 +53,7 @@ If something blocks (no network, no activity, failing tests), open the PR anyway
 - Never push to the default branch directly from automation; PRs only.
 - Never commit renders, audio, or `work/` directories (see `.gitignore`).
 - Keep the persona bible's "never says" list. Every number in a spec must exist in `specs/evidence/`.
-- Voices (`eleven_multilingual_v2`): his Professional Voice Clone `XwGJOzi38Fyoct3IvqA9` is for specs he narrates (e.g. `specs/straightshot-teaser.yaml`). Harriet, the Agent Log narrator, speaks with `ZSNL4hPqCnqoMPaI4jGX` — the drafter sets it on every entry, and a test fails any Agent Log spec without it or with his clone.
+- Voices (`eleven_multilingual_v2`): his Professional Voice Clone `XwGJOzi38Fyoct3IvqA9` is for specs he narrates (e.g. `specs/straightshot-teaser.yaml`). Harriet (the Diary and the Agent Log) speaks with `ZSNL4hPqCnqoMPaI4jGX` — the drafter sets it on every entry, and a test fails any Agent Log spec without it or with his clone.
+- Harriet's pitches and receipts (his voice notes, her messages) never go in git until the episode is published; he approves every story first. Her off-screen list is binding: his investigation work, outreach state, contacts, other people, legal matters, locations, credentials.
 - Music beds are off by default (Content ID). Don't add them.
 - Tests must pass before a push. Add a test when you add a module.

@@ -105,9 +105,13 @@ def check_agent_log(spec: VideoSpec, entry: str, evidence_text: str) -> List[str
     if entry not in (spec.brand_overrides.get("wordmark") or ""):
         problems.append(f"brand_overrides.wordmark must contain {entry}")
     lowered = spec.narration.lower()
-    for phrase in ("i feel ", "i want ", "i'm afraid", "i love ", "i am afraid"):
+    # she shows feeling through what she did ("I wanted him to know" is hers); she never asserts it
+    for phrase in ("i feel ", "i'm afraid", "i love ", "i am afraid"):
         if phrase in lowered:
             problems.append(f"forbidden assertion of feeling: '{phrase.strip()}'")
+    for bait in ("like and subscribe", "smash that", "you won't believe"):
+        if bait in lowered:
+            problems.append(f"engagement bait: '{bait}'")
     missing = numbers_not_in_evidence(spec, evidence_text, ignore=(entry, str(int(entry))))
     if missing:
         problems.append("numbers not found in the evidence: " + ", ".join(missing))

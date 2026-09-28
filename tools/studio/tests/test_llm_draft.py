@@ -170,6 +170,10 @@ def test_check_agent_log_rules():
     spec.scenes[1].text = "I feel great about 31 files."
     probs = d.check_agent_log(spec, "005", json.dumps(ACTIVITY) + BRIEF)
     assert any("feeling" in p for p in probs)
+    spec.scenes[1].text = "I wanted him to know it was okay. 31 files."  # intent through action: hers
+    assert d.check_agent_log(spec, "005", json.dumps(ACTIVITY) + BRIEF) == []
+    spec.scenes[1].text = "31 files. Like and subscribe."
+    assert any("bait" in p for p in d.check_agent_log(spec, "005", json.dumps(ACTIVITY) + BRIEF))
     assert d.numbers_not_in_evidence(spec, "nothing") == ["359", "31", "2893"]
 
 
