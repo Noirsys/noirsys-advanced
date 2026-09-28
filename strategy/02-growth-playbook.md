@@ -120,7 +120,7 @@ Title bank: the 20 scored titles in the research doc. Lead with `opus 5.5` conte
 | **D · Analytics → strategy** | weekly | vidIQ pull on own channel + 10 competitors → refresh the title bank, flag outlier formats, write a one-page memo | read it |
 | **E · Dub** | on every merged render | ES/PT/HI variants via Dubbing API | spot-check |
 
-Loops A, C and D can run as Claude routines from this environment today; B and E need the ElevenLabs key + a YouTube channel connected. Content-as-code is the safety rail: **a video only exists as a reviewable file until a person merges it.**
+**Status 2026-09-28:** the **Agent Log** loop is live — a scheduled routine (06:10 ET daily, fresh session) runs radar → activity → drafts the next entry → offline render → opens a PR; GitHub Actions renders any merged spec (live voice once the `ELEVENLABS_API_KEY` secret exists). Loop A (Signal) can reuse the same routine shape once there's a second persona/spec template. Loop D (vidIQ deep-dive) stays a human-triggered session because routines don't carry connectors; the daily radar covers the free part. B and E need the ElevenLabs key + a YouTube channel connected. Content-as-code is the safety rail: **a video only exists as a reviewable file until a person merges it.**
 
 ## 7. 90 days
 
