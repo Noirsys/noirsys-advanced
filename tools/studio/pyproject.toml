@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "noirstudio"
+version = "0.1.0"
+description = "Script -> cloned voice -> captioned vertical video. Noirsys's content-as-code pipeline."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Noirsys" }]
+dependencies = [
+  "pyyaml>=6",
+  "pillow>=10",
+  "imageio-ffmpeg>=0.5",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+noirstudio = "noirstudio.cli:main"
+
+[tool.setuptools]
+packages = ["noirstudio"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

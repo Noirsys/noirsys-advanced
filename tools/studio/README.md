@@ -1,0 +1,130 @@
+# noirstudio
+
+**Script → cloned voice → captioned vertical video.** Noirsys's content-as-code pipeline.
+
+A video is a small YAML file. A person writes and approves it; the machine renders it:
+
+```
+spec.yaml ──► voice ──► word timings ──► visuals ──► ffmpeg ──► video.mp4
+             (ElevenLabs   (captions)     (brand cards,            + .srt/.ass
+              cloned TTS                   avatar lip-sync,        + thumbnail
+              w/ timestamps,               generated b-roll)       + metadata.md
+              or offline)                                          + report.json
+```
+
+The whole thing runs **without any API keys** in dry-run mode and still produces a real MP4 preview (silent, "PREVIEW" badge, estimated caption timing) — so you can review a video before spending a single credit. `--live` swaps in your ElevenLabs voice clone; `--live --video` adds generated avatar/b-roll scenes.
+
+## Quickstart
+
+```bash
+cd tools/studio
+pip install -e .                       # pyyaml, pillow, imageio-ffmpeg (bundles ffmpeg)
+
+noirstudio render examples/ai-agents-short.yaml          # offline preview, ~40s
+noirstudio new my-video --brand noirpost                 # starter spec
+noirstudio validate my-video.yaml
+
+export ELEVENLABS_API_KEY=...                            # never commit this
+noirstudio voices                                        # find your cloned voice_id
+noirstudio render my-video.yaml --live                   # real voice + exact captions
+noirstudio render my-video.yaml --live --video           # + avatar / b-roll scenes
+```
+
+Outputs land in `renders/<id>/`: `<id>.mp4`, `<id>-thumbnail.png`, `<id>.srt`, `<id>.ass`, `<id>.metadata.md` (title/description/tags/chapters with an AI disclosure line), `<id>.report.json` (provenance: which engine produced each scene, spec digest, durations).
+
+## The spec
+
+```yaml
+id: ai-agents-fail                # lowercase, used for filenames
+title: "Why Your AI Agents Keep Failing"
+brand: noirsys                    # noirsys | noirpost (palette + fonts from the live sites)
+niche: ai-agents
+avatar_image: assets/me.png       # optional: still used for `avatar` scenes
+music: assets/bed.wav             # optional, rights-cleared only (Content ID!)
+
+voice:
+  voice_id: <ElevenLabs voice id> # your clone (live mode)
+  model_id: eleven_multilingual_v2
+  stability: 0.5
+  similarity_boost: 0.8
+  words_per_minute: 155           # offline timing estimate
+
+captions:
+  mode: word                      # word (karaoke highlight) | line | none
+  words_per_line: 3
+  uppercase: true
+  font_size: 84
+  margin_v: 520                   # distance from bottom → ~70% height, above platform UI
+
+output: { width: 1080, height: 1920, fps: 30 }
+
+scenes:                           # spoken in order; `text` = narration
+  - kind: card                    # card | avatar | broll | image | video
+    style: title                  # title | stat | quote | list | plain
+    title: "On-screen headline"
+    subtitle: "supporting line"
+    text: "What the voice says during this scene."
+  - kind: card
+    style: stat
+    stat: "20–30"
+    title: "finished Shorts per stream"
+    text: "…"
+  - kind: card
+    style: list
+    title: "Three beats"
+    bullets: ["one", "two", "three"]
+    text: "…"
+  - kind: avatar                  # live+video: creatify-aurora lip-syncs avatar_image to this narration
+    text: "The part that needs a face."
+  - kind: broll                   # live+video: Veo 3.1 9:16 footage from the prompt (no audio)
+    prompt: "slow dolly across a dark server room, cyan and magenta accents"
+    text: "Narration over the b-roll."
+  - kind: image                   # your own still
+    media: assets/screenshot.png
+    text: "…"
+  - kind: video                   # your own footage (screen recording, demo)
+    media: assets/demo.mp4
+    text: "…"
+
+publish:
+  title: "override the YouTube title (else `title`)"
+  description: ""                 # else the first scene's narration
+  tags: [ai agents, noirsys]
+  hashtags: ["#aiagents"]
+  links: ["https://noirsys.com"]
+  cta: "Follow for the next build."
+  chapters: true                  # added to description when the video is ≥ 60s
+  ai_disclosure: true             # appends a disclosure line (voice clone / AI visuals)
+```
+
+Scene duration = the narration's audio length (or `duration:` if set). Any generated scene that fails or is unavailable falls back to a brand card and the reason is written to `report.json` — the render never silently ships a missing shot.
+
+## How the live pieces work
+
+| Piece | API | Notes |
+|---|---|---|
+| Voice | `POST /v1/text-to-speech/{voice_id}/with-timestamps` | Returns MP3 + per-character times → exact word captions. Uses your Instant/Professional Voice Clone. |
+| Avatar | `POST /v1/flows/video` · `creatify-aurora` | Still image + the scene's own narration audio → lip-synced talking head (720p). Polled via `GET /v1/flows/video/{id}`. |
+| B-roll | `POST /v1/flows/video` · `veo-3.1-fast-generate-001` | 9:16, 4–8s, `generate_audio: false`. Looped to fill the scene. |
+
+Image & Video generation via API needs an ElevenLabs Pro+ plan; avatar features have US restrictions on some models. Failed generations are not charged. Everything else (cards, captions, assembly) is local and free.
+
+Keys are read from the environment only (`ELEVENLABS_API_KEY`). Nothing here uploads to YouTube — `metadata.md` is what you paste (or a later uploader step consumes) after a human looks at the render.
+
+## Brand kits
+
+Palettes and type were lifted from the shipped CSS of noirsys.com / noirsys.xyz (`#050505`, lime `#A3E635`, teal `#2DD4BF`, Space Grotesk) and noirpost.live (`#07070B`, magenta `#FF3EA5`, cyan `#3EE6FF`, Big Shoulders Display + Archivo + JetBrains Mono). Fonts are bundled in `assets/fonts/` under the SIL Open Font License (`assets/fonts/LICENSES.md`). Add a brand in `noirstudio/brandkit.py`.
+
+## Tests
+
+```bash
+pip install -e .[dev]
+pytest -q          # includes a real offline render of a tiny spec (~15s)
+```
+
+## Roadmap
+
+- **Content-as-code loop:** a `specs/` folder where opening a PR renders a preview into the PR, and merging renders the live version. Review = approval; the human stays at the gate.
+- **Script agent:** `noirstudio draft "<topic>"` → Claude writes a spec from a brief + the research in `strategy/`, scored against title patterns that work.
+- **Noirpost bridge:** feed long renders through the Noirpost VOD→Shorts pipeline for the vertical cuts.
+- **Uploader:** YouTube Data API step gated on an approval file.

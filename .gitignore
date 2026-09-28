@@ -1,0 +1,19 @@
+# noirstudio renders + scratch
+renders/
+**/work/
+*.mp4
+*.wav
+*.mp3
+
+# python
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+
+# local secrets / editor
+.env
+.claude/settings.local.json
+.DS_Store

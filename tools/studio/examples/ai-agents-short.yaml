@@ -1,0 +1,53 @@
+# Launch-niche example: an AI-agents Short in the Noirsys brand.
+# Render an offline preview (no keys):   noirstudio render examples/ai-agents-short.yaml
+# Render for real (cloned voice):        noirstudio render examples/ai-agents-short.yaml --live
+id: ai-agents-fail
+title: "Why Your AI Agents Keep Failing (And How I Fixed Mine)"
+brand: noirsys
+niche: ai-agents
+
+voice:
+  # voice_id: YOUR_ELEVENLABS_VOICE_ID
+  model_id: eleven_multilingual_v2
+  words_per_minute: 160
+
+captions:
+  mode: word
+  words_per_line: 3
+  uppercase: true
+
+scenes:
+  - kind: card
+    style: title
+    title: "Your AI agent isn't failing at the task."
+    subtitle: "It's failing at the handoff."
+    text: "Your AI agent is not failing at the task. It is failing at the handoff."
+  - kind: card
+    style: stat
+    stat: "3"
+    title: "failure modes behind almost every broken agent"
+    text: "After shipping autonomous systems for two years, almost every broken agent I have seen dies in one of three places."
+  - kind: card
+    style: list
+    title: "Where agents die"
+    bullets:
+      - "No evidence before the claim"
+      - "No human at the consequential gate"
+      - "No state carried into the next run"
+    text: "One: it acts before it has evidence. Two: nobody is standing at the gate when it does something consequential. Three: it forgets everything the moment the run ends."
+  - kind: card
+    style: quote
+    title: "A build, a deployment, and a successful outcome are three different facts."
+    text: "A build, a deployment, and a successful outcome are three different facts. Most agents treat them as one."
+  - kind: card
+    style: title
+    title: "Fix the handoff, not the model."
+    subtitle: "noirsys.com"
+    text: "So stop swapping models. Fix the handoff. Follow for the build where we do exactly that."
+
+publish:
+  tags: [ai agents, autonomous agents, agentic ai, ai automation, why ai agents fail]
+  hashtags: ["#aiagents", "#agenticai", "#automation"]
+  links: ["https://noirsys.com"]
+  cta: "Follow for the next build."
+  ai_disclosure: true

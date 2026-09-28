@@ -1,0 +1,42 @@
+# Noirpost-brand example: a 30-second explainer of what Noirpost does.
+id: noirpost-what-it-is
+title: "Your livestream, cut into Shorts by the next day"
+brand: noirpost
+niche: creators
+
+voice:
+  # voice_id: YOUR_ELEVENLABS_VOICE_ID
+  words_per_minute: 165
+
+captions:
+  mode: word
+  words_per_line: 3
+  uppercase: true
+
+scenes:
+  - kind: card
+    style: title
+    title: "Your long stream has more than one shape."
+    text: "Your long stream has more than one shape."
+  - kind: card
+    style: stat
+    stat: "20–30"
+    title: "finished Shorts from every stream, the next day"
+    text: "Stream like you always do. By the next day you get twenty to thirty finished Shorts."
+  - kind: card
+    style: list
+    title: "Not a face-crop tool"
+    bullets: ["Finds the moment first", "Builds the frame around it", "A person watches every one"]
+    text: "It finds the moment first, builds the frame around it, and a person watches every single one before you see it."
+  - kind: card
+    style: title
+    title: "First batch free."
+    subtitle: "noirpost.live"
+    text: "Your first batch is free. No card, no call, no logins. noirpost dot live."
+
+publish:
+  tags: [shorts, clipping, livestream, twitch, youtube shorts, noirpost]
+  hashtags: ["#shorts", "#streamer", "#clips"]
+  links: ["https://noirpost.live"]
+  cta: "First batch free → noirpost.live"
+  ai_disclosure: true
