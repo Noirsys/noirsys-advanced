@@ -1,0 +1,117 @@
+name: noirstudio
+
+# Content-as-code:
+#   * PR touching specs/ or the studio -> tests + offline preview renders, uploaded as an artifact
+#     and summarised in a PR comment.
+#   * Push to the default branch touching specs/ -> live render (cloned voice) when the
+#     ELEVENLABS_API_KEY secret exists, otherwise offline; artifact kept 30 days.
+#   * Manual dispatch renders one spec or all of them.
+
+on:
+  pull_request:
+    paths: ["specs/**", "tools/studio/**", ".github/workflows/render.yml"]
+  push:
+    branches: [claude/vigilant-fermi-tkv4tp, main]
+    paths: ["specs/**"]
+  workflow_dispatch:
+    inputs:
+      spec:
+        description: "Path of one spec to render (default: all in specs/)"
+        required: false
+        default: ""
+      live:
+        description: "Use ElevenLabs (needs the ELEVENLABS_API_KEY secret)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -e "tools/studio[dev]"
+      - run: cd tools/studio && python -m pytest -q
+
+  render:
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -e tools/studio
+
+      - name: Pick specs
+        id: pick
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ github.event_name }}" in
+            pull_request)
+              files=$(git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.sha }}" -- 'specs/*.yaml' || true) ;;
+            push)
+              if [[ "${{ github.event.before }}" == 0000000000000000000000000000000000000000 ]]; then files=$(ls specs/*.yaml 2>/dev/null || true)
+              else files=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" -- 'specs/*.yaml' || true); fi ;;
+            *)
+              if [[ -n "${{ github.event.inputs.spec }}" ]]; then files="${{ github.event.inputs.spec }}"
+              else files=$(ls specs/*.yaml 2>/dev/null || true); fi ;;
+          esac
+          files=$(for f in $files; do [[ -f "$f" ]] && echo "$f"; done | sort -u | tr '\n' ' ')
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+          echo "Specs to render: ${files:-none}"
+
+      - name: Render
+        if: steps.pick.outputs.files != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          live=""
+          if [[ "${{ github.event_name }}" == "push" || "${{ github.event.inputs.live }}" == "true" ]] && [[ -n "${ELEVENLABS_API_KEY:-}" ]]; then live="--live"; fi
+          echo "mode: ${live:-offline preview}"
+          for f in ${{ steps.pick.outputs.files }}; do
+            id=$(basename "$f" .yaml)
+            noirstudio validate "$f"
+            noirstudio render "$f" --out "renders/$id" --clean $live
+          done
+          find renders -type f | sort
+
+      - uses: actions/upload-artifact@v4
+        if: steps.pick.outputs.files != ''
+        with:
+          name: renders-${{ github.run_number }}
+          path: |
+            renders/**/*.mp4
+            renders/**/*.png
+            renders/**/*.srt
+            renders/**/*.md
+            renders/**/*.json
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && steps.pick.outputs.files != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs'), path = require('path');
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            let body = `### noirstudio preview\n\nOffline render (no voice). Download the MP4s from the **renders-${context.runNumber}** artifact on [this run](${runUrl}).\n\n`;
+            for (const dir of fs.readdirSync('renders')) {
+              const meta = path.join('renders', dir, `${dir}.metadata.md`);
+              const report = path.join('renders', dir, `${dir}.report.json`);
+              if (!fs.existsSync(meta)) continue;
+              const r = fs.existsSync(report) ? JSON.parse(fs.readFileSync(report, 'utf8')) : {};
+              const fallbacks = (r.scenes || []).filter(s => s.fallback).map(s => `${s.id}: ${s.fallback}`);
+              body += `<details><summary><b>${dir}</b> — ${r.duration_seconds ?? '?'}s, ${r.words ?? '?'} words${fallbacks.length ? `, ${fallbacks.length} fallback(s)` : ''}</summary>\n\n`;
+              body += fs.readFileSync(meta, 'utf8') + (fallbacks.length ? `\n\nFallbacks: ${fallbacks.join('; ')}` : '') + `\n\n</details>\n\n`;
+            }
+            await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body });

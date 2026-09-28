@@ -53,3 +53,17 @@ def test_invalid_specs_raise(data, fragment):
 def test_narration_joins_scene_text():
     spec = spec_from_dict({"id": "x", "title": "T", "scenes": ["One.", {"text": " Two. "}]})
     assert spec.narration == "One. Two."
+
+
+def test_production_specs_validate_and_fit_shorts():
+    specs_dir = Path(__file__).resolve().parents[3] / "specs"
+    found = sorted(specs_dir.glob("*.yaml"))
+    assert found, "no production specs in specs/"
+    for path in found:
+        spec = load_spec(path)
+        assert validate(spec) == []
+        words = len(spec.narration.split())
+        assert words <= 160, f"{path.name}: {words} words is too long for a Short"
+        if spec.id.startswith("agent-log-"):
+            assert spec.publish.ai_disclosure is True
+            assert spec.captions.uppercase is False

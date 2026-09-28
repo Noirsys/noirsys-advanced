@@ -124,7 +124,7 @@ Each run writes `radar/snapshots/<date>.json` and `radar/briefs/<date>.md`. With
 
 ## Agent-perspective diary (content-as-evidence)
 
-`noirstudio activity --repo . --since 1.day --renders renders/` prints what actually happened (commits with line counts, renders with durations and fallbacks) as JSON. A Short written *from the agent's point of view* is drafted from that record and the day's radar brief, and the two files are kept in `examples/evidence/` next to the spec. See `examples/agent-log-001.yaml` — every sentence in it traces to a file.
+`noirstudio activity --repo . --since 1.day --renders renders/` prints what actually happened (commits with line counts, renders with durations and fallbacks) as JSON. A Short written *from the agent's point of view* is drafted from that record and the day's radar brief, and the two files are kept in `specs/evidence/` next to the spec. See `specs/agent-log-001.yaml` — every sentence in it traces to a file.
 
 `brand_overrides` in a spec gives such a channel its own wordmark, URL and colours without code changes.
 
