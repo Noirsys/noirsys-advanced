@@ -186,10 +186,17 @@ def draft_agent_log(client: LLMClient, *, entry: str, activity_path: Path, brief
     raise DraftError(f"draft rejected after {max_attempts} attempts; last draft saved to {fail_path}:{feedback}", last_raw)
 
 
+def _repo_root(path: Path) -> Path:
+    """The nearest ancestor holding .git; outside a repo, the directory above specs/."""
+    path = path.resolve()
+    return next((p for p in path.parents if (p / ".git").exists()), path.parent.parent)
+
+
 def _write_spec(raw: dict, out_path: Path, evidence_files: Sequence[Path], entry: str) -> None:
     header = [f"# Agent Log · Entry {entry} — drafted by noirstudio draft; reviewed by a person before merge.",
               "# Persona contract: tools/studio/persona/agent-log.md", "# Evidence:"]
-    header += [f"#   {os.path.relpath(p, out_path.parent.parent)}" for p in evidence_files]  # repo-relative
+    root = _repo_root(out_path)
+    header += [f"#   {os.path.relpath(Path(p).resolve(), root)}" for p in evidence_files]  # repo-relative
     body = yaml.safe_dump(raw, sort_keys=False, allow_unicode=True, width=100)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text("\n".join(header) + "\n" + body, encoding="utf-8")
