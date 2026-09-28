@@ -153,8 +153,23 @@ def test_rerun_reuses_remote_branch(tmp_path, monkeypatch):
     first = loop.run_agent_log(repo, draft="skip", push=True, pr=False, log=lambda _m: None)
     assert first.steps["branch"] == "ok" and first.steps["push"] == "ok"
     _git(repo, "checkout", "-q", "main")
+    (repo / "later.txt").write_text("x")  # the base moves on while the entry's PR is open
+    _git(repo, "add", "later.txt")
+    _git(repo, "commit", "-q", "-m", "later on main")
+    _git(repo, "push", "-q", "origin", "main")
     second = loop.run_agent_log(repo, draft="skip", push=True, pr=False, log=lambda _m: None)
     assert second.entry == first.entry and second.steps["branch"] == "reused remote"
     assert second.steps["push"] == "ok"
     log = _git(repo, "log", "--oneline", f"origin/{first.branch}")
     assert log.count("\n") >= 3  # init + two loop commits
+    assert "later on main" in log  # base merged in, so the drafter and history are today's
+    activity = json.loads((repo / next(f for f in second.files if f.endswith("-activity.json"))).read_text())
+    authored = [(c["author"], c["subject"]) for c in activity["repos"][0]["commits"]]
+    assert ("t", "later on main") in authored and not any(a == "noirstudio" for a, _ in authored)
+
+
+def test_default_branch_keeps_slashes(tmp_path):
+    repo = _make_repo(tmp_path)
+    _git(repo, "update-ref", "refs/remotes/origin/claude/x", "HEAD")
+    _git(repo, "symbolic-ref", "refs/remotes/origin/HEAD", "refs/remotes/origin/claude/x")
+    assert loop.default_branch(repo) == "claude/x"
