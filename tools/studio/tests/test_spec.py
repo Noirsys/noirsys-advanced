@@ -67,3 +67,13 @@ def test_production_specs_validate_and_fit_shorts():
         if spec.id.startswith("agent-log-"):
             assert spec.publish.ai_disclosure is True
             assert spec.captions.uppercase is False
+
+
+def test_agent_log_never_uses_his_voice():
+    # persona bible: she speaks with a designed voice, never his clone
+    specs = [load_spec(p) for p in sorted((Path(__file__).resolve().parents[3] / "specs").glob("*.yaml"))]
+    his = {s.voice.voice_id for s in specs if s.voice.voice_id and not s.id.startswith("agent-log-")}
+    assert his, "no spec carries his voice_id"
+    for s in specs:
+        if s.id.startswith("agent-log-"):
+            assert s.voice.voice_id not in his, f"{s.id} uses a voice from his specs"
