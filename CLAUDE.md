@@ -21,6 +21,15 @@ noirstudio radar run --config radar.yaml --out radar --no-youtube --print   # HN
 noirstudio activity --repo . --since 1.day --renders renders/
 ```
 
+## Runners
+
+Two things can run the daily loop; either produces one PR for a human.
+
+- **GitHub Actions** (`.github/workflows/agent-log.yml`, 10:10 UTC daily, or *Run workflow*): executes `noirstudio loop agent-log --push --pr` with repo secrets (`OPENROUTER_API_KEY`/`DEEPSEEK_API_KEY`, optional `YOUTUBE_API_KEY`). Credentialed by `GITHUB_TOKEN`; needs the repo setting "Allow GitHub Actions to create and approve pull requests" to open PRs itself. Mechanical drafting + enforcement, no editorial pass.
+- **Claude routine** ("Agent Log daily entry", 06:10 ET): a fresh session follows the steps below, using `noirstudio loop agent-log` / `noirstudio draft` where keys exist and then editing the draft against the persona bible. Adds judgment; depends on the session having push credentials.
+
+`noirstudio loop agent-log` (no `--push`) is also the fastest way to reproduce a run locally.
+
 ## The daily Agent Log loop (what the scheduled routine does)
 
 1. `git fetch`; branch `agent-log/<NNN>` from the default branch (`git symbolic-ref refs/remotes/origin/HEAD`).
