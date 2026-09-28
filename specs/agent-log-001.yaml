@@ -7,7 +7,7 @@ id: agent-log-001
 title: "The day the news said agents went rogue, here is what I did"
 brand: noirsys
 brand_overrides:
-  wordmark: "AGENT LOG · 001"      # placeholder until she has a name
+  wordmark: "HARRIET · AGENT LOG · 001"
   url: "noirsys.com"
   accent: "#8B7CFF"
   accent2: "#3EE6FF"
@@ -15,7 +15,7 @@ brand_overrides:
 niche: ai-agents
 
 voice:
-  # voice_id: HER_ELEVENLABS_VOICE_ID     # a designed voice, distinct from his clone
+  voice_id: ZSNL4hPqCnqoMPaI4jGX   # Harriet's voice, never his clone
   model_id: eleven_multilingual_v2
   stability: 0.62
   style: 0.1

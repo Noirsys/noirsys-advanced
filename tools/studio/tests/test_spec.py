@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 import yaml
 
+from noirstudio.draft import VOICE as HER_VOICE
 from noirstudio.spec import SpecError, load_spec, spec_from_dict, starter_spec, validate
 
 EXAMPLES = Path(__file__).resolve().parents[1] / "examples"
@@ -69,11 +70,12 @@ def test_production_specs_validate_and_fit_shorts():
             assert spec.captions.uppercase is False
 
 
-def test_agent_log_never_uses_his_voice():
-    # persona bible: she speaks with a designed voice, never his clone
+def test_agent_log_speaks_in_her_voice_never_his():
+    # persona bible: Harriet has her own voice, never his clone
     specs = [load_spec(p) for p in sorted((Path(__file__).resolve().parents[3] / "specs").glob("*.yaml"))]
     his = {s.voice.voice_id for s in specs if s.voice.voice_id and not s.id.startswith("agent-log-")}
-    assert his, "no spec carries his voice_id"
+    assert his and HER_VOICE["voice_id"] not in his
     for s in specs:
         if s.id.startswith("agent-log-"):
-            assert s.voice.voice_id not in his, f"{s.id} uses a voice from his specs"
+            assert s.voice.voice_id == HER_VOICE["voice_id"], f"{s.id} must speak in Harriet's voice"
+            assert "HARRIET" in s.brand_overrides.get("wordmark", ""), f"{s.id} wordmark lacks her name"

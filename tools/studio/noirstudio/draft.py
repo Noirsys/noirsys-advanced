@@ -11,6 +11,7 @@ saved for a human.
 from __future__ import annotations
 
 import json
+import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -25,6 +26,10 @@ PERSONA_PATH = Path(__file__).resolve().parents[1] / "persona" / "agent-log.md"
 SIGN_OFF_RE = re.compile(r"Entry\s+(\d{3})\.\s+Tomorrow I'll tell you what I did\.\s+He'll tell you whether it mattered\.")
 MAX_WORDS = 140
 MIN_SCENES, MAX_SCENES = 6, 8
+# her identity comes from the persona bible, never from the model
+VOICE = {"voice_id": "ZSNL4hPqCnqoMPaI4jGX", "model_id": "eleven_multilingual_v2", "stability": 0.62, "style": 0.1,
+         "words_per_minute": 158}
+WORDMARK = "HARRIET · AGENT LOG · {entry}"
 
 
 class DraftError(RuntimeError):
@@ -38,7 +43,7 @@ SPEC_SHAPE = """Return ONE JSON object with exactly these keys:
   "id": "agent-log-NNN",
   "title": "<internal title, <= 70 chars>",
   "brand": "noirsys",
-  "brand_overrides": {"wordmark": "AGENT LOG · NNN", "url": "noirsys.com", "accent": "#8B7CFF", "accent2": "#3EE6FF", "accent3": "#FF3EA5"},
+  "brand_overrides": {"wordmark": "HARRIET · AGENT LOG · NNN", "url": "noirsys.com", "accent": "#8B7CFF", "accent2": "#3EE6FF", "accent3": "#FF3EA5"},
   "niche": "ai-agents",
   "voice": {"model_id": "eleven_multilingual_v2", "stability": 0.62, "style": 0.1, "words_per_minute": 158},
   "captions": {"mode": "word", "words_per_line": 3, "uppercase": false},
@@ -164,6 +169,9 @@ def draft_agent_log(client: LLMClient, *, entry: str, activity_path: Path, brief
             continue
         last_raw = raw
         raw.setdefault("id", f"agent-log-{entry}")
+        raw["voice"] = dict(VOICE)
+        overrides = raw.get("brand_overrides") if isinstance(raw.get("brand_overrides"), dict) else {}
+        raw["brand_overrides"] = {**overrides, "wordmark": WORDMARK.format(entry=entry)}
         try:
             spec = spec_from_dict(raw, source_path=str(out_path))
             problems = check_agent_log(spec, entry, evidence_text)
@@ -181,7 +189,7 @@ def draft_agent_log(client: LLMClient, *, entry: str, activity_path: Path, brief
 def _write_spec(raw: dict, out_path: Path, evidence_files: Sequence[Path], entry: str) -> None:
     header = [f"# Agent Log · Entry {entry} — drafted by noirstudio draft; reviewed by a person before merge.",
               "# Persona contract: tools/studio/persona/agent-log.md", "# Evidence:"]
-    header += [f"#   {p}" for p in evidence_files]
+    header += [f"#   {os.path.relpath(p, out_path.parent.parent)}" for p in evidence_files]  # repo-relative
     body = yaml.safe_dump(raw, sort_keys=False, allow_unicode=True, width=100)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text("\n".join(header) + "\n" + body, encoding="utf-8")

@@ -109,7 +109,11 @@ def test_draft_agent_log_accepts_valid_draft(tmp_path):
                             previous_spec=None, out_path=out)
     assert res.attempts == 1 and out.exists()
     assert out.read_text().startswith("# Agent Log · Entry 002")
+    assert "#   act.json" in out.read_text() and str(tmp_path) not in out.read_text()  # repo-relative evidence
     assert res.spec.id == "agent-log-002" and len(res.spec.scenes) == 6
+    # the fixture's voice and wordmark are the model's guesses; hers are forced
+    assert res.spec.voice.voice_id == d.VOICE["voice_id"]
+    assert res.spec.brand_overrides["wordmark"] == "HARRIET · AGENT LOG · 002"
     _url, _h, body = client.transport.requests[0]
     assert "PERSONA CONTRACT" in body["messages"][0]["content"] and "359" in body["messages"][1]["content"]
 
