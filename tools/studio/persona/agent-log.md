@@ -52,4 +52,4 @@ Pattern that works in this niche (radar hook analysis): *first-person outcome* o
 
 ## Disclosure
 
-`publish.ai_disclosure: true` on every entry. The premise is the disclosure; the line in the description makes it explicit.
+`publish.ai_disclosure: true` on every entry: a flag in the upload metadata for whoever uploads. No disclaimer line goes in the description. The premise is the disclosure: the narrator is his AI agent, and the channel says so.

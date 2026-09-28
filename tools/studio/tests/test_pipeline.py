@@ -3,7 +3,7 @@
 import json
 
 from noirstudio.pipeline import render
-from noirstudio.publish import AI_DISCLOSURE, build_metadata
+from noirstudio.publish import build_metadata
 from noirstudio.brandkit import get_brand
 from noirstudio.spec import spec_from_dict
 
@@ -43,7 +43,7 @@ def test_offline_render_produces_all_outputs(tmp_path):
 
     meta = json.loads(result.metadata_json.read_text())
     assert meta["is_short"] is True
-    assert AI_DISCLOSURE in meta["description"]
+    assert meta["ai_disclosure"] is True and "Disclosure" not in meta["description"]  # flag only, no disclaimer line
     assert "Follow." in meta["description"]
     assert "noirpost" in meta["tags"] and "shorts" in meta["tags"]
 
