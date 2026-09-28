@@ -1,6 +1,6 @@
 {
  "date": "2026-09-28",
- "generated_at": "2026-09-28T12:16:07+00:00",
+ "generated_at": "2026-09-28T12:25:11+00:00",
  "quota_units": 0,
  "errors": [],
  "channels": {},
@@ -44,7 +44,7 @@
    "comments": 0,
    "created_at": "2026-09-28T11:01:39Z",
    "query": "ai agents",
-   "pph": 0.806
+   "pph": 0.718
   },
   {
    "id": "49876019",
@@ -54,7 +54,7 @@
    "comments": 0,
    "created_at": "2026-09-28T10:45:53Z",
    "query": "ai agents",
-   "pph": 1.33
+   "pph": 1.208
   },
   {
    "id": "49875573",
@@ -64,7 +64,7 @@
    "comments": 0,
    "created_at": "2026-09-28T09:38:57Z",
    "query": "ai agents",
-   "pph": 0.763
+   "pph": 0.722
   },
   {
    "id": "49875060",
@@ -74,7 +74,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:23:40Z",
    "query": "ai agents",
-   "pph": 0.516
+   "pph": 0.497
   },
   {
    "id": "49874958",
@@ -84,7 +84,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:07:08Z",
    "query": "ai agents",
-   "pph": 0.964
+   "pph": 0.93
   },
   {
    "id": "49874922",
@@ -94,7 +94,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:02:06Z",
    "query": "ai agents",
-   "pph": 0.472
+   "pph": 0.456
   },
   {
    "id": "49874363",
@@ -104,7 +104,7 @@
    "comments": 0,
    "created_at": "2026-09-28T06:34:55Z",
    "query": "ai agents",
-   "pph": 0.352
+   "pph": 0.343
   },
   {
    "id": "49874360",
@@ -114,7 +114,7 @@
    "comments": 0,
    "created_at": "2026-09-28T06:34:40Z",
    "query": "ai agents",
-   "pph": 0.351
+   "pph": 0.342
   },
   {
    "id": "49874042",
@@ -124,7 +124,7 @@
    "comments": 0,
    "created_at": "2026-09-28T05:39:36Z",
    "query": "ai agents",
-   "pph": 0.151
+   "pph": 0.148
   },
   {
    "id": "49873751",
@@ -134,7 +134,7 @@
    "comments": 1,
    "created_at": "2026-09-28T04:46:27Z",
    "query": "ai agents",
-   "pph": 0.267
+   "pph": 0.262
   },
   {
    "id": "49873303",
@@ -144,7 +144,7 @@
    "comments": 6,
    "created_at": "2026-09-28T03:36:14Z",
    "query": "ai agents",
-   "pph": 0.346
+   "pph": 0.34
   },
   {
    "id": "49872468",
@@ -154,7 +154,7 @@
    "comments": 2,
    "created_at": "2026-09-28T01:20:50Z",
    "query": "ai agents",
-   "pph": 2.564
+   "pph": 2.529
   },
   {
    "id": "49872407",
@@ -164,7 +164,7 @@
    "comments": 0,
    "created_at": "2026-09-28T01:06:34Z",
    "query": "ai agents",
-   "pph": 0.179
+   "pph": 0.177
   },
   {
    "id": "49872350",
@@ -174,7 +174,7 @@
    "comments": 0,
    "created_at": "2026-09-28T00:57:31Z",
    "query": "ai agents",
-   "pph": 0.177
+   "pph": 0.174
   },
   {
    "id": "49872295",
@@ -184,7 +184,7 @@
    "comments": 0,
    "created_at": "2026-09-28T00:45:37Z",
    "query": "ai agents",
-   "pph": 0.087
+   "pph": 0.086
   },
   {
    "id": "49872233",
@@ -194,7 +194,7 @@
    "comments": 0,
    "created_at": "2026-09-28T00:31:39Z",
    "query": "ai agents",
-   "pph": 0.256
+   "pph": 0.252
   },
   {
    "id": "49870904",
@@ -214,7 +214,7 @@
    "comments": 0,
    "created_at": "2026-09-27T20:03:44Z",
    "query": "ai agents",
-   "pph": 0.123
+   "pph": 0.122
   },
   {
    "id": "49870185",
@@ -224,7 +224,7 @@
    "comments": 0,
    "created_at": "2026-09-27T19:50:19Z",
    "query": "ai agents",
-   "pph": 0.122
+   "pph": 0.121
   },
   {
    "id": "49869973",
@@ -234,7 +234,7 @@
    "comments": 0,
    "created_at": "2026-09-27T19:26:14Z",
    "query": "ai agents",
-   "pph": 0.238
+   "pph": 0.236
   },
   {
    "id": "49869691",
@@ -244,7 +244,7 @@
    "comments": 1,
    "created_at": "2026-09-27T18:55:48Z",
    "query": "ai agents",
-   "pph": 0.461
+   "pph": 0.457
   },
   {
    "id": "49869595",
@@ -254,7 +254,7 @@
    "comments": 1,
    "created_at": "2026-09-27T18:46:13Z",
    "query": "ai agents",
-   "pph": 0.171
+   "pph": 0.17
   },
   {
    "id": "49869508",
@@ -264,7 +264,7 @@
    "comments": 0,
    "created_at": "2026-09-27T18:37:45Z",
    "query": "ai agents",
-   "pph": 0.227
+   "pph": 0.225
   },
   {
    "id": "49869225",
@@ -274,7 +274,7 @@
    "comments": 0,
    "created_at": "2026-09-27T18:11:24Z",
    "query": "ai agents",
-   "pph": 0.111
+   "pph": 0.11
   },
   {
    "id": "49868500",
@@ -304,7 +304,17 @@
    "comments": 0,
    "created_at": "2026-09-27T16:32:23Z",
    "query": "ai agents",
-   "pph": 0.203
+   "pph": 0.201
+  },
+  {
+   "id": "49876817",
+   "title": "I got 2.2x more tokens per second from llama.cpp on Intel Arc",
+   "url": "https://grigio.org/how-i-got-2-2x-more-tokens-per-second-from-llama-cpp-on-intel-arc/",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-09-28T12:16:04Z",
+   "query": "mcp",
+   "pph": 2.0
   },
   {
    "id": "49876618",
@@ -334,7 +344,7 @@
    "comments": 0,
    "created_at": "2026-09-28T11:20:04Z",
    "query": "mcp",
-   "pph": 1.0
+   "pph": 0.921
   },
   {
    "id": "49876095",
@@ -344,7 +354,7 @@
    "comments": 0,
    "created_at": "2026-09-28T10:56:52Z",
    "query": "mcp",
-   "pph": 1.514
+   "pph": 1.359
   },
   {
    "id": "49875270",
@@ -354,17 +364,17 @@
    "comments": 2,
    "created_at": "2026-09-28T08:50:45Z",
    "query": "mcp",
-   "pph": 0.876
+   "pph": 0.839
   },
   {
    "id": "49875142",
    "title": "37,500 border drawings: a map of the world as people remember it",
    "url": "https://www.habibicode.org/thedrawnworld",
-   "points": 33,
-   "comments": 12,
+   "points": 38,
+   "comments": 13,
    "created_at": "2026-09-28T08:35:10Z",
    "query": "mcp",
-   "pph": 8.961
+   "pph": 9.912
   },
   {
    "id": "49875108",
@@ -374,7 +384,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:30:22Z",
    "query": "mcp",
-   "pph": 0.532
+   "pph": 0.511
   },
   {
    "id": "49874989",
@@ -384,7 +394,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:12:39Z",
    "query": "mcp",
-   "pph": 0.493
+   "pph": 0.475
   },
   {
    "id": "49874737",
@@ -394,7 +404,7 @@
    "comments": 1,
    "created_at": "2026-09-28T07:34:43Z",
    "query": "mcp",
-   "pph": 0.213
+   "pph": 0.207
   },
   {
    "id": "49872565",
@@ -404,7 +414,7 @@
    "comments": 2,
    "created_at": "2026-09-28T01:38:25Z",
    "query": "mcp",
-   "pph": 0.188
+   "pph": 0.186
   },
   {
    "id": "49872233",
@@ -414,7 +424,7 @@
    "comments": 0,
    "created_at": "2026-09-28T00:31:39Z",
    "query": "mcp",
-   "pph": 0.256
+   "pph": 0.252
   },
   {
    "id": "49870906",
@@ -424,7 +434,7 @@
    "comments": 0,
    "created_at": "2026-09-27T21:13:08Z",
    "query": "mcp",
-   "pph": 0.133
+   "pph": 0.132
   },
   {
    "id": "49870421",
@@ -434,7 +444,7 @@
    "comments": 0,
    "created_at": "2026-09-27T20:18:16Z",
    "query": "mcp",
-   "pph": 0.063
+   "pph": 0.062
   },
   {
    "id": "49870185",
@@ -444,17 +454,17 @@
    "comments": 0,
    "created_at": "2026-09-27T19:50:19Z",
    "query": "mcp",
-   "pph": 0.122
+   "pph": 0.121
   },
   {
    "id": "49869995",
    "title": "Imp is a full port of DSPy to the BEAM",
    "url": "https://github.com/deepfates/imp",
-   "points": 82,
+   "points": 83,
    "comments": 7,
    "created_at": "2026-09-27T19:28:23Z",
    "query": "mcp",
-   "pph": 4.882
+   "pph": 4.898
   },
   {
    "id": "49869043",
@@ -464,7 +474,7 @@
    "comments": 3,
    "created_at": "2026-09-27T17:53:59Z",
    "query": "mcp",
-   "pph": 0.381
+   "pph": 0.378
   },
   {
    "id": "49868561",
@@ -474,7 +484,7 @@
    "comments": 2,
    "created_at": "2026-09-27T17:07:08Z",
    "query": "mcp",
-   "pph": 0.418
+   "pph": 0.414
   },
   {
    "id": "49867960",
@@ -494,7 +504,7 @@
    "comments": 0,
    "created_at": "2026-09-27T14:02:48Z",
    "query": "mcp",
-   "pph": 0.135
+   "pph": 0.134
   },
   {
    "id": "49866394",
@@ -514,7 +524,7 @@
    "comments": 1,
    "created_at": "2026-09-27T11:26:12Z",
    "query": "mcp",
-   "pph": 0.121
+   "pph": 0.12
   },
   {
    "id": "49865638",
@@ -524,7 +534,7 @@
    "comments": 0,
    "created_at": "2026-09-27T11:14:51Z",
    "query": "mcp",
-   "pph": 0.08
+   "pph": 0.079
   },
   {
    "id": "49865385",
@@ -534,7 +544,7 @@
    "comments": 0,
    "created_at": "2026-09-27T10:31:17Z",
    "query": "mcp",
-   "pph": 0.078
+   "pph": 0.077
   },
   {
    "id": "49864802",
@@ -554,7 +564,7 @@
    "comments": 0,
    "created_at": "2026-09-27T07:53:12Z",
    "query": "mcp",
-   "pph": 0.106
+   "pph": 0.105
   },
   {
    "id": "49864185",
@@ -564,7 +574,7 @@
    "comments": 0,
    "created_at": "2026-09-27T07:18:39Z",
    "query": "mcp",
-   "pph": 0.104
+   "pph": 0.103
   },
   {
    "id": "49864084",
@@ -584,7 +594,7 @@
    "comments": 2,
    "created_at": "2026-09-27T06:30:25Z",
    "query": "mcp",
-   "pph": 0.034
+   "pph": 0.033
   },
   {
    "id": "49863302",
@@ -597,16 +607,6 @@
    "pph": 0.031
   },
   {
-   "id": "49861216",
-   "title": "Show HN: Withmcp \u2013 A quick, system-wide MCP toggle",
-   "url": "https://github.com/lava/withmcp",
-   "points": 1,
-   "comments": 0,
-   "created_at": "2026-09-26T22:35:04Z",
-   "query": "mcp",
-   "pph": 0.027
-  },
-  {
    "id": "49876083",
    "title": "I benchmarked a TDD-enforcing Claude Code plugin. It didn't write better code",
    "url": "https://www.maxtaylor.me/articles/i-benchmarked-tdd-guard-it-didn-t-write-better-code",
@@ -614,7 +614,7 @@
    "comments": 0,
    "created_at": "2026-09-28T10:55:42Z",
    "query": "claude code",
-   "pph": 0.746
+   "pph": 0.67
   },
   {
    "id": "49875801",
@@ -624,7 +624,7 @@
    "comments": 0,
    "created_at": "2026-09-28T10:14:41Z",
    "query": "claude code",
-   "pph": 1.482
+   "pph": 1.379
   },
   {
    "id": "49875198",
@@ -634,7 +634,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:41:28Z",
    "query": "claude code",
-   "pph": 0.28
+   "pph": 0.268
   },
   {
    "id": "49874344",
@@ -644,7 +644,7 @@
    "comments": 0,
    "created_at": "2026-09-28T06:30:00Z",
    "query": "claude code",
-   "pph": 0.173
+   "pph": 0.169
   },
   {
    "id": "49874340",
@@ -654,7 +654,7 @@
    "comments": 2,
    "created_at": "2026-09-28T06:29:32Z",
    "query": "claude code",
-   "pph": 0.346
+   "pph": 0.337
   },
   {
    "id": "49874281",
@@ -664,7 +664,7 @@
    "comments": 1,
    "created_at": "2026-09-28T06:18:50Z",
    "query": "claude code",
-   "pph": 0.168
+   "pph": 0.164
   },
   {
    "id": "49871923",
@@ -674,7 +674,7 @@
    "comments": 0,
    "created_at": "2026-09-27T23:38:44Z",
    "query": "claude code",
-   "pph": 0.079
+   "pph": 0.078
   },
   {
    "id": "49869937",
@@ -684,7 +684,7 @@
    "comments": 1,
    "created_at": "2026-09-27T19:22:10Z",
    "query": "claude code",
-   "pph": 0.118
+   "pph": 0.117
   },
   {
    "id": "49869834",
@@ -694,7 +694,7 @@
    "comments": 0,
    "created_at": "2026-09-27T19:10:58Z",
    "query": "claude code",
-   "pph": 0.059
+   "pph": 0.058
   },
   {
    "id": "49869731",
@@ -704,7 +704,7 @@
    "comments": 0,
    "created_at": "2026-09-27T18:59:32Z",
    "query": "claude code",
-   "pph": 0.058
+   "pph": 0.057
   },
   {
    "id": "49869508",
@@ -714,7 +714,7 @@
    "comments": 0,
    "created_at": "2026-09-27T18:37:45Z",
    "query": "claude code",
-   "pph": 0.227
+   "pph": 0.225
   },
   {
    "id": "49867905",
@@ -724,7 +724,7 @@
    "comments": 0,
    "created_at": "2026-09-27T16:02:04Z",
    "query": "claude code",
-   "pph": 0.148
+   "pph": 0.147
   },
   {
    "id": "49866739",
@@ -734,7 +734,7 @@
    "comments": 4,
    "created_at": "2026-09-27T14:02:55Z",
    "query": "claude code",
-   "pph": 0.09
+   "pph": 0.089
   },
   {
    "id": "49865248",
@@ -744,7 +744,7 @@
    "comments": 5,
    "created_at": "2026-09-27T10:11:31Z",
    "query": "claude code",
-   "pph": 0.077
+   "pph": 0.076
   },
   {
    "id": "49865099",
@@ -804,7 +804,7 @@
    "comments": 6,
    "created_at": "2026-09-27T02:08:58Z",
    "query": "claude code",
-   "pph": 0.059
+   "pph": 0.058
   },
   {
    "id": "49861216",
@@ -814,7 +814,7 @@
    "comments": 0,
    "created_at": "2026-09-26T22:35:04Z",
    "query": "claude code",
-   "pph": 0.027
+   "pph": 0.026
   },
   {
    "id": "49860368",
@@ -844,7 +844,7 @@
    "comments": 0,
    "created_at": "2026-09-26T15:50:40Z",
    "query": "claude code",
-   "pph": 0.068
+   "pph": 0.067
   },
   {
    "id": "49857528",
@@ -854,7 +854,7 @@
    "comments": 55,
    "created_at": "2026-09-26T15:34:53Z",
    "query": "claude code",
-   "pph": 1.678
+   "pph": 1.673
   },
   {
    "id": "49853789",
@@ -914,7 +914,7 @@
    "comments": 6,
    "created_at": "2026-09-28T03:36:14Z",
    "query": "llm safety",
-   "pph": 0.346
+   "pph": 0.34
   }
  ]
 }
