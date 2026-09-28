@@ -15,6 +15,8 @@ import os
 import re
 import shutil
 import subprocess
+import urllib.error
+import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -109,42 +111,62 @@ def pr_body(result: LoopResult, repo: Path) -> str:
     return "\n".join(lines)
 
 
+def _github_repo(repo: Path) -> tuple:
+    remote = _run(["git", "remote", "get-url", "origin"], repo).stdout.strip()
+    m = re.search(r"github\.com[:/]([^/]+)/([^/.]+)", remote)
+    if not m:
+        raise RuntimeError(f"cannot parse GitHub remote: {remote}")
+    return m.group(1), m.group(2)
+
+
+def _api(method: str, url: str, token: str, payload: Optional[dict] = None) -> dict:
+    req = urllib.request.Request(url, data=json.dumps(payload).encode() if payload is not None else None, method=method)
+    req.add_header("Authorization", f"Bearer {token}")
+    req.add_header("Accept", "application/vnd.github+json")
+    if payload is not None:
+        req.add_header("Content-Type", "application/json")
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            return json.loads(resp.read().decode())
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode(errors="replace")[:300]
+        hint = ""
+        if exc.code == 403 and "pull request" in detail.lower():
+            hint = " — enable Settings > Actions > General > 'Allow GitHub Actions to create and approve pull requests'"
+        raise RuntimeError(f"GitHub API {method} {url.split('/repos/')[-1]} -> HTTP {exc.code}: {detail}{hint}") from None
+
+
 def open_pr(repo: Path, head: str, base: str, title: str, body: str, reviewer: str = "vzbb") -> str:
-    """Prefer gh (present on GitHub runners); fall back to the REST API with GH_TOKEN."""
+    """Open (or update) the PR for `head`. Prefers gh; falls back to the REST API with GH_TOKEN."""
+    token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
+    owner, name = _github_repo(repo)
+    api = f"https://api.github.com/repos/{owner}/{name}"
+
+    # an earlier run today may already have opened the PR: update it instead of failing
+    if token:
+        existing = _api("GET", f"{api}/pulls?state=open&head={owner}:{urllib.parse.quote(head, safe='')}", token)
+        if existing:
+            pr = existing[0]
+            _api("PATCH", f"{api}/pulls/{pr['number']}", token, {"title": title, "body": body})
+            return pr["html_url"]
+
+    err = "gh not installed"
     if shutil.which("gh"):
         body_file = repo / "renders" / "PR_BODY.md"
         body_file.parent.mkdir(exist_ok=True)
         body_file.write_text(body, encoding="utf-8")
-        cmd = ["gh", "pr", "create", "--title", title, "--body-file", str(body_file), "--base", base, "--head", head]
-        proc = _run(cmd, repo, check=False)
+        proc = _run(["gh", "pr", "create", "--title", title, "--body-file", str(body_file), "--base", base, "--head", head],
+                    repo, check=False)
         if proc.returncode == 0:
             url = proc.stdout.strip().splitlines()[-1]
             _run(["gh", "pr", "edit", url, "--add-reviewer", reviewer], repo, check=False)
             return url
         err = proc.stderr.strip()[-400:]
-    else:
-        err = "gh not installed"
-    token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
     if not token:
         raise RuntimeError(f"cannot open PR: {err}; and no GH_TOKEN/GITHUB_TOKEN for the REST API")
-    remote = _run(["git", "remote", "get-url", "origin"], repo).stdout.strip()
-    m = re.search(r"github\.com[:/]([^/]+)/([^/.]+)", remote)
-    if not m:
-        raise RuntimeError(f"cannot parse GitHub remote: {remote}")
-    owner, name = m.group(1), m.group(2)
-    api = f"https://api.github.com/repos/{owner}/{name}"
-
-    def post(path: str, payload: dict) -> dict:
-        req = urllib.request.Request(f"{api}{path}", data=json.dumps(payload).encode(), method="POST")
-        req.add_header("Authorization", f"Bearer {token}")
-        req.add_header("Accept", "application/vnd.github+json")
-        req.add_header("Content-Type", "application/json")
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            return json.loads(resp.read().decode())
-
-    pr = post("/pulls", {"title": title, "head": head, "base": base, "body": body})
+    pr = _api("POST", f"{api}/pulls", token, {"title": title, "head": head, "base": base, "body": body})
     try:
-        post(f"/pulls/{pr['number']}/requested_reviewers", {"reviewers": [reviewer]})
+        _api("POST", f"{api}/pulls/{pr['number']}/requested_reviewers", token, {"reviewers": [reviewer]})
     except Exception:  # reviewer request is best-effort
         pass
     return pr["html_url"]
@@ -161,9 +183,16 @@ def run_agent_log(repo: Path, *, draft: str = "auto", push: bool = False, pr: bo
     res = LoopResult(entry=entry, branch=branch, date=date)
     log(f"[loop] entry {entry} on {branch} (base {base}), {date}")
 
-    # branch
-    _run(["git", "checkout", "-B", branch], repo)
-    res.steps["branch"] = "ok"
+    # branch — reuse today's remote branch if a previous run already pushed it, so re-runs
+    # stack on it (and update the same PR) instead of failing the push
+    remote_exists = _run(["git", "ls-remote", "--exit-code", "--heads", "origin", branch], repo, check=False).returncode == 0
+    if remote_exists:
+        _run(["git", "fetch", "origin", branch], repo)
+        _run(["git", "checkout", "-B", branch, f"origin/{branch}"], repo)
+        res.steps["branch"] = "reused remote"
+    else:
+        _run(["git", "checkout", "-B", branch], repo)
+        res.steps["branch"] = "ok"
 
     # radar
     if use_youtube is None:

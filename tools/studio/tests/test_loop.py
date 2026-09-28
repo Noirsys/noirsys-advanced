@@ -126,3 +126,35 @@ def test_run_agent_log_with_stub_drafter_renders_and_commits_spec(tmp_path, monk
     assert _git(repo, "log", "-1", "--format=%s").startswith("Agent Log 002: ")
     body = loop.pr_body(res, repo)
     assert "### Narration" in body and "### Upload metadata" in body
+
+
+def test_rerun_reuses_remote_branch(tmp_path, monkeypatch):
+    """Second run of the same day must stack on the pushed branch, not fail the push."""
+    origin = tmp_path / "origin.git"
+    subprocess.run(["git", "init", "-q", "--bare", "-b", "main", str(origin)], check=True)
+    repo = _make_repo(tmp_path)
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "-q", "-u", "origin", "main")
+    _git(repo, "remote", "set-head", "origin", "main")
+
+    def fake_radar_run(config_path, out_dir, **kw):
+        (out_dir / "briefs").mkdir(parents=True, exist_ok=True)
+        (out_dir / "snapshots").mkdir(parents=True, exist_ok=True)
+        date = loop.datetime.now(loop.timezone.utc).strftime("%Y-%m-%d")
+        (out_dir / "snapshots" / f"{date}.json").write_text(json.dumps({"generated_at": "x", "stories": []}))
+        brief = out_dir / "briefs" / f"{date}.md"
+        brief.write_text(f"# Radar brief {loop.datetime.now(loop.timezone.utc).isoformat()}\n")
+        return brief
+
+    monkeypatch.setattr(radar_mod, "run", fake_radar_run)
+    for k in ("OPENROUTER_API_KEY", "DEEPSEEK_API_KEY", "YOUTUBE_API_KEY"):
+        monkeypatch.delenv(k, raising=False)
+
+    first = loop.run_agent_log(repo, draft="skip", push=True, pr=False, log=lambda _m: None)
+    assert first.steps["branch"] == "ok" and first.steps["push"] == "ok"
+    _git(repo, "checkout", "-q", "main")
+    second = loop.run_agent_log(repo, draft="skip", push=True, pr=False, log=lambda _m: None)
+    assert second.entry == first.entry and second.steps["branch"] == "reused remote"
+    assert second.steps["push"] == "ok"
+    log = _git(repo, "log", "--oneline", f"origin/{first.branch}")
+    assert log.count("\n") >= 3  # init + two loop commits
