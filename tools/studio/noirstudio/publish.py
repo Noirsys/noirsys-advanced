@@ -1,7 +1,9 @@
-"""Upload metadata: title, description (with chapters, links, disclosure), tags.
+"""Upload metadata: title, description (with chapters, links), tags.
 
 Nothing here uploads anything. The output is a JSON + Markdown pair a person
-reviews before posting, or that a later uploader step can consume.
+reviews before posting, or that a later uploader step can consume. The spec's
+`ai_disclosure` flag travels in the JSON for the uploader; no disclaimer line
+is written into the description.
 """
 
 from __future__ import annotations
@@ -12,12 +14,6 @@ from typing import List, Sequence, Tuple
 
 from .brandkit import BrandKit
 from .spec import VideoSpec
-
-AI_DISCLOSURE = (
-    "Disclosure: narration uses an AI voice clone of the creator's own voice; "
-    "some visuals are AI-generated. Scripts are written and reviewed by a person."
-)
-
 
 def _chapter_stamp(t: float) -> str:
     t = int(t)
@@ -46,9 +42,6 @@ def build_metadata(spec: VideoSpec, brand: BrandKit, duration: float,
     links = list(pub.links) or [f"https://{brand.url}"]
     lines.append("")
     lines.extend(links)
-    if pub.ai_disclosure:
-        lines.append("")
-        lines.append(AI_DISCLOSURE)
     if pub.hashtags:
         lines.append("")
         lines.append(" ".join(h if h.startswith("#") else f"#{h}" for h in pub.hashtags))

@@ -4,7 +4,7 @@ A small, dependency-light content pipeline for the Noirsys/Noirpost world:
 
     spec (YAML)  ->  voice (ElevenLabs cloned TTS, or offline)  ->  word-by-word
     captions  ->  visuals (brand cards / avatar / b-roll)  ->  ffmpeg assembly
-    ->  a finished 1080x1920 MP4 + upload metadata (with AI disclosure).
+    ->  a finished 1080x1920 MP4 + upload metadata.
 
 Design goals:
   * Runs with NO API keys in dry-run mode and still produces a real preview MP4,

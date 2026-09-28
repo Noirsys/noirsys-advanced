@@ -1,0 +1,16 @@
+{
+  "source": "Hacker News via Algolia API (copied verbatim from radar/snapshots/2026-09-28.json)",
+  "collected_at": "2026-09-28T12:25:11+00:00",
+  "stories": [
+    {
+      "id": "49876019",
+      "title": "Nvidia releases software platform to stop AI agents from misbehaving",
+      "url": "https://www.cnbc.com/2026/09/28/nvidia-releases.html",
+      "points": 2,
+      "comments": 0,
+      "created_at": "2026-09-28T10:45:53Z",
+      "pph": 1.208,
+      "query": "ai agents"
+    }
+  ]
+}

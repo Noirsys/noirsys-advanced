@@ -30,7 +30,7 @@ noirstudio render my-video.yaml --live                   # real voice + exact ca
 noirstudio render my-video.yaml --live --video           # + avatar / b-roll scenes
 ```
 
-Outputs land in `renders/<id>/`: `<id>.mp4`, `<id>-thumbnail.png`, `<id>.srt`, `<id>.ass`, `<id>.metadata.md` (title/description/tags/chapters with an AI disclosure line), `<id>.report.json` (provenance: which engine produced each scene, spec digest, durations).
+Outputs land in `renders/<id>/`: `<id>.mp4`, `<id>-thumbnail.png`, `<id>.srt`, `<id>.ass`, `<id>.metadata.md` (title/description/tags/chapters), `<id>.report.json` (provenance: which engine produced each scene, spec digest, durations).
 
 ## The spec
 
@@ -94,7 +94,7 @@ publish:
   links: ["https://noirsys.com"]
   cta: "Follow for the next build."
   chapters: true                  # added to description when the video is ≥ 60s
-  ai_disclosure: true             # appends a disclosure line (voice clone / AI visuals)
+  ai_disclosure: true             # flag in the upload metadata JSON; nothing is added to the description
 ```
 
 Scene duration = the narration's audio length (or `duration:` if set). Any generated scene that fails or is unavailable falls back to a brand card and the reason is written to `report.json` — the render never silently ships a missing shot.

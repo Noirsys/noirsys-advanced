@@ -11,7 +11,7 @@ import json
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Sequence
 
 
 def _git(repo: Path, *args: str) -> str:
@@ -61,7 +61,8 @@ def renders(root: Path) -> List[Dict]:
     return out
 
 
-def collect(repos: List[Path], since: str = "1.day", render_roots: Optional[List[Path]] = None) -> Dict:
+def collect(repos: List[Path], since: str = "1.day", render_roots: Optional[List[Path]] = None,
+            exclude_authors: Sequence[str] = ()) -> Dict:
     record: Dict = {
         "collected_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "since": since,
@@ -70,7 +71,7 @@ def collect(repos: List[Path], since: str = "1.day", render_roots: Optional[List
     }
     for repo in repos:
         try:
-            cs = commits(repo, since)
+            cs = [c for c in commits(repo, since) if c["author"] not in exclude_authors]
         except RuntimeError as exc:
             record["repos"].append({"path": str(repo), "error": str(exc)})
             continue

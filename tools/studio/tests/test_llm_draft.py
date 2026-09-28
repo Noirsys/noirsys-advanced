@@ -109,9 +109,26 @@ def test_draft_agent_log_accepts_valid_draft(tmp_path):
                             previous_spec=None, out_path=out)
     assert res.attempts == 1 and out.exists()
     assert out.read_text().startswith("# Agent Log · Entry 002")
+    assert "#   act.json" in out.read_text() and str(tmp_path) not in out.read_text()  # repo-relative evidence
     assert res.spec.id == "agent-log-002" and len(res.spec.scenes) == 6
+    # the fixture's voice and wordmark are the model's guesses; hers are forced
+    assert res.spec.voice.voice_id == d.VOICE["voice_id"]
+    assert res.spec.brand_overrides["wordmark"] == "HARRIET · AGENT LOG · 002"
     _url, _h, body = client.transport.requests[0]
     assert "PERSONA CONTRACT" in body["messages"][0]["content"] and "359" in body["messages"][1]["content"]
+
+
+def test_draft_evidence_header_is_repo_relative_at_any_depth(tmp_path):
+    (tmp_path / ".git").mkdir()  # marks the repo root
+    act = tmp_path / "specs" / "evidence" / "act.json"
+    act.parent.mkdir(parents=True)
+    act.write_text(json.dumps(ACTIVITY))
+    brief = tmp_path / "brief.md"
+    brief.write_text(BRIEF)
+    out = tmp_path / "generated" / "daily" / "spec.yaml"  # `--out` deeper than specs/
+    d.draft_agent_log(_client([json.dumps(_entry("002"))]), entry="002", activity_path=act, brief_path=brief,
+                      headlines_path=None, previous_spec=None, out_path=out)
+    assert "#   specs/evidence/act.json" in out.read_text()
 
 
 def test_draft_agent_log_feeds_back_problems_then_accepts(tmp_path):

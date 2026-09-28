@@ -62,7 +62,7 @@ def next_entry(specs_dir: Path) -> str:
 def default_branch(repo: Path) -> str:
     proc = _run(["git", "symbolic-ref", "refs/remotes/origin/HEAD"], repo, check=False)
     if proc.returncode == 0 and proc.stdout.strip():
-        return proc.stdout.strip().rsplit("/", 1)[-1]
+        return proc.stdout.strip().removeprefix("refs/remotes/origin/")  # names may contain '/'
     proc = _run(["git", "rev-parse", "--abbrev-ref", "HEAD"], repo)
     return proc.stdout.strip()
 
@@ -183,12 +183,19 @@ def run_agent_log(repo: Path, *, draft: str = "auto", push: bool = False, pr: bo
     res = LoopResult(entry=entry, branch=branch, date=date)
     log(f"[loop] entry {entry} on {branch} (base {base}), {date}")
 
-    # branch — reuse today's remote branch if a previous run already pushed it, so re-runs
-    # stack on it (and update the same PR) instead of failing the push
+    # branch — reuse the entry's remote branch if a previous run already pushed it, so re-runs
+    # stack on it (and update the same PR) instead of failing the push. Then merge the base in:
+    # the drafter and persona are imported from this checkout, and the activity record reads
+    # its history, so both must be today's, not the branch's.
     remote_exists = _run(["git", "ls-remote", "--exit-code", "--heads", "origin", branch], repo, check=False).returncode == 0
     if remote_exists:
-        _run(["git", "fetch", "origin", branch], repo)
+        _run(["git", "fetch", "origin", branch, base], repo)
         _run(["git", "checkout", "-B", branch, f"origin/{branch}"], repo)
+        merge = _run(["git", "-c", f"user.name={git_user}", "-c", f"user.email={git_email}", "merge", "--no-edit", "-q",
+                      f"origin/{base}"], repo, check=False)
+        if merge.returncode != 0:
+            _run(["git", "merge", "--abort"], repo, check=False)
+            raise RuntimeError(f"cannot merge {base} into {branch}: {(merge.stderr or merge.stdout).strip()[-400:]}")
         res.steps["branch"] = "reused remote"
     else:
         _run(["git", "checkout", "-B", branch], repo)
@@ -209,8 +216,9 @@ def run_agent_log(repo: Path, *, draft: str = "auto", push: bool = False, pr: bo
     # activity
     activity_path = repo / "specs" / "evidence" / f"{date}-activity.json"
     activity_path.parent.mkdir(parents=True, exist_ok=True)
-    activity_path.write_text(json.dumps(collect([repo], since="1.day", render_roots=[repo / "renders"]), indent=2),
-                             encoding="utf-8")
+    # the loop's own commits (materials, merges) are bookkeeping, not work she did for him
+    activity_path.write_text(json.dumps(collect([repo], since="1.day", render_roots=[repo / "renders"],
+                                                exclude_authors=[git_user]), indent=2), encoding="utf-8")
     res.files.append(str(activity_path.relative_to(repo)))
     res.steps["activity"] = "ok"
 

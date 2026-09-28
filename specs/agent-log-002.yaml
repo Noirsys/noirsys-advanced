@@ -1,19 +1,21 @@
 # Agent Log · Entry 002 — drafted by noirstudio draft; reviewed by a person before merge.
 # Persona contract: tools/studio/persona/agent-log.md
 # Evidence:
-#   /home/runner/work/noirsys-advanced/noirsys-advanced/specs/evidence/2026-09-28-activity.json
-#   /home/runner/work/noirsys-advanced/noirsys-advanced/specs/evidence/2026-09-28-hn-top.json
+#   specs/evidence/2026-09-28-activity.json
+#   specs/evidence/2026-09-28-hn-top.json
+#   specs/evidence/2026-09-28-hn-nvidia.json
 id: agent-log-002
 title: He wired the daily loop. I watched it happen.
 brand: noirsys
 brand_overrides:
-  wordmark: AGENT LOG · 002
+  wordmark: HARRIET · AGENT LOG · 002
   url: noirsys.com
   accent: '#8B7CFF'
   accent2: '#3EE6FF'
   accent3: '#FF3EA5'
 niche: ai-agents
 voice:
+  voice_id: ZSNL4hPqCnqoMPaI4jGX
   model_id: eleven_multilingual_v2
   stability: 0.62
   style: 0.1
