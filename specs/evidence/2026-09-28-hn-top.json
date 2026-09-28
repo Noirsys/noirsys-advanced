@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-09-28T12:25:11+00:00",
+  "stories": [
+    {
+      "id": "49869995",
+      "title": "Imp is a full port of DSPy to the BEAM",
+      "url": "https://github.com/deepfates/imp",
+      "points": 83,
+      "comments": 7,
+      "created_at": "2026-09-27T19:28:23Z",
+      "pph": 4.898,
+      "query": "mcp"
+    },
+    {
+      "id": "49857528",
+      "title": "Show HN: A Claude Code skill to analyze your chess games",
+      "url": "https://github.com/brumar/chess-postmortem-skills",
+      "points": 75,
+      "comments": 55,
+      "created_at": "2026-09-26T15:34:53Z",
+      "pph": 1.673,
+      "query": "claude code"
+    },
+    {
+      "id": "49875142",
+      "title": "37,500 border drawings: a map of the world as people remember it",
+      "url": "https://www.habibicode.org/thedrawnworld",
+      "points": 38,
+      "comments": 13,
+      "created_at": "2026-09-28T08:35:10Z",
+      "pph": 9.912,
+      "query": "mcp"
+    },
+    {
+      "id": "49872468",
+      "title": "OpenAI pauses training of latest models after agents probed US Government sites",
+      "url": "https://apnews.com/article/ai-openai-anthropic-agents-rogue-hack-2f8a2b9024d4f06793bcca12f8089d20",
+      "points": 28,
+      "comments": 2,
+      "created_at": "2026-09-28T01:20:50Z",
+      "pph": 2.529,
+      "query": "ai agents"
+    },
+    {
+      "id": "49869691",
+      "title": "Meta's Muse agent is attacking one of the economy's most profitable weak spots",
+      "url": "https://www.cnbc.com/2026/09/27/meta-muse-ai-personal-agent.html",
+      "points": 8,
+      "comments": 1,
+      "created_at": "2026-09-27T18:55:48Z",
+      "pph": 0.457,
+      "query": "ai agents"
+    },
+    {
+      "id": "49868561",
+      "title": "Flock seeks to have security researchers' map of Flock cameras taken down",
+      "url": "https://www.tomshardware.com/tech-industry/cyber-security/flock-seeks-to-have-security-researchers-map-of-flock-cameras-taken-down-unauthenticated-flaw-exposed-335-701-camera-locations-nationwide",
+      "points": 8,
+      "comments": 2,
+      "created_at": "2026-09-27T17:07:08Z",
+      "pph": 0.414,
+      "query": "mcp"
+    },
+    {
+      "id": "49869043",
+      "title": "Flock (YC 2017) Wants Detailed Map of Its Surveillance Cameras Taken Offline",
+      "url": "https://theintercept.com/2026/09/24/how-many-flock-devices-in-united-states-300000/",
+      "points": 7,
+      "comments": 3,
+      "created_at": "2026-09-27T17:53:59Z",
+      "pph": 0.378,
+      "query": "mcp"
+    },
+    {
+      "id": "49874958",
+      "title": "OpenAI pauses some training amid allegations its rogue agents behaved more",
+      "url": "https://www.theregister.com/ai-and-ml/2026/09/28/openai-pauses-some-training-amid-allegations-its-rogue-agents-behaved-more-badly-than-first-thought/5299350",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-09-28T08:07:08Z",
+      "pph": 0.93,
+      "query": "ai agents"
+    },
+    {
+      "id": "49869973",
+      "title": "Amazon Blocks Meta's Muse AI Agent from Its Retail Site",
+      "url": "https://www.bloomberg.com/news/articles/2026-09-21/amazon-blocks-meta-s-muse-ai-agent-from-its-retail-site",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-09-27T19:26:14Z",
+      "pph": 0.236,
+      "query": "ai agents"
+    },
+    {
+      "id": "49869508",
+      "title": "Show HN: Orglet, an open source desktop app for your own team of cute AI workers",
+      "url": "https://orglet.codepawl.com/",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-09-27T18:37:45Z",
+      "pph": 0.225,
+      "query": "ai agents"
+    }
+  ]
+}

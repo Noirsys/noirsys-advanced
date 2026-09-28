@@ -1,13 +1,121 @@
 {
-  "collected_at": "2026-09-28T07:25:06+00:00",
+  "collected_at": "2026-09-28T12:25:13+00:00",
   "since": "1.day",
   "repos": [
     {
-      "path": ".",
+      "path": "/home/runner/work/noirsys-advanced/noirsys-advanced",
       "commits": [
         {
+          "sha": "4b6b79cc22",
+          "date": "2026-09-28T12:16:09Z",
+          "author": "noirstudio",
+          "subject": "Agent Log 002: materials for 2026-09-28 (no draft)",
+          "files": 4,
+          "insertions": 94,
+          "deletions": 85
+        },
+        {
+          "sha": "60c0f56eb7",
+          "date": "2026-09-28T12:10:35Z",
+          "author": "noirstudio",
+          "subject": "Agent Log 002: materials for 2026-09-28 (no draft)",
+          "files": 4,
+          "insertions": 127,
+          "deletions": 118
+        },
+        {
+          "sha": "ab8b18b2bc",
+          "date": "2026-09-28T11:59:16Z",
+          "author": "noirstudio",
+          "subject": "Agent Log 002: materials for 2026-09-28 (no draft)",
+          "files": 4,
+          "insertions": 228,
+          "deletions": 219
+        },
+        {
+          "sha": "ac45a77c9d",
+          "date": "2026-09-28T11:10:18Z",
+          "author": "noirstudio",
+          "subject": "Agent Log 002: materials for 2026-09-28 (no draft)",
+          "files": 4,
+          "insertions": 88,
+          "deletions": 79
+        },
+        {
+          "sha": "8125316b51",
+          "date": "2026-09-28T11:07:27Z",
+          "author": "noirstudio",
+          "subject": "Agent Log 002: materials for 2026-09-28 (no draft)",
+          "files": 4,
+          "insertions": 410,
+          "deletions": 262
+        },
+        {
+          "sha": "ce50ba4632",
+          "date": "2026-09-28T11:03:29Z",
+          "author": "vzbb",
+          "subject": "CLAUDE.md: document the two loop runners",
+          "files": 1,
+          "insertions": 9,
+          "deletions": 0
+        },
+        {
+          "sha": "82741b1319",
+          "date": "2026-09-28T11:02:26Z",
+          "author": "vzbb",
+          "subject": "Add `noirstudio loop agent-log` and the scheduled GitHub Actions loop",
+          "files": 4,
+          "insertions": 495,
+          "deletions": 0
+        },
+        {
+          "sha": "68ba50ada4",
+          "date": "2026-09-28T10:56:16Z",
+          "author": "vzbb",
+          "subject": "Add LLM drafting: OpenRouter/DeepSeek client, draft agent-log/short/titles",
+          "files": 6,
+          "insertions": 765,
+          "deletions": 1
+        },
+        {
+          "sha": "f9977724ff",
+          "date": "2026-09-28T10:47:54Z",
+          "author": "vzbb",
+          "subject": "Playbook: record which autonomy loops are now wired",
+          "files": 1,
+          "insertions": 1,
+          "deletions": 1
+        },
+        {
+          "sha": "cc62b7b6cc",
+          "date": "2026-09-28T10:46:28Z",
+          "author": "vzbb",
+          "subject": "Add Glass Box founder script, StrAIght Shot teaser spec, README map",
+          "files": 3,
+          "insertions": 152,
+          "deletions": 1
+        },
+        {
+          "sha": "f66cef7117",
+          "date": "2026-09-28T10:41:21Z",
+          "author": "vzbb",
+          "subject": "Wire the daily loop: specs/, persona bible, CLAUDE.md, Actions render workflow",
+          "files": 10,
+          "insertions": 310,
+          "deletions": 87
+        },
+        {
+          "sha": "5f201535a2",
+          "date": "2026-09-28T07:26:52Z",
+          "author": "vzbb",
+          "subject": "Add radar, activity log, brand overrides and Agent Log entry 001",
+          "files": 17,
+          "insertions": 2055,
+          "deletions": 6
+        },
+        {
           "sha": "a04b1f3176",
-          "date": "2026-09-28T02:04:57+00:00",
+          "date": "2026-09-28T02:04:57Z",
           "author": "vzbb",
           "subject": "Add noirstudio content pipeline and growth strategy",
           "files": 31,
@@ -16,33 +124,12 @@
         }
       ],
       "totals": {
-        "commits": 1,
-        "files": 31,
-        "insertions": 2893,
-        "deletions": 0
+        "commits": 13,
+        "files": 93,
+        "insertions": 7627,
+        "deletions": 859
       }
     }
   ],
-  "renders": [
-    {
-      "spec_id": "ai-agents-fail",
-      "brand": "noirsys",
-      "live": false,
-      "duration_seconds": 46.76,
-      "words": 97,
-      "scenes": 5,
-      "generated_at": "2026-09-28T01:58:16+00:00",
-      "fallbacks": []
-    },
-    {
-      "spec_id": "noirpost-what-it-is",
-      "brand": "noirpost",
-      "live": false,
-      "duration_seconds": 27.9,
-      "words": 59,
-      "scenes": 4,
-      "generated_at": "2026-09-28T02:01:32+00:00",
-      "fallbacks": []
-    }
-  ]
+  "renders": []
 }
