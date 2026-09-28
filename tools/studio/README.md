@@ -111,6 +111,23 @@ Image & Video generation via API needs an ElevenLabs Pro+ plan; avatar features 
 
 Keys are read from the environment only (`ELEVENLABS_API_KEY`). Nothing here uploads to YouTube — `metadata.md` is what you paste (or a later uploader step consumes) after a human looks at the render.
 
+## Radar: what's working, every day, for free
+
+```bash
+noirstudio radar init                      # writes radar.yaml (10 watched channels, 16 keywords, 5 HN queries)
+noirstudio radar run --no-youtube --print  # Hacker News only — works with no key at all
+export YOUTUBE_API_KEY=...                 # free: console.cloud.google.com -> YouTube Data API v3
+noirstudio radar run --print               # + YouTube: views/hour, breakouts vs. each channel's own median
+```
+
+Each run writes `radar/snapshots/<date>.json` and `radar/briefs/<date>.md`. With yesterday's snapshot present, the brief also reports **measured 24h view deltas** per video — velocity that doesn't depend on age. Breakout = a video's views ÷ the median of that channel's recent uploads, i.e. vidIQ's outlier idea computed locally. A default run spends ~1,700 of the 10,000 free daily quota units. Keep vidIQ credits for what only it does (search volume, title scoring, channel discovery).
+
+## Agent-perspective diary (content-as-evidence)
+
+`noirstudio activity --repo . --since 1.day --renders renders/` prints what actually happened (commits with line counts, renders with durations and fallbacks) as JSON. A Short written *from the agent's point of view* is drafted from that record and the day's radar brief, and the two files are kept in `examples/evidence/` next to the spec. See `examples/agent-log-001.yaml` — every sentence in it traces to a file.
+
+`brand_overrides` in a spec gives such a channel its own wordmark, URL and colours without code changes.
+
 ## Brand kits
 
 Palettes and type were lifted from the shipped CSS of noirsys.com / noirsys.xyz (`#050505`, lime `#A3E635`, teal `#2DD4BF`, Space Grotesk) and noirpost.live (`#07070B`, magenta `#FF3EA5`, cyan `#3EE6FF`, Big Shoulders Display + Archivo + JetBrains Mono). Fonts are bundled in `assets/fonts/` under the SIL Open Font License (`assets/fonts/LICENSES.md`). Add a brand in `noirstudio/brandkit.py`.

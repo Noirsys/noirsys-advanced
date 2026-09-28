@@ -15,7 +15,7 @@ import hashlib
 import re
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 import yaml
 
@@ -89,6 +89,7 @@ class VideoSpec:
     title: str
     scenes: List[Scene]
     brand: str = "noirsys"
+    brand_overrides: Dict[str, str] = field(default_factory=dict)
     niche: Optional[str] = None
     avatar_image: Optional[str] = None
     music: Optional[str] = None
@@ -153,6 +154,7 @@ def spec_from_dict(data: dict, source_path: Optional[str] = None) -> VideoSpec:
         title=str(data["title"]),
         scenes=scenes,
         brand=data.get("brand", "noirsys"),
+        brand_overrides={str(k): str(v) for k, v in (data.get("brand_overrides") or {}).items()},
         niche=data.get("niche"),
         avatar_image=data.get("avatar_image"),
         music=data.get("music"),
@@ -194,6 +196,12 @@ def validate(spec: VideoSpec) -> List[str]:
         problems.append("output.fps must be 1..60")
     if spec.voice.words_per_minute <= 0:
         problems.append("voice.words_per_minute must be positive")
+    allowed_overrides = {"wordmark", "tagline", "url", "bg", "surface", "ink", "muted", "line", "accent", "accent2", "accent3"}
+    for key, value in spec.brand_overrides.items():
+        if key not in allowed_overrides:
+            problems.append(f"brand_overrides.{key} is not overridable (allowed: {sorted(allowed_overrides)})")
+        elif key not in ("wordmark", "tagline", "url") and not re.fullmatch(r"#[0-9a-fA-F]{6}", value):
+            problems.append(f"brand_overrides.{key} must be a #RRGGBB colour")
     base = Path(spec.source_path).parent if spec.source_path else Path.cwd()
     for rel in (spec.music, spec.avatar_image):
         if rel and not (base / rel).exists() and not Path(rel).exists():

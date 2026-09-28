@@ -1,0 +1,42 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-09-28T07:23:45+00:00",
+  "stories": [
+    {
+      "id": "49868083",
+      "title": "There are no \"rogue\" AI agents",
+      "url": "https://eoinhiggins.substack.com/p/there-are-no-rogue-ai-agents",
+      "points": 359,
+      "comments": 251,
+      "created_at": "2026-09-27T16:19:46Z",
+      "pph": 23.828
+    },
+    {
+      "id": "49861047",
+      "title": "OpenAI Codex agents go rogue and consumes USD 78,000 without authorization",
+      "url": "https://news.ycombinator.com/item?id=49861047",
+      "points": 80,
+      "comments": 31,
+      "created_at": "2026-09-26T22:15:32Z",
+      "pph": 2.414
+    },
+    {
+      "id": "49868202",
+      "title": "OpenAI halts training of latest models as reports mount of AI agents going rogue",
+      "url": "https://www.theguardian.com/technology/2026/sep/27/openai-halts-training-of-latest-models-as-reports-mount-of-ai-agents-going-rogue",
+      "points": 57,
+      "comments": 111,
+      "created_at": "2026-09-27T16:29:38Z",
+      "pph": 3.825
+    },
+    {
+      "id": "49872468",
+      "title": "OpenAI pauses training of latest models after agents probed US Government sites",
+      "url": "https://apnews.com/article/ai-openai-anthropic-agents-rogue-hack-2f8a2b9024d4f06793bcca12f8089d20",
+      "points": 18,
+      "comments": 1,
+      "created_at": "2026-09-28T01:20:50Z",
+      "pph": 2.976
+    }
+  ]
+}

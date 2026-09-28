@@ -66,7 +66,7 @@ def render(
 ) -> RenderResult:
     if not isinstance(spec, VideoSpec):
         spec = load_spec(spec)
-    brand: BrandKit = get_brand(spec.brand)
+    brand: BrandKit = get_brand(spec.brand, spec.brand_overrides)
     out = Path(out_dir)
     work = out / "work"
     work.mkdir(parents=True, exist_ok=True)

@@ -12,10 +12,10 @@ assets/fonts/LICENSES.md).
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 ASSETS_DIR = Path(__file__).resolve().parents[1] / "assets"
 FONTS_DIR = ASSETS_DIR / "fonts"
@@ -85,11 +85,17 @@ BRANDS: Dict[str, BrandKit] = {
 }
 
 
-def get_brand(name: str) -> BrandKit:
+def get_brand(name: str, overrides: Optional[Dict[str, str]] = None) -> BrandKit:
+    """A built-in kit, optionally with wordmark/url/colour fields replaced.
+
+    Overrides let a spec define a new channel identity (e.g. an agent's own
+    channel) without adding code: `brand_overrides: {wordmark: HER, accent: "#8B7CFF"}`.
+    """
     try:
-        return BRANDS[name]
+        kit = BRANDS[name]
     except KeyError:
         raise KeyError(f"unknown brand `{name}`; known: {sorted(BRANDS)}") from None
+    return replace(kit, **overrides) if overrides else kit
 
 
 def hex_to_rgb(value: str) -> Tuple[int, int, int]:

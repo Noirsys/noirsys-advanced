@@ -1,0 +1,45 @@
+# noirstudio radar watchlist. `noirstudio radar run --config radar.yaml`
+# YouTube needs YOUTUBE_API_KEY in the environment (free, 10k units/day).
+settings:
+  days: 7                 # keyword search window
+  uploads_per_channel: 15 # for breakout medians
+  results_per_keyword: 25
+  hn_days: 3
+  min_views: 500          # ignore noise below this
+
+channels:                 # channel IDs (UC...) or @handles; label is yours
+  - { ref: UCkdgAA0rfK7lG5dv4o__Paw, label: "Alberta Tech" }
+  - { ref: UC3yaWWA9FF9OBog5U9ml68A, label: "SavvyNik" }
+  - { ref: UCafjal1QYJ3rb0Y9xZk1Ezg, label: "80,000 Hours" }
+  - { ref: UCKWaEZ-_VweaEx1j62do_vQ, label: "IBM Technology" }
+  - { ref: UC4JX40jDee_tINbkjycV4Sg, label: "Tech With Tim" }
+  - { ref: UCY6N8zZhs2V7gNTUxPuKWoQ, label: "Ishan Sharma" }
+  - { ref: UCSsmX3rvY0s8uJsvvS5NB8w, label: "Podcast Gold" }
+  - { ref: UCakdY-DuPRO9M0VVNmk9qgw, label: "Fru Dev" }
+  - { ref: UCWfaTtD5e1LDo4fNdmbj8xw, label: "Jose Zuma" }
+  - { ref: UC3cqs-r3789-BrE1-2g5xGw, label: "Learn & Laugh" }
+
+keywords:                 # 100 quota units each
+  - ai agents
+  - ai agent tutorial
+  - autonomous ai agents
+  - agentic ai
+  - claude code
+  - opus 5.5
+  - mcp server
+  - ai automation
+  - vibe coding
+  - ai safety
+  - ai interpretability
+  - ai consciousness
+  - is ai alive
+  - are ai agents dead
+  - local ai agent
+  - ai from the ai's perspective
+
+hn_queries:
+  - ai agents
+  - mcp
+  - claude code
+  - interpretability
+  - llm safety

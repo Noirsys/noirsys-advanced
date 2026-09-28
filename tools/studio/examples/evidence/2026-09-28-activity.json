@@ -1,0 +1,48 @@
+{
+  "collected_at": "2026-09-28T07:25:06+00:00",
+  "since": "1.day",
+  "repos": [
+    {
+      "path": ".",
+      "commits": [
+        {
+          "sha": "a04b1f3176",
+          "date": "2026-09-28T02:04:57+00:00",
+          "author": "vzbb",
+          "subject": "Add noirstudio content pipeline and growth strategy",
+          "files": 31,
+          "insertions": 2893,
+          "deletions": 0
+        }
+      ],
+      "totals": {
+        "commits": 1,
+        "files": 31,
+        "insertions": 2893,
+        "deletions": 0
+      }
+    }
+  ],
+  "renders": [
+    {
+      "spec_id": "ai-agents-fail",
+      "brand": "noirsys",
+      "live": false,
+      "duration_seconds": 46.76,
+      "words": 97,
+      "scenes": 5,
+      "generated_at": "2026-09-28T01:58:16+00:00",
+      "fallbacks": []
+    },
+    {
+      "spec_id": "noirpost-what-it-is",
+      "brand": "noirpost",
+      "live": false,
+      "duration_seconds": 27.9,
+      "words": 59,
+      "scenes": 4,
+      "generated_at": "2026-09-28T02:01:32+00:00",
+      "fallbacks": []
+    }
+  ]
+}

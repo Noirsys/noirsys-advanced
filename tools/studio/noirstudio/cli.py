@@ -7,6 +7,8 @@
     noirstudio render ... --live --video         + avatar/b-roll via Flows video API
     noirstudio voices                            list ElevenLabs voices (live)
     noirstudio fonts                             show bundled fonts as libass sees them
+    noirstudio radar init | run [--no-youtube]   daily brief: what's working (YouTube API + HN)
+    noirstudio activity --repo . --since 1.day   commits + renders as JSON (agent diary material)
 """
 
 from __future__ import annotations
@@ -75,6 +77,39 @@ def _cmd_voices(_args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_radar(args: argparse.Namespace) -> int:
+    from . import radar
+
+    cfg = Path(args.config)
+    if args.radar_cmd == "init":
+        if cfg.exists() and not args.force:
+            print(f"{cfg} exists (use --force to overwrite)", file=sys.stderr)
+            return 1
+        cfg.write_text(radar.DEFAULT_CONFIG, encoding="utf-8")
+        print(f"wrote {cfg}")
+        return 0
+    if not cfg.exists():
+        print(f"no config at {cfg}; run `noirstudio radar init` first", file=sys.stderr)
+        return 1
+    try:
+        path = radar.run(cfg, Path(args.out), use_youtube=not args.no_youtube, use_hn=not args.no_hn)
+    except radar.RadarError as exc:
+        print(f"RADAR FAILED: {exc}", file=sys.stderr)
+        return 2
+    print(path.read_text(encoding="utf-8") if args.print else f"brief: {path}")
+    return 0
+
+
+def _cmd_activity(args: argparse.Namespace) -> int:
+    import json
+
+    from .activity import collect
+
+    record = collect([Path(r) for r in args.repo], since=args.since, render_roots=[Path(r) for r in args.renders])
+    print(json.dumps(record, indent=2))
+    return 0
+
+
 def _cmd_fonts(_args: argparse.Namespace) -> int:
     for p in sorted(FONTS_DIR.glob("*.ttf")):
         print(f"{p.name:<36} family='{font_family_name(p)}'")
@@ -108,6 +143,22 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("voices", help="list ElevenLabs voices").set_defaults(fn=_cmd_voices)
     sub.add_parser("fonts", help="show bundled fonts").set_defaults(fn=_cmd_fonts)
+
+    rd = sub.add_parser("radar", help="daily bird's-eye view: YouTube Data API + Hacker News -> markdown brief")
+    rd.add_argument("radar_cmd", choices=["init", "run"])
+    rd.add_argument("--config", default="radar.yaml")
+    rd.add_argument("--out", default="radar", help="directory for snapshots/ and briefs/")
+    rd.add_argument("--no-youtube", action="store_true", help="skip YouTube (no key needed)")
+    rd.add_argument("--no-hn", action="store_true")
+    rd.add_argument("--print", action="store_true", help="print the brief to stdout")
+    rd.add_argument("--force", action="store_true")
+    rd.set_defaults(fn=_cmd_radar)
+
+    ac = sub.add_parser("activity", help="what happened: commits + renders as JSON (diary raw material)")
+    ac.add_argument("--repo", action="append", default=[], help="git repo path (repeatable)")
+    ac.add_argument("--renders", action="append", default=[], help="directory to scan for *.report.json (repeatable)")
+    ac.add_argument("--since", default="1.day")
+    ac.set_defaults(fn=_cmd_activity)
     return p
 
 
