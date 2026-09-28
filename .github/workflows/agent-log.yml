@@ -1,0 +1,78 @@
+name: agent-log
+
+# The daily Agent Log loop, run by GitHub itself (credentialed, free on a public repo):
+#   radar -> evidence -> LLM draft (if an LLM secret exists) -> validate -> offline render
+#   -> commit to agent-log/NNN -> push -> open a PR for a human to review.
+# Nothing publishes. A person merges.
+#
+# Secrets (Settings -> Secrets and variables -> Actions): OPENROUTER_API_KEY or DEEPSEEK_API_KEY
+# (drafting), optionally YOUTUBE_API_KEY (radar). Without an LLM secret the PR carries the
+# evidence + brief only ("materials"), for a person or a Claude session to draft from.
+#
+# One-time setting so this job may open PRs: Settings -> Actions -> General -> Workflow
+# permissions -> "Read and write permissions" + tick "Allow GitHub Actions to create and
+# approve pull requests". Until then the branch is pushed and the PR body is printed in the
+# job summary for a person to open.
+
+on:
+  schedule:
+    - cron: "10 10 * * *"   # 10:10 UTC = 06:10 New York (EDT); 05:10 during EST
+  workflow_dispatch:
+    inputs:
+      notes:
+        description: "Operator notes for the drafter (optional)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: agent-log
+  cancel-in-progress: false
+
+jobs:
+  entry:
+    runs-on: ubuntu-latest
+    env:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -e tools/studio
+
+      - name: Run the loop
+        id: loop
+        shell: bash
+        run: |
+          set -uo pipefail
+          noirstudio loop agent-log --push --pr --notes "${{ github.event.inputs.notes }}" | tee loop.json
+          status=${PIPESTATUS[0]}
+          {
+            echo "## Agent Log loop"
+            echo
+            echo '```json'; cat loop.json; echo '```'
+            if [[ -f renders/PR_BODY.md ]]; then echo; echo "### PR body (open the PR by hand if none was created)"; echo; cat renders/PR_BODY.md; fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit $status
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: agent-log-${{ github.run_number }}
+          path: |
+            loop.json
+            renders/**/*.mp4
+            renders/**/*.png
+            renders/**/*.md
+            renders/**/*.json
+          retention-days: 30
+          if-no-files-found: warn

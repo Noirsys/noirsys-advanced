@@ -12,6 +12,7 @@
     noirstudio llm ping [--env-file ~/.hermes/.env]           check OpenRouter / DeepSeek access
     noirstudio draft agent-log --entry 2 --activity ... --brief ...   LLM-draft the next entry (rules enforced)
     noirstudio draft short my-slug --topic "..." | draft titles "..."
+    noirstudio loop agent-log [--push --pr]      the whole daily loop in one command (what CI runs)
 """
 
 from __future__ import annotations
@@ -187,6 +188,22 @@ def _cmd_draft(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_loop(args: argparse.Namespace) -> int:
+    from .loop import run_agent_log
+
+    yt = None if args.youtube == "auto" else (args.youtube == "on")
+    try:
+        res = run_agent_log(Path(args.repo), draft=args.draft, push=args.push, pr=args.pr, notes=args.notes,
+                            use_youtube=yt, log=lambda m: print(m, file=sys.stderr))
+    except Exception as exc:
+        if args.debug:
+            raise
+        print(f"LOOP FAILED: {exc}", file=sys.stderr)
+        return 2
+    print(res.to_json())
+    return 0
+
+
 def _cmd_fonts(_args: argparse.Namespace) -> int:
     for p in sorted(FONTS_DIR.glob("*.ttf")):
         print(f"{p.name:<36} family='{font_family_name(p)}'")
@@ -268,6 +285,17 @@ def build_parser() -> argparse.ArgumentParser:
     ti.add_argument("-n", type=int, default=10)
     _add_llm_flags(ti)
     ti.set_defaults(fn=_cmd_draft)
+
+    lp = sub.add_parser("loop", help="run a whole content loop end to end (radar -> evidence -> draft -> render -> PR)")
+    lp.add_argument("loop_cmd", choices=["agent-log"])
+    lp.add_argument("--repo", default=".")
+    lp.add_argument("--draft", choices=["auto", "skip"], default="auto", help="auto = LLM if a key exists")
+    lp.add_argument("--push", action="store_true", help="push the entry branch")
+    lp.add_argument("--pr", action="store_true", help="open the PR (needs --push; gh or GH_TOKEN)")
+    lp.add_argument("--notes", default="", help="operator notes passed to the drafter")
+    lp.add_argument("--youtube", choices=["auto", "on", "off"], default="auto")
+    lp.add_argument("--debug", action="store_true")
+    lp.set_defaults(fn=_cmd_loop)
     return p
 
 
