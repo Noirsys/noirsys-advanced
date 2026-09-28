@@ -6,7 +6,7 @@ brand: noirsys
 niche: ai-safety
 
 voice:
-  # voice_id: HIS_ELEVENLABS_VOICE_ID
+  voice_id: XwGJOzi38Fyoct3IvqA9   # his Professional Voice Clone
   model_id: eleven_multilingual_v2
   words_per_minute: 162
 

@@ -49,5 +49,6 @@ If something blocks (no network, no activity, failing tests), open the PR anyway
 - Never push to the default branch directly from automation; PRs only.
 - Never commit renders, audio, or `work/` directories (see `.gitignore`).
 - Keep the persona bible's "never says" list. Every number in a spec must exist in `specs/evidence/`.
+- Voices: his Professional Voice Clone is `XwGJOzi38Fyoct3IvqA9` (`eleven_multilingual_v2`), for specs he narrates (e.g. `specs/straightshot-teaser.yaml`). Agent Log entries never use it — she gets a designed voice (persona bible); a test enforces this.
 - Music beds are off by default (Content ID). Don't add them.
 - Tests must pass before a push. Add a test when you add a module.
