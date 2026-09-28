@@ -128,6 +128,23 @@ Each run writes `radar/snapshots/<date>.json` and `radar/briefs/<date>.md`. With
 
 `brand_overrides` in a spec gives such a channel its own wordmark, URL and colours without code changes.
 
+## LLM drafting (OpenRouter / DeepSeek / any OpenAI-compatible endpoint)
+
+```bash
+noirstudio llm ping --env-file ~/.hermes/.env            # reads OPENROUTER_API_KEY / DEEPSEEK_API_KEY from your dotenv
+noirstudio llm ping --provider deepseek                   # or from the environment
+noirstudio draft titles "AI agents going rogue, from the agent's side"
+noirstudio draft short opus-55-briefing --brief notes.md --brand noirsys --niche ai-news
+noirstudio draft agent-log --entry 2 \
+    --activity specs/evidence/2026-09-29-activity.json \
+    --brief radar/briefs/2026-09-29.md \
+    --headlines specs/evidence/2026-09-29-hn.json
+```
+
+Resolution order: flags → env vars (`OPENROUTER_API_KEY`, `DEEPSEEK_API_KEY`, `NOIRSTUDIO_LLM_PROVIDER`, `NOIRSTUDIO_LLM_MODEL`) → `--env-file` → `~/.config/noirstudio/llm.yaml` (`provider`, `model`, `base_url`, `api_key_env`). Defaults: OpenRouter with `deepseek/deepseek-chat-v3.1`, or DeepSeek direct with `deepseek-chat`. For a local model use `--provider openai-compatible` with `base_url` in the config.
+
+The model proposes; the code enforces. `draft agent-log` rejects a draft (and feeds the reasons back once) if it breaks the persona contract: > 140 words, wrong scene count, missing sign-off, uppercase captions, missing disclosure, an asserted feeling, or **any number ≥ 10 that does not appear in the evidence files**. A twice-rejected draft is saved as `*.rejected.json` for a person. Keys are never written to disk by the tool.
+
 ## Brand kits
 
 Palettes and type were lifted from the shipped CSS of noirsys.com / noirsys.xyz (`#050505`, lime `#A3E635`, teal `#2DD4BF`, Space Grotesk) and noirpost.live (`#07070B`, magenta `#FF3EA5`, cyan `#3EE6FF`, Big Shoulders Display + Archivo + JetBrains Mono). Fonts are bundled in `assets/fonts/` under the SIL Open Font License (`assets/fonts/LICENSES.md`). Add a brand in `noirstudio/brandkit.py`.

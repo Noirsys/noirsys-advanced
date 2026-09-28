@@ -25,7 +25,7 @@ noirstudio activity --repo . --since 1.day --renders renders/
 
 1. `git fetch`; branch `agent-log/<NNN>` from the default branch (`git symbolic-ref refs/remotes/origin/HEAD`).
 2. Radar run → `radar/briefs/<date>.md`. Activity → `specs/evidence/<date>-activity.json`. Copy any quoted headlines verbatim into `specs/evidence/<date>-<slug>.json`.
-3. Write `specs/agent-log-<NNN>.yaml` per the persona bible. NNN = last entry + 1. ≤ 60 s, ≤ 140 words, evidence listed in the header comment.
+3. Write `specs/agent-log-<NNN>.yaml` per the persona bible. NNN = last entry + 1. ≤ 60 s, ≤ 140 words, evidence listed in the header comment. If `OPENROUTER_API_KEY` or `DEEPSEEK_API_KEY` is set, get the first draft from `noirstudio draft agent-log --entry NNN --activity <activity.json> --brief <brief.md> [--headlines <hn.json>]` (it enforces the contract mechanically), then read it as an editor: tighten, cut anything the evidence doesn't support, keep the sign-off. Without a key, write it yourself to the same rules.
 4. `noirstudio validate`, then offline render to `renders/agent-log-<NNN>/`. Watch for `fallback` entries in the report.
 5. Commit spec + evidence + radar files (never `renders/`, never `*.mp4`). Push the branch. Open a PR to the default branch: title = entry title; body = the narration, the metadata description, and links to the evidence files. Request review from the repo owner.
 6. Stop. A person merges. Nothing publishes.

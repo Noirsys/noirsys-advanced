@@ -9,6 +9,9 @@
     noirstudio fonts                             show bundled fonts as libass sees them
     noirstudio radar init | run [--no-youtube]   daily brief: what's working (YouTube API + HN)
     noirstudio activity --repo . --since 1.day   commits + renders as JSON (agent diary material)
+    noirstudio llm ping [--env-file ~/.hermes/.env]           check OpenRouter / DeepSeek access
+    noirstudio draft agent-log --entry 2 --activity ... --brief ...   LLM-draft the next entry (rules enforced)
+    noirstudio draft short my-slug --topic "..." | draft titles "..."
 """
 
 from __future__ import annotations
@@ -110,6 +113,80 @@ def _cmd_activity(args: argparse.Namespace) -> int:
     return 0
 
 
+def _llm_client(args: argparse.Namespace):
+    from .llm import LLMError, resolve_client
+
+    try:
+        return resolve_client(args.provider, args.model, env_file=args.env_file, config_path=args.llm_config)
+    except LLMError as exc:
+        print(f"LLM: {exc}", file=sys.stderr)
+        return None
+
+
+def _add_llm_flags(p: argparse.ArgumentParser) -> None:
+    p.add_argument("--provider", choices=["openrouter", "deepseek", "openai-compatible"], help="default: first with a key")
+    p.add_argument("--model", help="e.g. deepseek/deepseek-chat-v3.1 (OpenRouter) or deepseek-chat")
+    p.add_argument("--env-file", help="dotenv file holding OPENROUTER_API_KEY / DEEPSEEK_API_KEY (e.g. ~/.hermes/.env)")
+    p.add_argument("--llm-config", help="YAML with provider/model/base_url (default ~/.config/noirstudio/llm.yaml)")
+
+
+def _cmd_llm(args: argparse.Namespace) -> int:
+    from .llm import LLMError
+
+    client = _llm_client(args)
+    if client is None:
+        return 1
+    if args.llm_cmd == "ping":
+        try:
+            reply = client.ping()
+        except LLMError as exc:
+            print(f"{client.provider} {client.model}: FAILED — {exc}", file=sys.stderr)
+            return 2
+        u = client.usage
+        print(f"{client.provider} {client.model}: {reply!r} in {u.seconds:.2f}s "
+              f"({u.prompt_tokens} prompt / {u.completion_tokens} completion tokens)")
+        return 0
+    print(f"provider={client.provider} model={client.model} base_url={client.base_url}")
+    return 0
+
+
+def _cmd_draft(args: argparse.Namespace) -> int:
+    from . import draft as d
+    from .llm import LLMError
+
+    client = _llm_client(args)
+    if client is None:
+        return 1
+    try:
+        if args.draft_cmd == "agent-log":
+            entry = f"{int(args.entry):03d}"
+            out = Path(args.out or f"specs/agent-log-{entry}.yaml")
+            prev = Path(args.previous) if args.previous else Path(f"specs/agent-log-{int(entry) - 1:03d}.yaml")
+            res = d.draft_agent_log(
+                client, entry=entry, activity_path=Path(args.activity),
+                brief_path=Path(args.brief) if args.brief else None,
+                headlines_path=Path(args.headlines) if args.headlines else None,
+                previous_spec=prev if prev.exists() else None, out_path=out, notes=args.notes or "",
+            )
+        elif args.draft_cmd == "short":
+            brief = Path(args.brief).read_text(encoding="utf-8") if args.brief else args.topic
+            out = Path(args.out or f"specs/{args.slug}.yaml")
+            res = d.draft_short(client, brief=brief, brand=args.brand, niche=args.niche, slug=args.slug, out_path=out)
+        else:  # titles
+            for t in d.draft_titles(client, topic=args.topic, n=args.n):
+                print(f"[{t['pattern']:<22}] {t['title']}\n{'':<25}{t['why']}")
+            return 0
+    except (d.DraftError, LLMError, FileNotFoundError) as exc:
+        print(f"DRAFT FAILED: {exc}", file=sys.stderr)
+        return 2
+    words = len(res.spec.narration.split())
+    u = client.usage
+    print(f"wrote {res.path} — {len(res.spec.scenes)} scenes, {words} words, attempt {res.attempts}, "
+          f"{u.prompt_tokens}+{u.completion_tokens} tokens via {client.provider}/{client.model}")
+    print("Review it, then: noirstudio render", res.path)
+    return 0
+
+
 def _cmd_fonts(_args: argparse.Namespace) -> int:
     for p in sorted(FONTS_DIR.glob("*.ttf")):
         print(f"{p.name:<36} family='{font_family_name(p)}'")
@@ -159,6 +236,38 @@ def build_parser() -> argparse.ArgumentParser:
     ac.add_argument("--renders", action="append", default=[], help="directory to scan for *.report.json (repeatable)")
     ac.add_argument("--since", default="1.day")
     ac.set_defaults(fn=_cmd_activity)
+
+    llm = sub.add_parser("llm", help="LLM provider setup check (OpenRouter / DeepSeek / OpenAI-compatible)")
+    llm.add_argument("llm_cmd", choices=["ping", "show"])
+    _add_llm_flags(llm)
+    llm.set_defaults(fn=_cmd_llm)
+
+    dr = sub.add_parser("draft", help="LLM drafting with rule enforcement: agent-log | short | titles")
+    dsub = dr.add_subparsers(dest="draft_cmd", required=True)
+    al = dsub.add_parser("agent-log", help="draft the next Agent Log entry from evidence files")
+    al.add_argument("--entry", required=True, help="entry number, e.g. 2")
+    al.add_argument("--activity", required=True, help="specs/evidence/<date>-activity.json")
+    al.add_argument("--brief", help="radar/briefs/<date>.md")
+    al.add_argument("--headlines", help="specs/evidence/<date>-<slug>.json (verbatim headlines)")
+    al.add_argument("--previous", help="previous entry spec (default: entry-1 in specs/)")
+    al.add_argument("--notes", help="operator notes for this entry")
+    al.add_argument("--out")
+    _add_llm_flags(al)
+    al.set_defaults(fn=_cmd_draft)
+    sh = dsub.add_parser("short", help="draft a Short spec from a topic or brief file")
+    sh.add_argument("slug", help="spec id, e.g. opus-55-briefing")
+    sh.add_argument("--topic", default="", help="one-paragraph brief (or use --brief FILE)")
+    sh.add_argument("--brief", help="brief file (markdown/text)")
+    sh.add_argument("--brand", default="noirsys", choices=sorted(BRANDS))
+    sh.add_argument("--niche", default="ai-agents")
+    sh.add_argument("--out")
+    _add_llm_flags(sh)
+    sh.set_defaults(fn=_cmd_draft)
+    ti = dsub.add_parser("titles", help="10 title candidates with the hook pattern each uses")
+    ti.add_argument("topic")
+    ti.add_argument("-n", type=int, default=10)
+    _add_llm_flags(ti)
+    ti.set_defaults(fn=_cmd_draft)
     return p
 
 
