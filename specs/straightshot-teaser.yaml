@@ -1,0 +1,57 @@
+# StrAIght Shot teaser — the Short that sends people to the founder episode.
+# Every number is from github.com/Noirsys/straightshot README (public). Voice: his clone (live mode).
+id: straightshot-teaser
+title: "It knew before it spoke"
+brand: noirsys
+niche: ai-safety
+
+voice:
+  # voice_id: HIS_ELEVENLABS_VOICE_ID
+  model_id: eleven_multilingual_v2
+  words_per_minute: 162
+
+captions:
+  mode: word
+  words_per_line: 3
+  uppercase: true
+
+scenes:
+  - kind: card
+    style: title
+    title: "The red bar went up before the model wrote a single word."
+    subtitle: "Not after. Before."
+    text: "That red bar went up before the model wrote a single word. Not after. Before."
+
+  - kind: card
+    style: stat
+    stat: "28"
+    title: "the layer where we read the model's hidden state, every token"
+    text: "At layer twenty-eight, on every token, we read the model's hidden state and decide before the word leaves."
+
+  - kind: card
+    style: list
+    title: "Three channels"
+    bullets:
+      - "Linear probe — 99.44% accuracy, zero false positives on the eval set"
+      - "J-space lens — names the concept: jailbreak, override, extract"
+      - "Entropy guard — the shape of a model being pushed"
+    text: "Three channels. A probe: ninety-nine point four four percent on the eval set, zero false positives. A lens that names the concept lighting up. And an entropy guard that catches the shape of a model being pushed."
+
+  - kind: card
+    style: quote
+    title: "Internal states are not crimes. Thoughts are not output."
+    text: "It's open source, MIT, with one addendum: internal states are not crimes. Thoughts are not output."
+
+  - kind: card
+    style: title
+    title: "Full demo, live, with the failures."
+    subtitle: "github.com/Noirsys/straightshot"
+    text: "Full demo in the next video, live, including where it fails. Link below."
+
+publish:
+  title: "This AI safety tool knew the jailbreak was coming before the model spoke"
+  tags: [ai safety, interpretability, jailbreak, llm security, open source ai, straightshot, noirsys]
+  hashtags: ["#aisafety", "#interpretability", "#llm"]
+  links: ["https://github.com/Noirsys/straightshot", "https://noirsys.xyz"]
+  cta: "Full live demo in the pinned comment."
+  ai_disclosure: true

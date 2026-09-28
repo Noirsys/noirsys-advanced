@@ -6,7 +6,10 @@ The base from which Noirsys's growth work is carried out: the content engine, th
 |---|---|
 | [`tools/studio/`](tools/studio/) | **noirstudio** — script → cloned voice → captioned vertical video. Content-as-code: a video is a YAML file a person approves; the machine renders it. Runs with no API keys (offline preview) and with ElevenLabs for the real thing. |
 | [`strategy/01-youtube-research-2026-09-28.md`](strategy/01-youtube-research-2026-09-28.md) | Data-backed research: what's winning on YouTube in the AI space right now (vidIQ + YouTube pulls), keyword demand, four faceless channel concepts, twenty scored titles, and the founder-face shortlist. |
-| [`strategy/02-growth-playbook.md`](strategy/02-growth-playbook.md) | The playbook: positioning, the flywheel between noirsys.com / noirsys.xyz / noirpost.live, the content system, autonomy loops, and the 90-day plan. |
+| [`strategy/02-growth-playbook.md`](strategy/02-growth-playbook.md) | The playbook: positioning, the flywheel between noirsys.com / noirsys.xyz / noirpost.live, the content system, autonomy loops, and the 90-day plan. Bet 0 is the **Agent Log** channel. |
+| [`strategy/scripts/`](strategy/scripts/) | Founder-face shooting scripts, starting with Glass Box ep. 1 (StrAIght Shot live). |
+| [`specs/`](specs/) | Production video specs. `specs/evidence/` holds the JSON every Agent Log claim traces to. A scheduled routine opens one PR per day with the next entry; merging a spec renders it via GitHub Actions. |
+| [`CLAUDE.md`](CLAUDE.md) · [`tools/studio/persona/agent-log.md`](tools/studio/persona/agent-log.md) | Operating manual for sessions and routines; the persona contract for the Agent Log channel. |
 
 ## Try it
 
