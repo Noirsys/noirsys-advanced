@@ -1,6 +1,6 @@
 {
   "source": "Hacker News via Algolia API",
-  "collected_at": "2026-09-28T11:07:25+00:00",
+  "collected_at": "2026-09-28T11:10:17+00:00",
   "stories": [
     {
       "id": "49868083",
@@ -9,7 +9,7 @@
       "points": 369,
       "comments": 252,
       "created_at": "2026-09-27T16:19:46Z",
-      "pph": 19.634,
+      "pph": 19.584,
       "query": "ai agents"
     },
     {
@@ -19,7 +19,7 @@
       "points": 110,
       "comments": 44,
       "created_at": "2026-09-27T15:51:28Z",
-      "pph": 5.71,
+      "pph": 5.695,
       "query": "ai agents"
     },
     {
@@ -29,7 +29,7 @@
       "points": 81,
       "comments": 34,
       "created_at": "2026-09-26T22:15:32Z",
-      "pph": 2.197,
+      "pph": 2.194,
       "query": "mcp"
     },
     {
@@ -39,7 +39,7 @@
       "points": 79,
       "comments": 12,
       "created_at": "2026-09-26T19:57:24Z",
-      "pph": 2.017,
+      "pph": 2.015,
       "query": "mcp"
     },
     {
@@ -49,7 +49,7 @@
       "points": 78,
       "comments": 7,
       "created_at": "2026-09-27T19:28:23Z",
-      "pph": 4.984,
+      "pph": 4.969,
       "query": "mcp"
     },
     {
@@ -59,7 +59,7 @@
       "points": 75,
       "comments": 55,
       "created_at": "2026-09-26T15:34:53Z",
-      "pph": 1.722,
+      "pph": 1.721,
       "query": "claude code"
     },
     {
@@ -67,9 +67,9 @@
       "title": "OpenAI halts training of latest models as reports mount of AI agents going rogue",
       "url": "https://www.theguardian.com/technology/2026/sep/27/openai-halts-training-of-latest-models-as-reports-mount-of-ai-agents-going-rogue",
       "points": 57,
-      "comments": 112,
+      "comments": 113,
       "created_at": "2026-09-27T16:29:38Z",
-      "pph": 3.06,
+      "pph": 3.052,
       "query": "ai agents"
     },
     {
@@ -79,7 +79,7 @@
       "points": 25,
       "comments": 2,
       "created_at": "2026-09-28T01:20:50Z",
-      "pph": 2.557,
+      "pph": 2.545,
       "query": "ai agents"
     },
     {
@@ -87,9 +87,9 @@
       "title": "37,500 border drawings: a map of the world as people remember it",
       "url": "https://www.habibicode.org/thedrawnworld",
       "points": 9,
-      "comments": 6,
+      "comments": 7,
       "created_at": "2026-09-28T08:35:10Z",
-      "pph": 3.547,
+      "pph": 3.481,
       "query": "mcp"
     },
     {
@@ -99,7 +99,7 @@
       "points": 8,
       "comments": 1,
       "created_at": "2026-09-27T18:55:48Z",
-      "pph": 0.494,
+      "pph": 0.493,
       "query": "ai agents"
     }
   ]

@@ -1,6 +1,6 @@
 {
  "date": "2026-09-28",
- "generated_at": "2026-09-28T11:07:25+00:00",
+ "generated_at": "2026-09-28T11:10:17+00:00",
  "quota_units": 0,
  "errors": [],
  "channels": {},
@@ -34,7 +34,7 @@
    "comments": 0,
    "created_at": "2026-09-28T09:38:57Z",
    "query": "ai agents",
-   "pph": 1.356
+   "pph": 1.314
   },
   {
    "id": "49875060",
@@ -44,7 +44,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:23:40Z",
    "query": "ai agents",
-   "pph": 0.733
+   "pph": 0.72
   },
   {
    "id": "49874958",
@@ -54,27 +54,27 @@
    "comments": 0,
    "created_at": "2026-09-28T08:07:08Z",
    "query": "ai agents",
-   "pph": 0.998
+   "pph": 0.983
   },
   {
    "id": "49874922",
    "title": "Give your AI agent a versioned filesystem",
    "url": "https://lakefs.io/blog/ai-agent-a-versioned-filesystem-with-e2b-and-lakefs/",
    "points": 2,
-   "comments": 1,
+   "comments": 0,
    "created_at": "2026-09-28T08:02:06Z",
    "query": "ai agents",
-   "pph": 0.648
+   "pph": 0.638
   },
   {
    "id": "49874363",
    "title": "Publish facts AI agents can trust, instead of what they scraped",
    "url": "https://profiles.skin/",
    "points": 2,
-   "comments": 1,
+   "comments": 0,
    "created_at": "2026-09-28T06:34:55Z",
    "query": "ai agents",
-   "pph": 0.44
+   "pph": 0.436
   },
   {
    "id": "49874360",
@@ -84,7 +84,7 @@
    "comments": 0,
    "created_at": "2026-09-28T06:34:40Z",
    "query": "ai agents",
-   "pph": 0.44
+   "pph": 0.435
   },
   {
    "id": "49874042",
@@ -94,7 +94,7 @@
    "comments": 0,
    "created_at": "2026-09-28T05:39:36Z",
    "query": "ai agents",
-   "pph": 0.183
+   "pph": 0.181
   },
   {
    "id": "49873751",
@@ -104,7 +104,7 @@
    "comments": 1,
    "created_at": "2026-09-28T04:46:27Z",
    "query": "ai agents",
-   "pph": 0.315
+   "pph": 0.313
   },
   {
    "id": "49873303",
@@ -114,7 +114,7 @@
    "comments": 6,
    "created_at": "2026-09-28T03:36:14Z",
    "query": "ai agents",
-   "pph": 0.399
+   "pph": 0.396
   },
   {
    "id": "49872468",
@@ -124,7 +124,7 @@
    "comments": 2,
    "created_at": "2026-09-28T01:20:50Z",
    "query": "ai agents",
-   "pph": 2.557
+   "pph": 2.545
   },
   {
    "id": "49872407",
@@ -134,7 +134,7 @@
    "comments": 0,
    "created_at": "2026-09-28T01:06:34Z",
    "query": "ai agents",
-   "pph": 0.2
+   "pph": 0.199
   },
   {
    "id": "49872350",
@@ -144,7 +144,7 @@
    "comments": 0,
    "created_at": "2026-09-28T00:57:31Z",
    "query": "ai agents",
-   "pph": 0.197
+   "pph": 0.196
   },
   {
    "id": "49872295",
@@ -164,7 +164,7 @@
    "comments": 0,
    "created_at": "2026-09-28T00:31:39Z",
    "query": "ai agents",
-   "pph": 0.283
+   "pph": 0.282
   },
   {
    "id": "49870904",
@@ -184,7 +184,7 @@
    "comments": 0,
    "created_at": "2026-09-27T20:03:44Z",
    "query": "ai agents",
-   "pph": 0.133
+   "pph": 0.132
   },
   {
    "id": "49870185",
@@ -194,7 +194,7 @@
    "comments": 0,
    "created_at": "2026-09-27T19:50:19Z",
    "query": "ai agents",
-   "pph": 0.131
+   "pph": 0.13
   },
   {
    "id": "49869973",
@@ -204,7 +204,7 @@
    "comments": 0,
    "created_at": "2026-09-27T19:26:14Z",
    "query": "ai agents",
-   "pph": 0.255
+   "pph": 0.254
   },
   {
    "id": "49869691",
@@ -214,7 +214,7 @@
    "comments": 1,
    "created_at": "2026-09-27T18:55:48Z",
    "query": "ai agents",
-   "pph": 0.494
+   "pph": 0.493
   },
   {
    "id": "49869595",
@@ -234,7 +234,7 @@
    "comments": 0,
    "created_at": "2026-09-27T18:37:45Z",
    "query": "ai agents",
-   "pph": 0.243
+   "pph": 0.242
   },
   {
    "id": "49869225",
@@ -264,7 +264,7 @@
    "comments": 0,
    "created_at": "2026-09-27T16:33:49Z",
    "query": "ai agents",
-   "pph": 0.108
+   "pph": 0.107
   },
   {
    "id": "49868228",
@@ -281,10 +281,10 @@
    "title": "OpenAI halts training of latest models as reports mount of AI agents going rogue",
    "url": "https://www.theguardian.com/technology/2026/sep/27/openai-halts-training-of-latest-models-as-reports-mount-of-ai-agents-going-rogue",
    "points": 57,
-   "comments": 112,
+   "comments": 113,
    "created_at": "2026-09-27T16:29:38Z",
    "query": "ai agents",
-   "pph": 3.06
+   "pph": 3.052
   },
   {
    "id": "49868083",
@@ -294,7 +294,7 @@
    "comments": 252,
    "created_at": "2026-09-27T16:19:46Z",
    "query": "ai agents",
-   "pph": 19.634
+   "pph": 19.584
   },
   {
    "id": "49867775",
@@ -304,7 +304,7 @@
    "comments": 44,
    "created_at": "2026-09-27T15:51:28Z",
    "query": "ai agents",
-   "pph": 5.71
+   "pph": 5.695
   },
   {
    "id": "49876095",
@@ -324,17 +324,17 @@
    "comments": 2,
    "created_at": "2026-09-28T08:50:45Z",
    "query": "mcp",
-   "pph": 0.878
+   "pph": 0.86
   },
   {
    "id": "49875142",
    "title": "37,500 border drawings: a map of the world as people remember it",
    "url": "https://www.habibicode.org/thedrawnworld",
    "points": 9,
-   "comments": 6,
+   "comments": 7,
    "created_at": "2026-09-28T08:35:10Z",
    "query": "mcp",
-   "pph": 3.547
+   "pph": 3.481
   },
   {
    "id": "49875108",
@@ -344,7 +344,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:30:22Z",
    "query": "mcp",
-   "pph": 0.382
+   "pph": 0.375
   },
   {
    "id": "49874989",
@@ -354,7 +354,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:12:39Z",
    "query": "mcp",
-   "pph": 0.687
+   "pph": 0.676
   },
   {
    "id": "49874737",
@@ -364,7 +364,7 @@
    "comments": 1,
    "created_at": "2026-09-28T07:34:43Z",
    "query": "mcp",
-   "pph": 0.282
+   "pph": 0.278
   },
   {
    "id": "49872565",
@@ -374,7 +374,7 @@
    "comments": 2,
    "created_at": "2026-09-28T01:38:25Z",
    "query": "mcp",
-   "pph": 0.211
+   "pph": 0.21
   },
   {
    "id": "49872233",
@@ -384,7 +384,7 @@
    "comments": 0,
    "created_at": "2026-09-28T00:31:39Z",
    "query": "mcp",
-   "pph": 0.283
+   "pph": 0.282
   },
   {
    "id": "49870906",
@@ -394,7 +394,7 @@
    "comments": 0,
    "created_at": "2026-09-27T21:13:08Z",
    "query": "mcp",
-   "pph": 0.144
+   "pph": 0.143
   },
   {
    "id": "49870421",
@@ -414,7 +414,7 @@
    "comments": 0,
    "created_at": "2026-09-27T19:50:19Z",
    "query": "mcp",
-   "pph": 0.131
+   "pph": 0.13
   },
   {
    "id": "49869995",
@@ -424,7 +424,7 @@
    "comments": 7,
    "created_at": "2026-09-27T19:28:23Z",
    "query": "mcp",
-   "pph": 4.984
+   "pph": 4.969
   },
   {
    "id": "49869043",
@@ -434,7 +434,7 @@
    "comments": 3,
    "created_at": "2026-09-27T17:53:59Z",
    "query": "mcp",
-   "pph": 0.406
+   "pph": 0.405
   },
   {
    "id": "49868561",
@@ -444,7 +444,7 @@
    "comments": 2,
    "created_at": "2026-09-27T17:07:08Z",
    "query": "mcp",
-   "pph": 0.444
+   "pph": 0.443
   },
   {
    "id": "49867960",
@@ -474,7 +474,7 @@
    "comments": 1,
    "created_at": "2026-09-27T13:09:09Z",
    "query": "mcp",
-   "pph": 0.046
+   "pph": 0.045
   },
   {
    "id": "49865699",
@@ -484,7 +484,7 @@
    "comments": 1,
    "created_at": "2026-09-27T11:26:12Z",
    "query": "mcp",
-   "pph": 0.127
+   "pph": 0.126
   },
   {
    "id": "49865638",
@@ -584,7 +584,7 @@
    "comments": 34,
    "created_at": "2026-09-26T22:15:32Z",
    "query": "mcp",
-   "pph": 2.197
+   "pph": 2.194
   },
   {
    "id": "49860427",
@@ -604,7 +604,7 @@
    "comments": 12,
    "created_at": "2026-09-26T19:57:24Z",
    "query": "mcp",
-   "pph": 2.017
+   "pph": 2.015
   },
   {
    "id": "49876083",
@@ -634,7 +634,7 @@
    "comments": 0,
    "created_at": "2026-09-28T08:41:28Z",
    "query": "claude code",
-   "pph": 0.411
+   "pph": 0.403
   },
   {
    "id": "49874344",
@@ -644,7 +644,7 @@
    "comments": 0,
    "created_at": "2026-09-28T06:30:00Z",
    "query": "claude code",
-   "pph": 0.216
+   "pph": 0.214
   },
   {
    "id": "49874340",
@@ -654,7 +654,7 @@
    "comments": 2,
    "created_at": "2026-09-28T06:29:32Z",
    "query": "claude code",
-   "pph": 0.432
+   "pph": 0.427
   },
   {
    "id": "49874281",
@@ -664,7 +664,7 @@
    "comments": 1,
    "created_at": "2026-09-28T06:18:50Z",
    "query": "claude code",
-   "pph": 0.208
+   "pph": 0.206
   },
   {
    "id": "49871923",
@@ -714,7 +714,7 @@
    "comments": 0,
    "created_at": "2026-09-27T18:37:45Z",
    "query": "claude code",
-   "pph": 0.243
+   "pph": 0.242
   },
   {
    "id": "49867905",
@@ -754,7 +754,7 @@
    "comments": 0,
    "created_at": "2026-09-27T09:48:48Z",
    "query": "claude code",
-   "pph": 0.119
+   "pph": 0.118
   },
   {
    "id": "49864439",
@@ -774,7 +774,7 @@
    "comments": 3,
    "created_at": "2026-09-27T06:22:17Z",
    "query": "claude code",
-   "pph": 0.07
+   "pph": 0.069
   },
   {
    "id": "49863700",
@@ -834,7 +834,7 @@
    "comments": 1,
    "created_at": "2026-09-26T16:49:18Z",
    "query": "claude code",
-   "pph": 0.095
+   "pph": 0.094
   },
   {
    "id": "49857671",
@@ -854,7 +854,7 @@
    "comments": 55,
    "created_at": "2026-09-26T15:34:53Z",
    "query": "claude code",
-   "pph": 1.722
+   "pph": 1.721
   },
   {
    "id": "49853789",
@@ -914,7 +914,7 @@
    "comments": 6,
    "created_at": "2026-09-28T03:36:14Z",
    "query": "llm safety",
-   "pph": 0.399
+   "pph": 0.396
   }
  ]
 }
