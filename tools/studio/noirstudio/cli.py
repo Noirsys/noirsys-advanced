@@ -201,6 +201,10 @@ def _cmd_loop(args: argparse.Namespace) -> int:
         print(f"LOOP FAILED: {exc}", file=sys.stderr)
         return 2
     print(res.to_json())
+    # a requested push/PR that failed must fail the run, so CI shows red instead of a quiet green
+    if any(res.steps.get(step) == "failed" for step in ("push", "pr", "render")):
+        print("LOOP INCOMPLETE: " + "; ".join(res.errors), file=sys.stderr)
+        return 3
     return 0
 
 

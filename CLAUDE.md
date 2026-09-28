@@ -26,7 +26,9 @@ noirstudio activity --repo . --since 1.day --renders renders/
 Two things can run the daily loop; either produces one PR for a human.
 
 - **GitHub Actions** (`.github/workflows/agent-log.yml`, 10:10 UTC daily, or *Run workflow*): executes `noirstudio loop agent-log --push --pr` with repo secrets (`OPENROUTER_API_KEY`/`DEEPSEEK_API_KEY`, optional `YOUTUBE_API_KEY`). Credentialed by `GITHUB_TOKEN`; needs the repo setting "Allow GitHub Actions to create and approve pull requests" to open PRs itself. Mechanical drafting + enforcement, no editorial pass.
-- **Claude routine** ("Agent Log daily entry", 06:10 ET): a fresh session follows the steps below, using `noirstudio loop agent-log` / `noirstudio draft` where keys exist and then editing the draft against the persona bible. Adds judgment; depends on the session having push credentials.
+- **Claude routine** ("Agent Log daily entry", 06:10 ET) — **disabled 2026-09-28**: two trigger-spawned sessions ran the steps but produced no branch, PR, or report (they lack push credentials and connectors, and their transcripts are unreadable from outside). Keep it off unless that changes; an interactive Claude session can still run the loop by hand and edit the draft against the persona bible.
+
+Repo settings the Actions runner needs (Noirsys is an organization, so the first is org-level): *Organization → Settings → Actions → General → Workflow permissions → "Allow GitHub Actions to create and approve pull requests"*, then the same in the repo; and the LLM key as a **repository secret** named exactly `OPENROUTER_API_KEY` (not an Environment secret, not a variable).
 
 `noirstudio loop agent-log` (no `--push`) is also the fastest way to reproduce a run locally.
 
