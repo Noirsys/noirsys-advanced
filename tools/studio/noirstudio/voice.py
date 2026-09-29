@@ -19,6 +19,7 @@ import base64
 import json
 import os
 import re
+import socket
 import uuid
 import urllib.error
 import urllib.request
@@ -136,6 +137,8 @@ class ElevenLabsVoice:
             raise VoiceError(f"ElevenLabs {method} {path} -> HTTP {exc.code}: {detail}") from None
         except urllib.error.URLError as exc:
             raise VoiceError(f"ElevenLabs {method} {path}: {exc.reason}") from None
+        except (socket.timeout, TimeoutError):  # a read that stalls after the connection is up isn't a URLError
+            raise VoiceError(f"ElevenLabs {method} {path}: timed out after {self.timeout} s") from None
 
     def _request(self, method: str, path: str, body: Optional[dict] = None, query: str = "") -> dict:
         data = json.dumps(body).encode() if body is not None else None
@@ -156,8 +159,14 @@ class ElevenLabsVoice:
                  (f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="{audio_path.name}"\r\n'
                   "Content-Type: audio/mpeg\r\n\r\n").encode() + audio_path.read_bytes() + b"\r\n",
                  f"--{boundary}--\r\n".encode()]
-        raw = self._send("POST", "/v1/forced-alignment", b"".join(parts), f"multipart/form-data; boundary={boundary}",
-                         "application/json")
+        for attempt in (1, 2):  # the endpoint has taken 54 s and more than 120 s for the same request: ask twice
+            try:
+                raw = self._send("POST", "/v1/forced-alignment", b"".join(parts),
+                                 f"multipart/form-data; boundary={boundary}", "application/json")
+                break
+            except VoiceError as exc:
+                if attempt == 2 or "timed out" not in str(exc):
+                    raise
         data = json.loads(raw.decode())
         return [Word(str(w["text"]), float(w["start"]), float(w["end"]))
                 for w in data.get("words") or [] if str(w.get("text", "")).strip()]

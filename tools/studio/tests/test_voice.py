@@ -93,3 +93,40 @@ def test_live_needs_a_voice_id(monkeypatch):
     monkeypatch.setenv("ELEVENLABS_API_KEY", "k")
     with pytest.raises(VoiceError, match="voice_id"):
         ElevenLabsVoice().synthesize("hi", Voice(), None)
+
+
+def test_a_stalled_read_is_a_voice_error_and_alignment_is_asked_twice(monkeypatch, tmp_path, audio):
+    import socket
+    import urllib.request
+
+    def stalls(req, timeout=None):
+        raise socket.timeout("The read operation timed out")
+
+    monkeypatch.setattr(urllib.request, "urlopen", stalls)
+    with pytest.raises(VoiceError, match="timed out"):  # not a bare TimeoutError that kills the whole take
+        ElevenLabsVoice(api_key="k").list_voices()
+
+    calls = []
+
+    def flaky(self, method, path, data, content_type, accept, query=""):
+        calls.append(path)
+        if len(calls) == 1:
+            raise VoiceError("ElevenLabs POST /v1/forced-alignment: timed out after 120 s")
+        return json.dumps({"words": [{"text": "hi", "start": 0.1, "end": 0.4}]}).encode()
+
+    monkeypatch.setattr(ElevenLabsVoice, "_send", flaky)
+    mp3 = tmp_path / "a.mp3"
+    mp3.write_bytes(audio)
+    words = ElevenLabsVoice(api_key="k").align(mp3, "hi")
+    assert len(calls) == 2 and [w.text for w in words] == ["hi"]
+
+    calls.clear()
+
+    def always_stalls(self, method, path, data, content_type, accept, query=""):
+        calls.append(path)
+        raise VoiceError("ElevenLabs POST /v1/forced-alignment: timed out after 120 s")
+
+    monkeypatch.setattr(ElevenLabsVoice, "_send", always_stalls)
+    with pytest.raises(VoiceError, match="timed out"):  # twice, then the caller degrades to estimated timings
+        ElevenLabsVoice(api_key="k").align(mp3, "hi")
+    assert len(calls) == 2
