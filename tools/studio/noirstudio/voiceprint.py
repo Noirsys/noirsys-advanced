@@ -23,11 +23,13 @@ digital silence), and, per frame, its level, its top end and its syllable-band e
 on the loud speech frames only. Pitch is Praat's tracker (the one the resynthesis in `voicenote` uses,
 so a swing that is asked for is a swing that is read the same way) when praat-parselmouth is installed,
 else a numpy autocorrelation through a 60 Hz to 1 kHz band; every row says which it was, and only rows
-from the same reader compare. Octave jumps are repaired against the neighbouring frames. It needs numpy
+from the same reader compare. The numpy reader is the fallback, and on real phone notes it reads about a semitone more swing than
+Praat (on his 101 notes, 7% of the frames both read are numpy an octave up, where a phone's high-pass left the fundamental weak;
+`--readers-apart` shows where). Octave jumps are repaired against the neighbouring frames. It needs numpy
 (`pip install "noirstudio[voice]"`); nothing else in noirstudio does.
 
 Do not high-pass before reading pitch. A 200 Hz high-pass "to take the phone filter out of the
-reading" let the formants win the autocorrelation and read his swing at 6.8 semitones instead of 3
+reading" let the formants win the autocorrelation and read his swing at 6.8 semitones (Praat reads 2.1, the numpy reader 3.2)
 (2026-09-29): a low voice's period is carried by the low harmonics, and the formants are what is left above them.
 """
 
