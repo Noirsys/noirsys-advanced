@@ -24,9 +24,11 @@ moves until he sets `status: approved`.
 
 from __future__ import annotations
 
+import http.client
 import json
 import os
 import re
+import socket
 import time
 import urllib.error
 import urllib.parse
@@ -49,6 +51,15 @@ DEFAULT_KINDS = ("emotional", "funny", "your pick: the one you think is stronges
 DONE = ["the 'shows your hand' pun and 'I have no hands either' (episode one, 09/27/26)"]
 SYNC_TIMEOUT, JOB_WAIT, POLL_EVERY = 110, 30 * 60, 15
 JOBS_FILE = "jobs.jsonl"
+
+
+class TransientError(LLMError):
+    """Nothing is wrong with the job: the network, Cloudflare or n8n hiccuped. Look again later."""
+
+
+class CreditError(LLMError):
+    """Her model provider is out of credit (HTTP 402): every job will fail the same way until it is topped up."""
+
 
 PITCH_SHAPE = """{"pitches": [{
   "kind": "<which kind I asked for this one answers>",
@@ -116,7 +127,9 @@ def _request(method: str, url: str, headers: Dict[str, str], body: Optional[dict
     except urllib.error.HTTPError as exc:
         status, raw = exc.code, exc.read().decode(errors="replace")
     except urllib.error.URLError as exc:
-        raise LLMError(f"cannot reach Harriet at {url}: {exc.reason}") from None
+        raise TransientError(f"cannot reach Harriet at {url}: {exc.reason}") from None
+    except (socket.timeout, TimeoutError, ConnectionError, http.client.HTTPException, OSError) as exc:  # mid-read
+        raise TransientError(f"cannot reach Harriet at {url}: {type(exc).__name__}: {exc}") from None
     try:
         return status, json.loads(raw)
     except json.JSONDecodeError:
@@ -146,9 +159,14 @@ def _content(completion: object) -> str:
         raise LLMError(f"unexpected reply from Harriet: {str(completion)[:300]}") from None
 
 
-def _fail(status: int, payload: object, what: str) -> LLMError:
+def _fail(status: int, payload: object, what: str, *, transient: bool = False) -> LLMError:
+    """The error for a bad answer. `transient`: the request itself failed (a 5xx or 429 from n8n or Cloudflare), so the
+    job may be fine and is worth another look; a job that reports itself failed is not transient, however it failed."""
     hint = " (check N8N_API_KEY, or the proxy credential for the host)" if status in (401, 403) else ""
-    return LLMError(f"{what}: HTTP {status}{hint}: {str(payload)[:300]}")
+    message = f"{what}: HTTP {status}{hint}: {str(payload)[:300]}"
+    if status == 402 or out_of_credit(payload if isinstance(payload, str) else json.dumps(payload, default=str)):
+        return CreditError(message)
+    return TransientError(message) if transient and (status == 429 or status >= 500) else LLMError(message)
 
 
 def start_job(prompt: str, *, request: Requester = None) -> Dict[str, str]:
@@ -157,8 +175,11 @@ def start_job(prompt: str, *, request: Requester = None) -> Dict[str, str]:
     url, model, headers = config()
     status, job = request("POST", f"{url}/jobs", headers, _chat_body(prompt, model), 60)
     if status not in (200, 201, 202) or not isinstance(job, dict) or not job.get("id"):
-        raise _fail(status, job, "starting a Harriet job")
-    return {"id": str(job["id"]), "poll_url": job.get("poll_url") or f"{url}/jobs?id={urllib.parse.quote(str(job['id']))}"}
+        raise _fail(status, job, "starting a Harriet job", transient=True)
+    poll = job.get("poll_url")
+    if not (isinstance(poll, str) and poll.startswith(url + "/")):  # the key is sent to this URL: only ever ours
+        poll = f"{url}/jobs?id={urllib.parse.quote(str(job['id']))}"
+    return {"id": str(job["id"]), "poll_url": poll}
 
 
 def poll_job(job: Dict[str, str], *, request: Requester = None) -> Optional[str]:
@@ -169,7 +190,7 @@ def poll_job(job: Dict[str, str], *, request: Requester = None) -> Optional[str]
     if status == 404:
         raise _fail(status, state, f"Harriet job {job['id']} is unknown")
     if status != 200 or not isinstance(state, dict):
-        raise _fail(status, state, f"polling Harriet job {job['id']}")
+        raise _fail(status, state, f"polling Harriet job {job['id']}", transient=True)
     if state.get("status") == "completed":
         if state.get("status_code") not in (None, 200):
             raise _fail(int(state["status_code"]), state.get("result"), f"Harriet job {job['id']}")
@@ -197,7 +218,11 @@ def ask(prompt: str, *, mode: str = "jobs", request: Requester = None, sleep: Op
     while waited <= wait_s:
         sleep(poll_s)
         waited += poll_s
-        reply = poll_job(job, request=request)
+        try:
+            reply = poll_job(job, request=request)
+        except TransientError as exc:  # the request failed, not the job: look again
+            log(f"[harriet] could not poll ({exc}); still waiting ({waited}s)")
+            continue
         if reply is not None:
             return reply
         log(f"[harriet] still working ({waited}s)")
@@ -234,9 +259,13 @@ def read_jobs(root: Path) -> List[dict]:
     path = root / JOBS_FILE
     if path.exists():
         for line in path.read_text(encoding="utf-8").splitlines():
-            if line.strip():
+            if not line.strip():
+                continue
+            try:  # a write cut short leaves a broken last line; the jobs before it are still good
                 event = json.loads(line)
                 jobs.setdefault(str(event["id"]), {}).update(event)
+            except (json.JSONDecodeError, KeyError, TypeError, AttributeError):
+                continue
     return list(jobs.values())
 
 
@@ -323,6 +352,15 @@ def slugify(text: str, limit: int = 50) -> str:
     return slug[:limit].rstrip("-") or "pitch"
 
 
+def _topics(value: object) -> List[str]:
+    """Her sensitivity topics as a list of words, whatever she sent (a string, a number, null, a list of anything)."""
+    if isinstance(value, str):
+        value = [v for v in re.split(r"[,;]", value) if v.strip()]
+    if not isinstance(value, (list, tuple)):
+        return []
+    return [str(v).strip() for v in value if str(v).strip()]
+
+
 def pitch_markdown(p: dict, pitched_at: str) -> str:
     front = {
         "status": "pitched",
@@ -330,8 +368,8 @@ def pitch_markdown(p: dict, pitched_at: str) -> str:
         "kind": p.get("kind", ""),
         "when": p.get("when", ""),
         "sensitivity": p["sensitivity"]["level"],
-        "topics": list(p["sensitivity"].get("topics") or []),
-        "length_s": p.get("length_s"),
+        "topics": _topics(p["sensitivity"].get("topics")),
+        "length_s": p["length_s"] if isinstance(p.get("length_s"), (int, float)) and not isinstance(p.get("length_s"), bool) else None,
         "pitched_by": p.get("pitched_by") or "harriet",
         "pitched_at": pitched_at,
     }

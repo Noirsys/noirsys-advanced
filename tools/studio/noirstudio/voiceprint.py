@@ -55,6 +55,7 @@ PITCH_FLOOR_HZ, PITCH_CEILING_HZ = 70.0, 300.0  # the range Praat searches: the 
 # 200 Hz high-pass in front of it read 2.5 semitones too wide.
 AUTOCORR_BAND = "highpass=f=60:poles=2,lowpass=f=1000:poles=2,lowpass=f=1000:poles=2"
 PITCH_READERS = ("auto", "praat", "autocorr")
+PITCH_KEYS = ("f0_sd_st", "f0_range_st", "f0_move_st_s")
 PITCH_WINDOW_DB = 25.0  # pitch is read only on frames within this many dB of the loud ones: the quiet tails are all noise
 EVENT_GAP_S = 0.30  # in a timeline, sound less than this apart is one event: a laugh is a train of bursts, not one
 
@@ -195,24 +196,24 @@ def _praat_pitch(x, n_frames, window):
 
 def _read_pitch(path, x, a, on, reader: str = "auto", everything: bool = False):
     """Semitones (re 100 Hz) per analysis frame on the loud speech frames (every frame over the gate, with
-    `everything`), else NaN; and which reader made them."""
+    `everything`), else NaN; which reader made them; and why it made none, if Praat refused the clip."""
     np = _np()
     if reader not in PITCH_READERS:
         raise VoiceNoteError(f"pitch reader {reader!r}: expected one of {', '.join(PITCH_READERS)}")
     window = on if everything else on & (a["rms"] > float(np.percentile(a["rms"][on], 95)) - PITCH_WINDOW_DB)
     if reader != "autocorr":
         try:
-            import parselmouth  # noqa: F401
+            import parselmouth
         except ImportError as exc:
             if reader == "praat":
                 raise VoiceNoteError('--pitch-reader praat needs praat-parselmouth: pip install "noirstudio[voice]"') from exc
         else:
             try:
-                return _praat_pitch(x, len(on), window), "praat"
-            except Exception:  # Praat refuses some clips; that one has no pitch, and the batch goes on
-                return np.full(len(on), np.nan), "praat"
+                return _praat_pitch(x, len(on), window), "praat", ""
+            except parselmouth.PraatError as exc:  # Praat refuses some clips: that one has no pitch, the batch goes on
+                return np.full(len(on), np.nan), "praat", " ".join(str(exc).split())[:120]
     p = _analyse(_decode(path, AUTOCORR_BAND))
-    return _pitch(p["lag"], p["val"], window), "autocorr"
+    return _pitch(p["lag"], p["val"], window), "autocorr", ""
 
 
 def _peaks(band_db, on):
@@ -251,23 +252,25 @@ def voiceprint(path: Path, words: Optional[int] = None, levels: bool = True, rea
     pauses = [g for g in gaps if g >= MIN_PAUSE_S]
     cuts = [runs[k][1] for k in range(len(runs) - 1) if gaps[k] >= MIN_PAUSE_S]
     lvl = a["rms"][on]
-    st, method = _read_pitch(path, x, a, on, reader)
+    st, method, refused = _read_pitch(path, x, a, on, reader)
     v = st[~np.isnan(st)]
     n_syll, beats = _syllables(a["mid"], on, cuts)
     out: dict = {"path": str(path), "duration_s": round(len(x) / RATE, 2), "utterance_s": round(utter_s, 2),
                  "speech_s": round(speech_s, 2), "gate_db": round(gate, 1),
                  "pause_count": len(pauses),
                  "pauses_per_min": round(60 * len(pauses) / utter_s, 1) if utter_s else 0.0,
-                 "pause_median_s": round(statistics.median(pauses), 2) if pauses else 0.0,
-                 "pause_p90_s": round(float(np.percentile(pauses, 90)), 2) if pauses else 0.0,
+                 "pause_median_s": round(statistics.median(pauses), 2) if pauses else None,
+                 "pause_p90_s": round(float(np.percentile(pauses, 90)), 2) if pauses else None,
                  "pause_ratio": round(sum(pauses) / utter_s, 3) if utter_s else 0.0,
-                 "longest_pause_s": round(max(pauses), 2) if pauses else 0.0,
+                 "longest_pause_s": round(max(pauses), 2) if pauses else None,
                  "level_sd_db": round(float(lvl.std()), 2),
                  "level_range_db": round(float(np.percentile(lvl, 95) - np.percentile(lvl, 5)), 2),
                  "hf_db": round(float(a["hf"][on].mean()), 2), "centroid_hz": round(float(a["cen"][on].mean())),
                  "syll_rate_hz": round(n_syll / speech_s, 2) if speech_s else 0.0,
                  "syll_cv": round(statistics.pstdev(beats) / statistics.mean(beats), 3) if len(beats) >= 8 else None,
                  "voiced_ratio": round(len(v) / max(1, int(on.sum())), 2), "pitch_reader": method}
+    if refused:
+        out["pitch_error"] = refused
     if len(v) >= 10:
         both = ~np.isnan(st[:-1]) & ~np.isnan(st[1:])
         out.update(f0_median_hz=round(100 * 2 ** (float(np.median(v)) / 12), 1), f0_sd_st=round(float(v.std()), 2),
@@ -298,7 +301,7 @@ def timeline(path: Path, step_s: float = 0.1, reader: str = "auto") -> dict:
     if not on.any():
         raise VoiceNoteError(f"no sound over the gate in {path}")
     loud = float(np.percentile(a["rms"][on], 95))
-    st, method = _read_pitch(path, x, a, on, reader, everything=True)  # a laugh can be 20 dB under the words
+    st, method, _refused = _read_pitch(path, x, a, on, reader, everything=True)  # a laugh can be 20 dB under the words
     voiced = ~np.isnan(st)
     hz = 100 * 2 ** (st / 12)  # NaN where a frame has no pitch
     peaks, smooth = _peaks(a["mid"], on)
@@ -399,9 +402,14 @@ def compare(his: dict, ours: dict, tol: float = 0.20) -> List[dict]:
     "past him" is ours beyond him the other way: too flat, too muddy, too many pauses.
     """
     rows = []
+    mixed = len(set(his.get("readers") or []) | set(ours.get("readers") or [])) > 1
     for key, sign in DIRECTION.items():
         a, b = his.get(key), ours.get(key)
         if not a or not b:
+            continue
+        if mixed and key in PITCH_KEYS:  # two different pitch readers do not measure the same thing
+            rows.append({"metric": key, "group": GROUP[key], "his": a["median"], "his_q1": a["q1"], "his_q3": a["q3"],
+                         "ours": b["median"], "ratio": None, "verdict": "different readers"})
             continue
         gap = (b["median"] - a["median"]) / abs(a["median"]) if a["median"] else 0.0
         inside = a["q1"] <= b["median"] <= a["q3"]

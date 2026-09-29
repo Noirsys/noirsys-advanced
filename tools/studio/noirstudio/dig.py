@@ -264,17 +264,30 @@ def collect(root: Path, *, request: h.Requester = None) -> List[dict]:
             continue
         try:
             reply = h.poll_job(job, request=request)
+        except h.TransientError:  # the poll failed, not the job: it stays running and the next collect looks again
+            continue
+        except h.CreditError:
+            reply = h.CREDIT_HINT  # her provider is out of credit, said through the job's own status
         except LLMError as exc:
             h.log_job(root, id=job["id"], status="failed", error=str(exc)[:500])
             changed.append({**job, "status": "failed", "error": str(exc)})
             continue
         if reply is None:
             continue
-        if h.out_of_credit(reply):  # her provider is out of credit: nothing to keep, and the job can be retried
+        if reply == h.CREDIT_HINT or h.out_of_credit(reply):  # nothing to keep, and the job can be retried
             h.log_job(root, id=job["id"], status="blocked", error="provider out of credit (HTTP 402)")
             changed.append({**job, "status": "blocked", "error": h.CREDIT_HINT})
             continue
-        saved = save_reply(root, job, reply)
+        try:
+            saved = save_reply(root, job, reply)
+        except Exception as exc:  # a reply that cannot be filed must not stall the jobs behind it: keep the text, move on
+            raw = root / "raw" / f"{str(job.get('started_at') or _now())[:10]}-{job['id']}.txt"
+            raw.parent.mkdir(parents=True, exist_ok=True)
+            raw.write_text(reply, encoding="utf-8")
+            h.log_job(root, id=job["id"], status="failed", error=f"could not file her reply ({type(exc).__name__}: {exc})"[:500],
+                      saved=[str(raw)])
+            changed.append({**job, "status": "failed", "error": f"could not file her reply, kept as {raw}: {exc}"})
+            continue
         h.log_job(root, id=job["id"], status="collected", saved=[str(p) for p in saved])
         changed.append({**job, "status": "collected", "saved": saved})
     return changed
@@ -305,6 +318,10 @@ def ping(*, request: h.Requester = None, sleep: Optional[Callable[[float], None]
         waited += poll_s
         try:
             reply = h.poll_job(job, request=request)
+        except h.TransientError:
+            continue
+        except h.CreditError:
+            return "out of credit"
         except LLMError as exc:
             return f"failed: {str(exc)[:200]}"
         if reply is not None:
@@ -323,6 +340,9 @@ def wait_for(root: Path, job_id: str, *, request: h.Requester = None, sleep: Opt
         for job in collect(root, request=request):
             if job["id"] == job_id:
                 return job
+        for job in h.read_jobs(root):  # another `collect` may have picked it up first
+            if job["id"] == job_id and job.get("status") in ("collected", "failed", "blocked"):
+                return {**job, "saved": [Path(p) for p in job.get("saved") or []]}
         log(f"[harriet] still digging ({waited}s)")
     return {"id": job_id, "status": "running"}
 

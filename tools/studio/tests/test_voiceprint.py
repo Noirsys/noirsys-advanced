@@ -138,13 +138,41 @@ def test_a_clip_praat_refuses_has_no_pitch_but_does_not_stop_the_batch(tmp_path,
     x, _ = formant_voice(3.0, 2.0, 5)
     path = write(tmp_path / "v.wav", np.concatenate([hush(0.3), x, hush(0.3, seed=9)]))
 
+    import parselmouth
+
     def refuse(*_a, **_k):
-        raise RuntimeError("The Sound is too short")
+        raise parselmouth.PraatError("The Sound is too short")
 
     monkeypatch.setattr(vp, "_praat_pitch", refuse)
     r = vp.voiceprint(path, levels=False)
     assert r["pitch_reader"] == "praat" and "f0_sd_st" not in r and r["speech_s"] > 2  # the rest of the row is fine
-    assert cli.main(["voiceprint", str(path), "--fast", "--json"]) == 0
+    assert "too short" in r["pitch_error"]
+    assert cli.main(["voiceprint", str(path), "--fast"]) == 0
+    monkeypatch.setattr(vp, "_praat_pitch", lambda *_a, **_k: (_ for _ in ()).throw(IndexError("a real bug")))
+    with pytest.raises(IndexError):  # only Praat's own refusals are swallowed: a bug in our code is not
+        vp.voiceprint(path, levels=False)
+
+
+def test_a_clip_with_no_pauses_has_no_pause_length_rather_than_a_zero(tmp_path):
+    r = vp.voiceprint(write(tmp_path / "run.wav", np.concatenate([hush(0.3), burst(2.0), hush(0.3, seed=2)])), levels=False)
+    assert r["pauses_per_min"] == 0 and r["pause_count"] == 0
+    assert r["pause_median_s"] is None and r["longest_pause_s"] is None and r["pause_p90_s"] is None
+    rows = [{"speech_s": 3.0, "pause_median_s": None}, {"speech_s": 3.0, "pause_median_s": 0.6},
+            {"speech_s": 3.0, "pause_median_s": 0.8}]
+    assert vp.summarize(rows)["pause_median_s"]["median"] == 0.7  # the clip that never paused doesn't drag it to zero
+
+
+def test_pitch_is_not_compared_across_readers_but_the_rest_still_is():
+    def summary(reader):
+        return {"readers": [reader],
+                "f0_sd_st": {"median": 3.0, "q1": 2.5, "q3": 3.5, "n": 5},
+                "hf_db": {"median": -25.0, "q1": -27.0, "q3": -23.0, "n": 5}}
+
+    rows = {r["metric"]: r for r in vp.compare(summary("praat"), summary("autocorr"))}
+    assert rows["f0_sd_st"]["verdict"] == "different readers" and rows["f0_sd_st"]["ratio"] is None
+    assert rows["hf_db"]["verdict"] == "close"
+    same = {r["metric"]: r for r in vp.compare(summary("praat"), summary("praat"))}
+    assert same["f0_sd_st"]["verdict"] == "close"
 
 
 def test_a_summary_says_which_reader_made_the_pitch():

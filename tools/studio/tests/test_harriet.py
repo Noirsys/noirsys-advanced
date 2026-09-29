@@ -102,9 +102,67 @@ def test_job_failures_are_explained(replies, message):
 
 
 def test_a_job_that_outlives_the_wait_says_where_to_poll():
-    fake = FakeN8N((202, {"id": "j", "poll_url": "https://p/jobs?id=j"}), (200, {"status": "running"}), (200, {"status": "running"}))
-    with pytest.raises(LLMError, match="still running.*https://p/jobs\\?id=j"):
+    fake = FakeN8N((202, {"id": "j", "poll_url": f"{URL}/jobs?id=j"}), (200, {"status": "running"}), (200, {"status": "running"}))
+    with pytest.raises(LLMError, match="still running.*jobs\\?id=j"):
         h.ask("hi", request=fake, sleep=lambda _s: None, wait_s=15, poll_s=10)
+
+
+def test_a_poll_url_outside_the_configured_host_is_not_trusted_with_the_key():
+    fake = FakeN8N((202, {"id": "j", "poll_url": "https://elsewhere.example/jobs?id=j"}))
+    job = h.start_job("hi", request=fake)
+    assert job["poll_url"] == f"{URL}/jobs?id=j"  # the Bearer key only ever goes to the host it was configured for
+
+
+def test_timeouts_and_resets_mid_read_are_transient_errors(monkeypatch):
+    import socket
+
+    for exc in (socket.timeout("timed out"), ConnectionResetError("reset"), TimeoutError("slow")):
+        def boom(*_a, **_k):
+            raise exc
+
+        monkeypatch.setattr(h.urllib.request, "urlopen", boom)
+        with pytest.raises(h.TransientError, match="cannot reach Harriet"):
+            h._request("GET", f"{URL}/jobs?id=j", {}, None, 5)
+
+
+def test_a_bad_gateway_on_the_poll_is_transient_but_a_job_that_failed_is_not():
+    job = {"id": "j", "poll_url": f"{URL}/jobs?id=j"}
+    with pytest.raises(h.TransientError):
+        h.poll_job(job, request=FakeN8N((502, "Bad gateway")))
+    with pytest.raises(h.TransientError):
+        h.poll_job(job, request=FakeN8N((429, "slow down")))
+    for reply in ((200, {"status": "failed", "status_code": 502, "result": {"error": "n8n timed out"}}),
+                  (404, {"message": "unknown"})):
+        with pytest.raises(LLMError) as err:
+            h.poll_job(job, request=FakeN8N(reply))
+        assert not isinstance(err.value, h.TransientError)  # polling again would never end
+    with pytest.raises(h.CreditError):
+        h.poll_job(job, request=FakeN8N((200, {"status": "completed", "status_code": 402, "result": {"error": "x"}})))
+    with pytest.raises(h.CreditError):
+        h.poll_job(job, request=FakeN8N((200, {"status": "failed", "status_code": 500,
+                                              "result": "Billing or credits exhausted: HTTP 402: Insufficient Balance"})))
+
+
+def test_a_transient_error_does_not_end_the_wait():
+    fake = FakeN8N((202, {"id": "j"}), (502, "Bad gateway"),
+                   (200, {"status": "completed", "result": {"choices": [{"message": {"content": "hello"}}]}}))
+    assert h.ask("hi", request=fake, sleep=lambda _s: None, wait_s=60, poll_s=10) == "hello"
+
+
+def test_a_broken_line_in_the_job_log_does_not_hide_the_jobs_before_it(tmp_path):
+    h.log_job(tmp_path, id="a", status="running")
+    with (tmp_path / h.JOBS_FILE).open("a", encoding="utf-8") as f:
+        f.write('{"id": "b", "status": "run\n{"no_id": true}\n[1, 2]\n')  # a write cut short, a line without an id, a list
+    h.log_job(tmp_path, id="c", status="running")
+    assert [j["id"] for j in h.read_jobs(tmp_path)] == ["a", "c"]
+
+
+@pytest.mark.parametrize("topics, length", [("health, family", "long"), (3, None), (None, True), (["money", 4, " "], 90.5)])
+def test_odd_topics_and_lengths_do_not_stop_a_pitch_being_filed(tmp_path, topics, length):
+    pitch = dict(GOOD, sensitivity={"level": "low", "topics": topics}, length_s=length)
+    (path,) = h.write_inbox([pitch], tmp_path)
+    front = h.read_status(path)
+    assert isinstance(front["topics"], list) and front["length_s"] in (None, 90.5)
 
 
 def test_sync_mode_posts_chat_completions():

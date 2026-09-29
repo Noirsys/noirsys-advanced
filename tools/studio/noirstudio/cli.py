@@ -549,6 +549,10 @@ def _cmd_voiceprint(args: argparse.Namespace) -> int:
               + (f" ({ours_sum['skipped']} skipped)" if ours_sum["skipped"] else ""))
     for line in bad:
         print(f"skipped {line}", file=sys.stderr)
+    refused = [r for r in [*his, *ours] if r.get("pitch_error")]
+    if refused:
+        print(f"WARNING: pitch could not be read on {len(refused)} clip(s) (Praat refused them: "
+              f"{refused[0]['pitch_error']}); they have no f0 numbers", file=sys.stderr)
     readers = sorted(set(his_sum["readers"]) | set(ours_sum["readers"] if ours_sum else []))
     if len(readers) > 1:
         print(f"WARNING: the pitch rows were read by different readers ({', '.join(readers)}); they do not compare",

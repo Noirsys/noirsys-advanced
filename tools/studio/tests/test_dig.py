@@ -195,6 +195,43 @@ def test_cli_collect_says_blocked_and_ping_exits_3_when_out_of_credit(tmp_path, 
     assert "OUT OF CREDIT" in capsys.readouterr().out
 
 
+def test_a_transient_poll_error_leaves_the_job_running_for_the_next_collect(tmp_path):
+    h.log_job(tmp_path, id="j", poll_url=f"{URL}/jobs?id=j", what="dig", status="running", started_at="2026-09-29T01")
+    assert d.collect(tmp_path, request=FakeN8N((502, "Bad gateway"))) == []
+    assert h.read_jobs(tmp_path)[0]["status"] == "running"
+    (done,) = d.collect(tmp_path, request=FakeN8N((200, {"status": "completed", "result": completion({"moments": [MOMENT]})})))
+    assert done["status"] == "collected"
+
+
+def test_a_402_through_the_jobs_own_status_blocks_it_too(tmp_path):
+    h.log_job(tmp_path, id="j", poll_url=f"{URL}/jobs?id=j", what="note", status="running", prompt="hi", note="hi")
+    (done,) = d.collect(tmp_path, request=FakeN8N(
+        (200, {"status": "completed", "status_code": 402, "result": {"error": "Insufficient Balance"}})))
+    assert done["status"] == "blocked" and h.read_jobs(tmp_path)[0]["status"] == "blocked"
+
+
+def test_wait_for_sees_a_job_that_another_collect_picked_up_first(tmp_path):
+    h.log_job(tmp_path, id="j", poll_url=f"{URL}/jobs?id=j", what="dig", status="running", started_at="2026-09-29T01")
+    h.log_job(tmp_path, id="j", status="collected", saved=[str(tmp_path / "digs" / "x.md")])  # the heartbeat got there first
+    done = d.wait_for(tmp_path, "j", request=FakeN8N(), sleep=lambda _s: None, wait_s=30, poll_s=15)
+    assert done["status"] == "collected" and done["saved"] == [tmp_path / "digs" / "x.md"]
+
+
+def test_a_reply_that_cannot_be_filed_is_kept_raw_and_does_not_stall_the_jobs_behind_it(tmp_path, monkeypatch):
+    for jid in ("a", "b"):
+        h.log_job(tmp_path, id=jid, poll_url=f"{URL}/jobs?id={jid}", what="dig", status="running", started_at="2026-09-29T01")
+    real = d.save_reply
+    monkeypatch.setattr(d, "save_reply", lambda root, job, reply: (_ for _ in ()).throw(TypeError("odd topics"))
+                        if job["id"] == "a" else real(root, job, reply))
+    ok = (200, {"status": "completed", "result": completion({"moments": [MOMENT]})})
+    changed = d.collect(tmp_path, request=FakeN8N(ok, ok))
+    assert [j["status"] for j in changed] == ["failed", "collected"]
+    assert "could not file" in changed[0]["error"]
+    raw = next((tmp_path / "raw").glob("*-a.txt"))
+    assert "first-voice-note" in raw.read_text(encoding="utf-8")
+    assert {j["id"]: j["status"] for j in h.read_jobs(tmp_path)} == {"a": "failed", "b": "collected"}
+
+
 def test_cli_dig_collect_moments_and_follow(tmp_path, monkeypatch, capsys):
     fake = FakeN8N((202, {"id": "d1"}),
                    (200, {"status": "completed", "result": completion({"moments": [MOMENT]})}),
