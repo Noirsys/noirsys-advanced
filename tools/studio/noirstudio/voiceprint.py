@@ -19,10 +19,16 @@ its bursts, and leaves the naming to whoever listens.
 
 Nothing here judges the words. It reads the audio at 16 kHz mono: a 40 ms frame every 10 ms,
 a speech gate 8 dB over the room (or 35 dB under the loudest frames, for a clean read with
-digital silence), and, per frame, its level and its top end (the whole band), and its pitch
-(autocorrelation, octave jumps repaired against the neighbouring frames) and syllable-band energy
-(read through a fixed 200-3500 Hz band, so the phone chain's high-pass doesn't change what is read). It needs numpy
+digital silence), and, per frame, its level, its top end and its syllable-band energy, and its pitch,
+on the loud speech frames only. Pitch is Praat's tracker (the one the resynthesis in `voicenote` uses,
+so a swing that is asked for is a swing that is read the same way) when praat-parselmouth is installed,
+else a numpy autocorrelation through a 60 Hz to 1 kHz band; every row says which it was, and only rows
+from the same reader compare. Octave jumps are repaired against the neighbouring frames. It needs numpy
 (`pip install "noirstudio[voice]"`); nothing else in noirstudio does.
+
+Do not high-pass before reading pitch. A 200 Hz high-pass "to take the phone filter out of the
+reading" let the formants win the autocorrelation and read his swing at 6.8 semitones instead of 3
+(2026-09-29): a low voice's period is carried by the low harmonics, and the formants are what is left above them.
 """
 
 from __future__ import annotations
@@ -43,11 +49,12 @@ MAX_S = 180.0  # a long dictation is measured on its first three minutes
 MIN_PAUSE_S = 0.20  # a shorter gap is a breath or a consonant, not a pause
 VOICED = 0.45  # normalised autocorrelation at the pitch lag, above which a frame counts as voiced
 _BLOCK = 4096  # frames per numpy block
-# Pitch and syllables are read through the same fixed band for every file: 200-3500 Hz. The phone chain (a 4-pole
-# 100 Hz high-pass, a low-pass, EQ) takes the fundamental of a 100 Hz voice out of a processed read but not out of his
-# raw note, and that alone added about a semitone to the pitch swing of his own notes when they were put through it.
-# The harmonics carry the period in both, so reading from 200 Hz up compares like with like.
-PITCH_BAND = "highpass=f=200:poles=2,highpass=f=200:poles=2,lowpass=f=3500:poles=2"
+PITCH_FLOOR_HZ, PITCH_CEILING_HZ = 70.0, 300.0  # the range Praat searches: the one the resynthesis in voicenote uses
+# The numpy fallback reads through 60 Hz to 1 kHz: below the first formant, so that the low harmonics decide the period
+# and not a formant's ringing. On synthetic vowels with a known contour this reads the swing to within 0.1 semitone; a
+# 200 Hz high-pass in front of it read 2.5 semitones too wide.
+AUTOCORR_BAND = "highpass=f=60:poles=2,lowpass=f=1000:poles=2,lowpass=f=1000:poles=2"
+PITCH_READERS = ("auto", "praat", "autocorr")
 PITCH_WINDOW_DB = 25.0  # pitch is read only on frames within this many dB of the loud ones: the quiet tails are all noise
 EVENT_GAP_S = 0.30  # in a timeline, sound less than this apart is one event: a laugh is a train of bursts, not one
 
@@ -146,14 +153,11 @@ def _analyse(x, pitch: bool = True):
     return {k: np.concatenate(v) for k, v in cols.items() if v}
 
 
-def _pitch(lag, val, on):
-    """Semitones (re 100 Hz) for each voiced speech frame, else NaN; octave jumps repaired."""
+def _repair(st):
+    """Octave jumps: a frame more than 2.5 semitones from the median of its neighbours takes that median."""
     np = _np()
-    st = np.full(len(lag), np.nan)
-    voiced = on & (val >= VOICED)
-    st[voiced] = 12 * np.log2((RATE / lag[voiced]) / 100.0)
     fixed = st.copy()
-    for i in np.flatnonzero(voiced):
+    for i in np.flatnonzero(~np.isnan(st)):
         near = st[max(0, i - 3):i + 4]
         near = near[~np.isnan(near)]
         if len(near) >= 3:
@@ -161,6 +165,51 @@ def _pitch(lag, val, on):
             if abs(st[i] - med) > 2.5:
                 fixed[i] = med
     return fixed
+
+
+def _pitch(lag, val, on):
+    """Semitones (re 100 Hz) for each voiced speech frame, else NaN; octave jumps repaired."""
+    np = _np()
+    st = np.full(len(lag), np.nan)
+    voiced = on & (val >= VOICED)
+    st[voiced] = 12 * np.log2((RATE / lag[voiced]) / 100.0)
+    return _repair(st)
+
+
+def _praat_pitch(x, n_frames, window):
+    """Praat's autocorrelation tracker, one value per analysis frame (nearest 10 ms step), on `window` only."""
+    import parselmouth
+
+    np = _np()
+    pitch = parselmouth.Sound(x.astype("float64"), sampling_frequency=RATE).to_pitch_ac(
+        time_step=HOP / RATE, pitch_floor=PITCH_FLOOR_HZ, pitch_ceiling=PITCH_CEILING_HZ)
+    hz, times = pitch.selected_array["frequency"], pitch.xs()
+    centres = (np.arange(n_frames) * HOP + FRAME / 2) / RATE
+    at = np.clip(np.round((centres - times[0]) / (HOP / RATE)).astype(int), 0, len(hz) - 1)
+    f = hz[at]
+    st = np.full(n_frames, np.nan)
+    ok = window & (f > 0)
+    st[ok] = 12 * np.log2(f[ok] / 100.0)
+    return _repair(st)
+
+
+def _read_pitch(path, x, a, on, reader: str = "auto", everything: bool = False):
+    """Semitones (re 100 Hz) per analysis frame on the loud speech frames (every frame over the gate, with
+    `everything`), else NaN; and which reader made them."""
+    np = _np()
+    if reader not in PITCH_READERS:
+        raise VoiceNoteError(f"pitch reader {reader!r}: expected one of {', '.join(PITCH_READERS)}")
+    window = on if everything else on & (a["rms"] > float(np.percentile(a["rms"][on], 95)) - PITCH_WINDOW_DB)
+    if reader != "autocorr":
+        try:
+            import parselmouth  # noqa: F401
+        except ImportError as exc:
+            if reader == "praat":
+                raise VoiceNoteError('--pitch-reader praat needs praat-parselmouth: pip install "noirstudio[voice]"') from exc
+        else:
+            return _praat_pitch(x, len(on), window), "praat"
+    p = _analyse(_decode(path, AUTOCORR_BAND))
+    return _pitch(p["lag"], p["val"], window), "autocorr"
 
 
 def _peaks(band_db, on):
@@ -183,13 +232,12 @@ def _syllables(band_db, on, cuts) -> Tuple[int, List[float]]:
     return len(peaks), [g for g in gaps if g <= 0.5]
 
 
-def voiceprint(path: Path, words: Optional[int] = None, levels: bool = True) -> dict:
+def voiceprint(path: Path, words: Optional[int] = None, levels: bool = True, reader: str = "auto") -> dict:
     """The measurable habits of one voice note or read (see the top of this file)."""
     np = _np()
     path = Path(path)
     x = _decode(path)
     a = _analyse(x, pitch=False)
-    p = _analyse(_decode(path, PITCH_BAND))
     on, gate = _speech(a["rms"])
     runs = [(s, e) for s, e, v in _runs(on) if v]
     if not runs:
@@ -200,10 +248,9 @@ def voiceprint(path: Path, words: Optional[int] = None, levels: bool = True) -> 
     pauses = [g for g in gaps if g >= MIN_PAUSE_S]
     cuts = [runs[k][1] for k in range(len(runs) - 1) if gaps[k] >= MIN_PAUSE_S]
     lvl = a["rms"][on]
-    loud = p["rms"][on] if on.any() else p["rms"]
-    st = _pitch(p["lag"], p["val"], on & (p["rms"] > float(np.percentile(loud, 95)) - PITCH_WINDOW_DB))
+    st, method = _read_pitch(path, x, a, on, reader)
     v = st[~np.isnan(st)]
-    n_syll, beats = _syllables(p["mid"], on, cuts)
+    n_syll, beats = _syllables(a["mid"], on, cuts)
     out: dict = {"path": str(path), "duration_s": round(len(x) / RATE, 2), "utterance_s": round(utter_s, 2),
                  "speech_s": round(speech_s, 2), "gate_db": round(gate, 1),
                  "pause_count": len(pauses),
@@ -217,7 +264,7 @@ def voiceprint(path: Path, words: Optional[int] = None, levels: bool = True) -> 
                  "hf_db": round(float(a["hf"][on].mean()), 2), "centroid_hz": round(float(a["cen"][on].mean())),
                  "syll_rate_hz": round(n_syll / speech_s, 2) if speech_s else 0.0,
                  "syll_cv": round(statistics.pstdev(beats) / statistics.mean(beats), 3) if len(beats) >= 8 else None,
-                 "voiced_ratio": round(len(v) / max(1, int(on.sum())), 2)}
+                 "voiced_ratio": round(len(v) / max(1, int(on.sum())), 2), "pitch_reader": method}
     if len(v) >= 10:
         both = ~np.isnan(st[:-1]) & ~np.isnan(st[1:])
         out.update(f0_median_hz=round(100 * 2 ** (float(np.median(v)) / 12), 1), f0_sd_st=round(float(v.std()), 2),
@@ -231,7 +278,7 @@ def voiceprint(path: Path, words: Optional[int] = None, levels: bool = True) -> 
     return out
 
 
-def timeline(path: Path, step_s: float = 0.1) -> dict:
+def timeline(path: Path, step_s: float = 0.1, reader: str = "auto") -> dict:
     """One clip, moment by moment: every `step_s`, the peak level, the top end, the pitch and how much of the
     step is over the speech gate; and the runs of sound (events), each with its length, level, pitch and how
     many bursts it holds, how evenly spaced they are and how fast they die away.
@@ -244,15 +291,14 @@ def timeline(path: Path, step_s: float = 0.1) -> dict:
     path = Path(path)
     x = _decode(path)
     a = _analyse(x, pitch=False)
-    p = _analyse(_decode(path, PITCH_BAND))
     on, gate = _speech(a["rms"])
     if not on.any():
         raise VoiceNoteError(f"no sound over the gate in {path}")
-    loud = float(np.percentile(p["rms"][on], 95))
-    voiced = on & (p["val"] >= VOICED)
-    st = _pitch(p["lag"], p["val"], on & (p["rms"] > loud - PITCH_WINDOW_DB))
+    loud = float(np.percentile(a["rms"][on], 95))
+    st, method = _read_pitch(path, x, a, on, reader, everything=True)  # a laugh can be 20 dB under the words
+    voiced = ~np.isnan(st)
     hz = 100 * 2 ** (st / 12)  # NaN where a frame has no pitch
-    peaks, smooth = _peaks(p["mid"], on)
+    peaks, smooth = _peaks(a["mid"], on)
 
     step = max(1, round(step_s * RATE / HOP))
     rows = []
@@ -294,13 +340,13 @@ def timeline(path: Path, step_s: float = 0.1) -> dict:
             ev["decay_db_s"] = round(float(np.polyfit(np.array(hit) * HOP / RATE, smooth[hit], 1)[0]), 1)
         events.append(ev)
     return {"path": str(path), "duration_s": round(len(x) / RATE, 2), "gate_db": round(gate, 1),
-            "loud_db": round(loud, 1), "step_s": step_s, "rows": rows, "events": events}
+            "loud_db": round(loud, 1), "step_s": step_s, "pitch_reader": method, "rows": rows, "events": events}
 
 
 def timeline_text(t: dict) -> str:
     """The timeline as a table a person can read down: one line per step, with a bar for the level."""
     lines = [f"{Path(t['path']).name}: {t['duration_s']} s, gate {t['gate_db']} dB, loud {t['loud_db']} dB "
-             f"(95th percentile of the sound)", "", "   t_s  level_db  hf_db  f0_hz   on"]
+             f"(95th percentile of the sound); pitch: {t.get('pitch_reader', '?')}", "", "   t_s  level_db  hf_db  f0_hz   on"]
     floor = t["gate_db"] - 10
     for r in t["rows"]:
         bar = "#" * max(0, min(40, int(round((r["level_db"] - floor) / 2))))
@@ -331,7 +377,8 @@ def summarize(rows: Sequence[dict], min_speech_s: float = 2.0, max_speech_s: Opt
     keep = [r for r in rows if r.get("speech_s", 0) >= min_speech_s
             and (max_speech_s is None or r.get("speech_s", 0) <= max_speech_s)]
     out: dict = {"n": len(keep), "skipped": len(rows) - len(keep),
-                 "speech_min": round(sum(r["speech_s"] for r in keep) / 60, 1)}
+                 "speech_min": round(sum(r["speech_s"] for r in keep) / 60, 1),
+                 "readers": sorted({r["pitch_reader"] for r in keep if r.get("pitch_reader")})}
     for key in NUMERIC:
         vals = [r[key] for r in keep if r.get(key) is not None]
         if not vals:

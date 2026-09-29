@@ -482,7 +482,7 @@ def _cmd_voiceprint(args: argparse.Namespace) -> int:
         looked, failed = [], []
         for name in args.paths:
             try:
-                looked.append(timeline(Path(name), args.step))
+                looked.append(timeline(Path(name), args.step, args.pitch_reader))
             except (VoiceNoteError, FFmpegError, FileNotFoundError) as exc:
                 failed.append(f"{name}: {str(exc).splitlines()[0]}")
         for line in failed:
@@ -511,7 +511,7 @@ def _cmd_voiceprint(args: argparse.Namespace) -> int:
         for name in paths:
             path = Path(name)
             try:
-                rows.append(voiceprint(path, words=words_for(path), levels=not args.fast))
+                rows.append(voiceprint(path, words=words_for(path), levels=not args.fast, reader=args.pitch_reader))
             except (VoiceNoteError, FFmpegError, FileNotFoundError) as exc:
                 failed.append(f"{name}: {str(exc).splitlines()[0]}")
         return rows, failed
@@ -536,6 +536,12 @@ def _cmd_voiceprint(args: argparse.Namespace) -> int:
               + (f" ({ours_sum['skipped']} skipped)" if ours_sum["skipped"] else ""))
     for line in bad:
         print(f"skipped {line}", file=sys.stderr)
+    readers = sorted(set(his_sum["readers"]) | set(ours_sum["readers"] if ours_sum else []))
+    if len(readers) > 1:
+        print(f"WARNING: the pitch rows were read by different readers ({', '.join(readers)}); they do not compare",
+              file=sys.stderr)
+    elif readers:
+        print(f"pitch read by: {readers[0]}")
     if rows:
         print()
         print(table(rows))
@@ -702,10 +708,10 @@ def build_parser() -> argparse.ArgumentParser:
                     "0 = none (default), 1 = his rate, 2 = twice as often. [pause N] markers in the line count toward it")
     vn.add_argument("--swing", type=float, metavar="ST",
                     help="flatten the read's pitch to at most this swing, in semitones (standard deviation; needs "
-                    "praat-parselmouth). `voiceprint` measures his: a clone swings further than he does at home (3.1)")
+                    "praat-parselmouth). `voiceprint` measures his (strategy/04 has the number): a clone swings further than he does at home")
     vn.add_argument("--pitch", type=float, metavar="HZ",
-                    help="move the read's median pitch here (needs praat-parselmouth). The clone sat at 126-144 Hz on "
-                    "lines whose real recordings sit at 100-108")
+                    help="move the read's median pitch here (needs praat-parselmouth). The clone sat well above his "
+                    "real recordings of the same lines (strategy/04 has the numbers)")
     vn.add_argument("--pace", type=float, metavar="X",
                     help="slow (or quicken) the speech, pitch kept (needs praat-parselmouth): 1.2 is 20%% slower. "
                     "The clone spoke about a quarter faster than he does")
@@ -729,6 +735,9 @@ def build_parser() -> argparse.ArgumentParser:
     vp.add_argument("--max-speech", type=float, help="skip clips with more speech than this, s: a long dictation pauses more "
                     "than a short line, so 25 keeps his notes comparable with short reads")
     vp.add_argument("--fast", action="store_true", help="skip the loudness and room-tone readings")
+    vp.add_argument("--pitch-reader", choices=("auto", "praat", "autocorr"), default="auto",
+                    help="who reads the pitch: Praat's tracker if praat-parselmouth is installed (auto), or a numpy "
+                    "autocorrelation. Only rows from the same reader compare")
     vp.add_argument("--timeline", action="store_true",
                     help="look inside each clip instead: level, top end and pitch every --step, and the runs of sound "
                     "with their bursts (is that a laugh, a breath, or nothing?)")

@@ -28,6 +28,33 @@ def hush(dur, level=0.0005, seed=1):
     return level * np.random.default_rng(seed).standard_normal(int(dur * RATE))
 
 
+def formant_voice(dur=4.0, sd_st=2.5, seed=1, base=105.0, syll_hz=4.5):
+    """Vowels with formants (each harmonic weighted by three resonances, the vowel changing every syllable) on
+    a pitch contour whose standard deviation is known: what a pitch reader has to survive that a bare
+    harmonic tone does not. Returns the signal and the contour's sd in semitones."""
+    rng = np.random.default_rng(seed)
+    t = np.arange(int(dur * RATE)) / RATE
+    c = sum(rng.normal() * np.sin(2 * np.pi * rng.uniform(0.5, 4.0) * t + rng.uniform(0, 6.28)) for _ in range(9))
+    c = c / c.std() * sd_st
+    f0 = base * 2 ** (c / 12)
+    phase = 2 * np.pi * np.cumsum(f0) / RATE
+    vowels = [(700, 1200, 2600), (300, 2200, 3000), (330, 800, 2300), (500, 1800, 2500), (500, 900, 2400)]
+    n = int(dur * syll_hz) + 2
+    seq = [vowels[rng.integers(len(vowels))] for _ in range(n)]
+    centres = (np.arange(n) + 0.5) / syll_hz
+    formants = [np.interp(t, centres, [v[k] for v in seq]) for k in range(3)]
+    x = np.zeros_like(t)
+    for k in range(1, int(3800 / base) + 1):
+        fk = k * f0
+        amp = 1.0 / k ** 1.2
+        for centre, bw in zip(formants, (80, 100, 140)):  # a 2-pole resonance's magnitude at the harmonic
+            pole = -np.pi * bw + 2j * np.pi * centre * np.sqrt(1 - (bw / (2 * centre)) ** 2)
+            amp = amp * (1 + 6 * np.abs(pole) ** 2 / np.abs((2j * np.pi * fk - pole) * (2j * np.pi * fk - np.conj(pole))))
+        x += amp * np.sin(k * phase) * (fk < 4000)
+    x = x * (0.55 + 0.45 * np.cos(2 * np.pi * syll_hz * t))
+    return 0.35 * x / np.abs(x).max() + 0.002 * rng.standard_normal(len(x)), float(c.std())
+
+
 def write(path, x):
     with wave.open(str(path), "wb") as w:
         w.setnchannels(1)
@@ -61,6 +88,55 @@ def test_pitch_and_pitch_swing(tmp_path):
     assert b["f0_sd_st"] == pytest.approx(4 / 2 ** 0.5, abs=0.5)  # a 4-semitone sine has sd 4/sqrt(2)
     assert b["f0_range_st"] > 5 > a["f0_range_st"]
     assert b["f0_move_st_s"] > 10 * (a["f0_move_st_s"] or 0.1)
+
+
+@pytest.mark.parametrize("reader", ["praat", "autocorr"])
+def test_the_swing_is_read_true_on_vowels_with_formants(tmp_path, reader):
+    """The 200 Hz high-pass that was tried once read every one of these 2 semitones too wide: the formants won."""
+    if reader == "praat":
+        pytest.importorskip("parselmouth")
+    for seed, sd in ((1, 1.5), (2, 2.5), (3, 3.5)):
+        x, truth = formant_voice(4.0, sd, seed)
+        r = vp.voiceprint(write(tmp_path / f"v{seed}.wav", np.concatenate([hush(0.3), x, hush(0.3, seed=9)])),
+                          levels=False, reader=reader)
+        assert r["pitch_reader"] == reader
+        assert r["f0_sd_st"] == pytest.approx(truth, abs=0.6)
+        assert r["f0_median_hz"] == pytest.approx(105, rel=0.07)
+
+
+@pytest.mark.parametrize("reader", ["praat", "autocorr"])
+def test_the_phone_chain_does_not_move_the_swing(tmp_path, reader):
+    from noirstudio import ffmpeg
+
+    if reader == "praat":
+        pytest.importorskip("parselmouth")
+    x, _ = formant_voice(4.0, 2.5, 4)
+    clean = write(tmp_path / "clean.wav", np.concatenate([hush(0.3), x, hush(0.3, seed=9)]))
+    chained = tmp_path / "chained.wav"
+    ffmpeg.run(["-y", "-i", str(clean), "-af", "highpass=f=100:poles=2,highpass=f=100:poles=2,lowpass=f=8000", str(chained)])
+    a, b = (vp.voiceprint(f, levels=False, reader=reader) for f in (clean, chained))
+    assert abs(a["f0_sd_st"] - b["f0_sd_st"]) < 0.4
+    assert b["f0_median_hz"] == pytest.approx(a["f0_median_hz"], rel=0.05)
+
+
+def test_without_praat_the_numpy_reader_takes_over_and_says_so(tmp_path, monkeypatch):
+    import sys
+
+    x, truth = formant_voice(4.0, 2.5, 2)
+    path = write(tmp_path / "v.wav", np.concatenate([hush(0.3), x, hush(0.3, seed=9)]))
+    monkeypatch.setitem(sys.modules, "parselmouth", None)  # what `import parselmouth` sees when it isn't installed
+    r = vp.voiceprint(path, levels=False)
+    assert r["pitch_reader"] == "autocorr" and r["f0_sd_st"] == pytest.approx(truth, abs=0.6)
+    with pytest.raises(vp.VoiceNoteError, match="praat-parselmouth"):
+        vp.voiceprint(path, levels=False, reader="praat")
+    with pytest.raises(vp.VoiceNoteError, match="pitch reader"):
+        vp.voiceprint(path, levels=False, reader="crepe")
+
+
+def test_a_summary_says_which_reader_made_the_pitch():
+    rows = [{"speech_s": 5.0, "pitch_reader": "praat"}, {"speech_s": 6.0, "pitch_reader": "autocorr"},
+            {"speech_s": 7.0}]
+    assert vp.summarize(rows)["readers"] == ["autocorr", "praat"]
 
 
 def test_a_crisper_top_end_reads_higher(tmp_path):

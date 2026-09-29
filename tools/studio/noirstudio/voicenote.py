@@ -411,7 +411,7 @@ def prosody(src: Path, out: Path, swing_st: Optional[float] = None, median_hz: O
     if not 0.6 <= pace <= 1.6:
         raise VoiceNoteError(f"pace {pace:g}: expected 0.6 to 1.6 (1.2 is 20% slower)")
     src, out = Path(src), Path(out)
-    seen = voiceprint(src, levels=False)
+    seen = voiceprint(src, levels=False, reader="praat")  # the tracker the gender change works from
     sd0, median0 = seen.get("f0_sd_st"), seen.get("f0_median_hz")
     flatten = swing_st is not None and bool(sd0) and sd0 > swing_st
     if not flatten and median_hz is None and pace == 1.0:
@@ -432,7 +432,7 @@ def prosody(src: Path, out: Path, swing_st: Optional[float] = None, median_hz: O
         result = call(sound, "Change gender", floor_hz, ceiling_hz, 1.0, float(median_hz or 0), factor, float(pace))
         out.parent.mkdir(parents=True, exist_ok=True)
         result.save(str(out), "WAV")
-        return voiceprint(out, levels=False)
+        return voiceprint(out, levels=False, reader="praat")
 
     factor = max(0.15, swing_st / sd0) if flatten else 1.0
     got = run(factor)
