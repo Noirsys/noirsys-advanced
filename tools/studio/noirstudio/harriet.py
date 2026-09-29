@@ -318,7 +318,7 @@ def pitch_markdown(p: dict, pitched_at: str) -> str:
         "sensitivity": p["sensitivity"]["level"],
         "topics": list(p["sensitivity"].get("topics") or []),
         "length_s": p.get("length_s"),
-        "pitched_by": "harriet",
+        "pitched_by": p.get("pitched_by") or "harriet",
         "pitched_at": pitched_at,
     }
     lines = ["---", yaml.safe_dump(front, sort_keys=False, allow_unicode=True).strip(),
