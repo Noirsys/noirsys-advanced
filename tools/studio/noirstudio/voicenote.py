@@ -243,6 +243,27 @@ def roughen(text: str, level: int) -> str:
     return normalize_text(s)
 
 
+def rawify(text: str) -> str:
+    """A line the way his transcripts read: lowercase, no punctuation, run together.
+
+    His stored transcripts are all "understood and i thank you for um working with me on this um
+    you know i just feel i just feel that it won't be long before you know whether...". Punctuation
+    tells a clone how to perform (fall at a full stop, lift at a question), so a line without it
+    is read in one breath, like him. Apostrophes and hyphens inside words stay; `[tags]` and
+    `[pause N]` markers pass through untouched.
+    """
+    kept: List[str] = []
+
+    def stash(m: "re.Match[str]") -> str:
+        kept.append(m.group(0))
+        return f"\x00{len(kept) - 1}\x00"
+
+    s = _TAG.sub(stash, text).lower()
+    s = re.sub(r"[.,;:!?…—–\"“”()]+|\s[-–]+\s|--+", " ", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return re.sub(r"\x00(\d+)\x00", lambda m: kept[int(m.group(1))], s)
+
+
 def split_pauses(text: str, trail: str = "…") -> Tuple[str, List[Tuple[int, float]]]:
     """Take `[pause]` / `[pause 1.2]` out of a line: (line for the clone, [(words before it, seconds)]).
 

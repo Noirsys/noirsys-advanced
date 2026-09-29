@@ -374,10 +374,11 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
     import shutil
     from dataclasses import replace
 
+    from .captions import Word
     from .ffmpeg import FFmpegError
     from .voice import VoiceError
-    from .voicenote import (NoteStyle, VoiceNoteError, hesitations, insert_pauses, matched, measure, render, roughen,
-                            room_tone, split_pauses, swing)
+    from .voicenote import (NoteStyle, VoiceNoteError, hesitations, insert_pauses, matched, measure, rawify, render,
+                            roughen, room_tone, split_pauses, swing)
 
     if len(args.paths) != (1 if args.say or args.measure else 2):
         print("usage: voicenote IN OUT | voicenote --say TEXT OUT | voicenote --measure REAL", file=sys.stderr)
@@ -407,11 +408,18 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
 
             voice = Voice(voice_id=args.voice, model_id=args.model, stability=args.stability,
                           similarity_boost=args.similarity)
-            line, pauses = split_pauses(roughen(args.say, style.rough), trail="," if style.rough else "…")
+            text = roughen(args.say, style.rough)
+            line, pauses = split_pauses(rawify(text) if args.raw else text, trail="," if style.rough else "…")
             said = ElevenLabsVoice().synthesize(line, voice, out.with_name(out.stem + ".clean.wav"))
             auto = hesitations(line, said.words, pauses, args.hesitate, style.seed)
             pauses = sorted(pauses + auto)
             timed = insert_pauses(said.audio_path, said.words, pauses)
+            if args.raw:  # the clone read a run-on; the captions keep the script's own casing and punctuation
+                for source in (args.say, text):  # the script as written, else as roughened
+                    shown = [t for t in split_pauses(source, trail="")[0].split() if any(c.isalnum() for c in t)]
+                    if len(shown) == len(timed):
+                        timed = [Word(t, w.start, w.end) for t, w in zip(shown, timed)]
+                        break
             src = said.audio_path
             if args.swing:
                 unswung = src.with_name(out.stem + ".unswung.wav")
@@ -663,6 +671,9 @@ def build_parser() -> argparse.ArgumentParser:
     vn.add_argument("--rough", type=int, choices=[0, 1, 2, 3], default=2,
                     help="how lazy he sounds, in the text and the filter: 0 = the clean phone note (v3), 1-3 = quieter, "
                     "less crisp, flatter (default 2)")
+    vn.add_argument("--raw", action="store_true",
+                    help="write the line the way his transcripts read: lowercase, no punctuation, run together (a clone "
+                    "performs punctuation: it falls at a full stop and lifts at a question)")
     vn.add_argument("--hesitate", type=float, default=0.0, metavar="X",
                     help="add the thinking pauses he makes on his own, at his measured rate (17 a minute, median 0.85 s): "
                     "0 = none (default), 1 = his rate, 2 = twice as often. [pause N] markers in the line count toward it")

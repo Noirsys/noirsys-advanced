@@ -11,7 +11,7 @@ from noirstudio.cli import main
 from noirstudio.captions import Word
 from noirstudio.voice import ElevenLabsVoice
 from noirstudio.voicenote import (HIS_VOICE, NoteStyle, VoiceNoteError, hesitations, insert_pauses, loudness, matched,
-                                  measure, render, room_tone, roughen, split_pauses, voice_chain)
+                                  measure, rawify, render, room_tone, roughen, split_pauses, voice_chain)
 
 # voiced at 140 Hz with harmonics, syllable-paced, plus air at 10 kHz: a stand-in for a studio read
 SPEECHY = ("(0.3*sin(2*PI*140*t)+0.2*sin(2*PI*280*t)+0.1*sin(2*PI*420*t)+0.06*sin(2*PI*2800*t)"
@@ -338,3 +338,47 @@ def test_cli_hesitate_adds_his_pauses_and_marks_them(clean, tmp_path, monkeypatc
     added = sum(p["s"] for p in got["pauses"])
     assert got["words"][-1]["end"] == pytest.approx(plain["words"][-1]["end"] + added, abs=0.02)  # the captions moved with them
     assert n == len(got["words"])
+
+
+def test_rawify_writes_a_line_the_way_his_transcripts_read():
+    assert rawify("Um, I— I don't know. [pause 1.2] Maybe... yeah!") == "um i i don't know [pause 1.2] maybe yeah"
+    assert rawify("You know what? I refuse to change your name — honestly.") == "you know what i refuse to change your name honestly"
+    assert rawify("[quietly] Well-known, isn't it?") == "[quietly] well-known isn't it"  # apostrophes, inner hyphens and tags stay
+    line, pauses = split_pauses(rawify("So, uh, I mean... [pause 0.5] it works."), trail=",")
+    assert line == "so uh i mean, it works" and pauses == [(4, 0.5)]
+
+
+def test_cli_raw_sends_the_clone_his_kind_of_line(clean, tmp_path, monkeypatch):
+    sent = []
+
+    def fake_send(self, method, path, data, content_type, accept, query=""):
+        if path == "/v1/forced-alignment":
+            return json.dumps({"words": [{"text": "so", "start": 0.1, "end": 0.3}]}).encode()
+        sent.append(json.loads(data)["text"])
+        return clean.read_bytes()
+
+    monkeypatch.setenv("ELEVENLABS_API_KEY", "test-key")
+    monkeypatch.setattr(ElevenLabsVoice, "_send", fake_send)
+    assert main(["voicenote", "--say", "So, uh, I think... we should go!", str(tmp_path / "a.ogg"), "--raw"]) == 0
+    assert sent[-1] == "so uh i think we should go"
+
+
+def test_cli_raw_keeps_the_scripts_own_words_on_the_captions(clean, tmp_path, monkeypatch):
+    text = "So, uh, I think... we should go — now!"
+    tokens = [t for t in text.split() if any(c.isalnum() for c in t)]  # the dash on its own is not a word
+
+    def fake_send(self, method, path, data, content_type, accept, query=""):
+        if path == "/v1/forced-alignment":  # the alignment hears the run-on
+            said = "so uh i think we should go now".split()
+            return json.dumps({"words": [{"text": w, "start": round(0.1 + i * 0.3, 3), "end": round(0.1 + i * 0.3 + 0.25, 3)}
+                                         for i, w in enumerate(said)]}).encode()
+        return clean.read_bytes()
+
+    monkeypatch.setenv("ELEVENLABS_API_KEY", "test-key")
+    monkeypatch.setattr(ElevenLabsVoice, "_send", fake_send)
+    out = tmp_path / "b.ogg"
+    assert main(["voicenote", "--say", text, str(out), "--raw"]) == 0
+    got = json.loads((tmp_path / "b.words.json").read_text(encoding="utf-8"))
+    assert [w["text"] for w in got["words"]] == tokens  # "So," "uh," "I" "think..." "we" "should" "go" "now!"
+    assert got["read"] == "so uh i think we should go now"
+    assert got["words"][3]["start"] == pytest.approx(0.1 + 3 * 0.3 + 0.35)  # the timings are the alignment's, plus the lead-in
