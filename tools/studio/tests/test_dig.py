@@ -19,7 +19,7 @@ MOMENT = {
     "after": "He kept the habit.",
     "exchange": [
         {"speaker": "michael", "kind": "voice_note", "when": "23:40", "text": "Is this thing on?\nHello?", "verbatim": True,
-         "ref": "vn-001"},
+         "his_words": "yes: a voice note, transcribed", "ref": "vn-001"},
         {"speaker": "harriet", "kind": "message", "when": "23:41", "text": "It's on. It has been on.", "verbatim": False},
     ],
     "found_by": "honcho: first voice note",
@@ -69,6 +69,25 @@ def test_reply_parsing_tolerates_fences_wrappers_and_excerpt():
     alias = dict(MOMENT, exchange=[{"speaker": "michael", "kind": "voice_note", "excerpt": "Hello?"}])
     dig = d.dig_from_reply("noise " + json.dumps({"output": {"moments": [alias], "threads": ["t1"]}}))
     assert dig["moments"][0]["exchange"][0]["text"] == "Hello?" and dig["threads"] == ["t1"] and dig["dig_log"] == []
+
+
+def test_the_request_tells_her_a_row_under_his_role_is_not_always_him():
+    text = d.dig_request(5)
+    assert "not always him" in text and "compaction handoff" in text and "api-*" in text and '"his_words"' in text
+
+
+def test_moment_problems_flag_authorship_that_is_not_his_or_not_checked():
+    line = dict(MOMENT["exchange"][0])
+    no = dict(MOMENT, exchange=[dict(line, his_words="no: a compaction handoff"), MOMENT["exchange"][1]])
+    unsure = dict(MOMENT, exchange=[dict(line, his_words="unsure"), MOMENT["exchange"][1]])
+    unchecked = dict(MOMENT, exchange=[{k: v for k, v in line.items() if k != "his_words"}, MOMENT["exchange"][1]])
+    assert "1 of his lines are NOT his words" in d.moment_problems(no)
+    assert "1 of his lines: authorship unsure" in d.moment_problems(unsure)
+    assert "1 of his lines: authorship not checked" in d.moment_problems(unchecked)
+    assert d.moment_problems(dict(MOMENT, exchange=[dict(line, his_words=True), MOMENT["exchange"][1]])) == \
+        ["1 of 2 lines recalled, not copied"]
+    md = d.dig_markdown({"moments": [no]}, {"id": "j"})
+    assert "his words? no: a compaction handoff" in md and "**Check:**" in md and "NOT his words" in md
 
 
 def test_moment_problems_flag_what_to_check():

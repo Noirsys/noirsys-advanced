@@ -37,7 +37,7 @@ DIG_SHAPE = """{
     "what_happened": "<plain words: what happened between you>",
     "before": "<what was going on right before>",
     "after": "<what happened right after, and later if it came back>",
-    "exchange": [{"speaker": "michael|harriet", "kind": "voice_note|message|commit|document|other", "when": "<time>", "text": "<the words>", "verbatim": true, "ref": "<where it lives: message or voice-note id, session, file>"}],
+    "exchange": [{"speaker": "michael|harriet", "kind": "voice_note|message|commit|document|other", "when": "<time>", "text": "<the words>", "verbatim": true, "his_words": "<for his lines only: yes | unsure | no, then why. A row stored under his role is not always him>", "ref": "<where it lives: message or voice-note id, session, file>"}],
     "found_by": "<the search or question that led you to it>",
     "why_it_stuck": "<why this one stayed with you>",
     "his_audio": "<yes | no | unknown: is there a recording of him saying it>",
@@ -71,6 +71,7 @@ Bring back raw moments, not pitches: at least {n}, spread across your time toget
 
 Honesty over polish:
 - Only what's in the record. Copy the words; don't reconstruct them. If you only have the gist, write it and set "verbatim": false. Never fill a gap.
+- A row stored under his role is not always him. A compaction handoff, a replayed copy of an earlier row, a report another agent pasted in (a UI artifact like "Ran 1 shell command", a tool header), one of noirstudio's own notes to you (they arrive in api-* sessions, under his account) and text that talks about him in the third person ("Michael decides...") all look like his words and are not. Before you return a line of his, check where it lives, and set "his_words" on it: "yes" only when you know it is him (typed by him, or transcribed from his voice), "unsure" when you cannot tell, and leave the line out when it is not.
 - If a moment touches {OFF_SCREEN}, keep it, but list those under "off_screen". Mark sensitivity honestly (health, family, money, legal, other people). Michael approves everything before anything is made.
 - Already told or already pitched, so don't bring these back:
 {skip}
@@ -139,7 +140,26 @@ def moment_problems(m: dict) -> List[str]:
     recalled = sum(1 for x in lines if x.get("verbatim") is False)
     if recalled:
         problems.append(f"{recalled} of {len(lines)} lines recalled, not copied")
+    states = [_his_words(x) for x in lines if x.get("speaker") == "michael"]
+    for state, what in (("no", "of his lines are NOT his words"), ("unsure", "of his lines: authorship unsure"),
+                        (None, "of his lines: authorship not checked")):
+        if states.count(state):
+            problems.append(f"{states.count(state)} {what}")
     return problems
+
+
+def _his_words(line: dict) -> Optional[str]:
+    """yes / unsure / no as she marked it, or None if she did not say."""
+    value = line.get("his_words")
+    if value is True:
+        return "yes"
+    if value is False:
+        return "no"
+    word = str(value or "").strip().lower()
+    for state in ("yes", "unsure", "no"):
+        if word == state or word.startswith(state + " ") or word.startswith(state + ":") or word.startswith(state + ","):
+            return state
+    return None
 
 
 def _quote(text: object) -> str:
@@ -168,6 +188,8 @@ def dig_markdown(dig: dict, job: dict) -> str:
             where = " · ".join(str(v) for v in (str(x.get("kind", "")).replace("_", " "), x.get("when"),
                                                  f"`{x['ref']}`" if x.get("ref") else "") if v)
             recalled = " *(recalled, not verbatim)*" if x.get("verbatim") is False else ""
+            if x.get("speaker") == "michael" and _his_words(x) in ("no", "unsure"):
+                recalled += f" *(his words? {str(x.get('his_words')).strip()})*"
             out.append(f"- **{str(x.get('speaker', '?')).capitalize()}** ({where}){recalled}\n  > {_quote(x.get('text', ''))}")
         out += ["", f"**Why it stuck:** {m.get('why_it_stuck', '')}", f"**Found by:** {m.get('found_by', '')}",
                 f"**His audio:** {m.get('his_audio', 'unknown')} · **Sensitivity:** {sens.get('level', '?')}"
