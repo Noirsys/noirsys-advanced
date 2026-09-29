@@ -135,3 +135,16 @@ def test_cli_dig_collect_moments_and_follow(tmp_path, monkeypatch, capsys):
     sent = fake.calls[-1][3]["messages"][0]["content"]
     assert '"id": "first-voice-note"' in sent and "the next morning" in sent
     assert h.read_jobs(tmp_path)[-1]["follow"] == "first-voice-note"
+
+
+def test_tell_sends_a_note_and_keeps_her_answer(tmp_path, monkeypatch, capsys):
+    fake = FakeN8N((202, {"id": "n1"}), (200, {"status": "completed", "result": {
+        "choices": [{"message": {"content": "Copied all 18 files. Nothing deleted."}}]}}))
+    monkeypatch.setattr(h, "_request", fake)
+    assert main(["harriet", "tell", "--root", str(tmp_path)]) == 1
+    assert main(["harriet", "tell", "--note", "Please keep his voice notes.", "--root", str(tmp_path)]) == 0
+    assert fake.calls[0][3]["messages"][0]["content"] == "Please keep his voice notes."
+    assert main(["harriet", "collect", "--root", str(tmp_path)]) == 0
+    (note,) = (tmp_path / "notes").glob("*.md")
+    text = note.read_text()
+    assert "Please keep his voice notes." in text and "# Harriet\n\nCopied all 18 files." in text

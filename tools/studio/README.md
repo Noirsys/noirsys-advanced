@@ -155,6 +155,7 @@ noirstudio harriet dig --focus "the first month"  # point the next dive somewher
 noirstudio harriet collect                        # pick up finished dives (async jobs, up to 30 min each)
 noirstudio harriet moments                        # what she has found: id, kind, when, how much is his, how much is copied
 noirstudio harriet dig --follow <moment-id>       # open one moment all the way up: the whole exchange, before and after
+noirstudio harriet tell --note "..."            # a production note or request; her answer lands in stories/notes/
 noirstudio harriet pitch | inbox                  # curated pitches, if you want her shortlist
 noirstudio cut diary/ep01-2026-09-27.cuts.yaml --master ep01.mp4 --check   # caps + every seam in a pause?
 noirstudio cut diary/ep01-2026-09-27.cuts.yaml --master ep01.mp4           # <=3:00 / <=60 s at -14 LUFS

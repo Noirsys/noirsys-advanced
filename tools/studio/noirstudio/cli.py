@@ -14,6 +14,7 @@
     noirstudio draft short my-slug --topic "..." | draft titles "..."
     noirstudio loop agent-log [--push --pr]      the whole daily loop in one command (what CI runs)
     noirstudio harriet dig [--focus ...] [--follow ID] | collect | moments   Harriet goes through her memory (private)
+    noirstudio harriet tell --note "..."         a note or request for her; her answer lands in stories/notes/
     noirstudio harriet pitch [--kinds emotional,funny] | inbox   curated pitches from her (private inbox)
     noirstudio cut diary/<ep>.cuts.yaml --master EP.mp4   platform versions of a finished episode
     noirstudio safe-area EP.mp4                  how often text sits under the platforms' buttons/captions
@@ -250,6 +251,13 @@ def _cmd_harriet(args: argparse.Namespace) -> int:
             if not changed and not running:
                 print("no open jobs")
             return 0
+        if cmd == "tell":
+            if not args.note.strip():
+                say("tell needs --note \"...\" (a production note or request for her)")
+                return 1
+            job = d.start(root, "note", args.note.strip(), note=args.note.strip())
+            print(f"note job {job['id']} started; collect her answer with: noirstudio harriet collect")
+            return 0
         if cmd == "dig":
             if args.follow:
                 moment = d.find_moment(root, args.follow)
@@ -453,9 +461,10 @@ def build_parser() -> argparse.ArgumentParser:
     lp.set_defaults(fn=_cmd_loop)
 
     hr = sub.add_parser("harriet", help="Harriet's memory: dig for raw moments, pitch diary stories (Hermes via n8n)")
-    hr.add_argument("harriet_cmd", choices=["dig", "collect", "moments", "pitch", "inbox"],
+    hr.add_argument("harriet_cmd", choices=["dig", "collect", "moments", "tell", "pitch", "inbox"],
                     help="dig: she goes through her memory (async job); collect: pick up finished jobs; "
-                         "moments: what she has found; pitch/inbox: curated pitches")
+                         "moments: what she has found; tell: send her a note (--note); pitch/inbox: curated pitches")
+    hr.add_argument("--note", default="", help="tell: the note or request, sent as-is; her answer lands in stories/notes/")
     hr.add_argument("-n", type=int, default=0, help="dig: how many moments (default 10); pitch: how many stories")
     hr.add_argument("--focus", default="", help="dig: where to look this time, e.g. 'the first month'; "
                                                 "with --follow: what to ask about that moment")

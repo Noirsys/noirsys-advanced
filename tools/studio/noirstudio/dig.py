@@ -205,6 +205,12 @@ def start(root: Path, what: str, prompt: str, *, request: h.Requester = None, **
 def save_reply(root: Path, job: dict, reply: str) -> List[Path]:
     """Keep a finished job's reply: pitches go to the inbox, digs to stories/digs/ (JSON + Markdown)."""
     stamp = str(job.get("started_at") or _now())[:10]
+    if job.get("what") == "note":  # a production note or request: keep her answer as she wrote it
+        path = root / "notes" / f"{stamp}-{h.slugify(str(job['id']), 40)}.md"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(f"# To Harriet ({job.get('started_at', '')})\n\n{job.get('note', '')}\n\n# Harriet\n\n{reply}\n",
+                        encoding="utf-8")
+        return [path]
     if job.get("what") == "pitch":
         raw = root / "raw" / f"{stamp}-{job['id']}.txt"
         raw.parent.mkdir(parents=True, exist_ok=True)
