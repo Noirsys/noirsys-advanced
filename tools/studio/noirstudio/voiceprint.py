@@ -207,7 +207,10 @@ def _read_pitch(path, x, a, on, reader: str = "auto", everything: bool = False):
             if reader == "praat":
                 raise VoiceNoteError('--pitch-reader praat needs praat-parselmouth: pip install "noirstudio[voice]"') from exc
         else:
-            return _praat_pitch(x, len(on), window), "praat"
+            try:
+                return _praat_pitch(x, len(on), window), "praat"
+            except Exception:  # Praat refuses some clips; that one has no pitch, and the batch goes on
+                return np.full(len(on), np.nan), "praat"
     p = _analyse(_decode(path, AUTOCORR_BAND))
     return _pitch(p["lag"], p["val"], window), "autocorr"
 

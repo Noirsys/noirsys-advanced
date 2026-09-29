@@ -133,6 +133,20 @@ def test_without_praat_the_numpy_reader_takes_over_and_says_so(tmp_path, monkeyp
         vp.voiceprint(path, levels=False, reader="crepe")
 
 
+def test_a_clip_praat_refuses_has_no_pitch_but_does_not_stop_the_batch(tmp_path, monkeypatch):
+    pytest.importorskip("parselmouth")
+    x, _ = formant_voice(3.0, 2.0, 5)
+    path = write(tmp_path / "v.wav", np.concatenate([hush(0.3), x, hush(0.3, seed=9)]))
+
+    def refuse(*_a, **_k):
+        raise RuntimeError("The Sound is too short")
+
+    monkeypatch.setattr(vp, "_praat_pitch", refuse)
+    r = vp.voiceprint(path, levels=False)
+    assert r["pitch_reader"] == "praat" and "f0_sd_st" not in r and r["speech_s"] > 2  # the rest of the row is fine
+    assert cli.main(["voiceprint", str(path), "--fast", "--json"]) == 0
+
+
 def test_a_summary_says_which_reader_made_the_pitch():
     rows = [{"speech_s": 5.0, "pitch_reader": "praat"}, {"speech_s": 6.0, "pitch_reader": "autocorr"},
             {"speech_s": 7.0}]
