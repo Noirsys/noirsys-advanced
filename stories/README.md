@@ -23,6 +23,10 @@ Harriet runs on Hermes behind Michael's n8n, which is OpenAI-compatible:
 
 Each request is a single user message, so her own persona and memory answer it, not ours. The instructions and the JSON shape to reply in are in the message itself (`noirstudio/dig.py`, `noirstudio/harriet.py`). The JSON is pulled out of her reply wherever it sits.
 
+**Every job runs in its own session.** She carries nothing from one job to the next except what is on her disk. Her build loop reads its scripts and amendments from files there, not from past jobs. So a note that changes production (a script, an amendment, a decision) must tell her to write it into a named file and to confirm the path. A note she only answers "noted" is lost to the loop. Two more consequences:
+- A job that takes longer than n8n's 30 minutes ends in HTTP 502, even if her work goes on. Ask her to run builds in the background and reply "started".
+- If her model provider runs out of credit, every job comes back with her 402 message as the reply.
+
 Configuration comes from the environment only:
 
 | Variable | Default / meaning |
