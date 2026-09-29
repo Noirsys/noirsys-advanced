@@ -1,20 +1,25 @@
-"""His voice notes, rebuilt: a clean read made to sound like a note he recorded on his phone.
+"""His voice notes, rebuilt: a clean read made to sound like him, talking at home into his phone.
 
 Where his recording of a voice note is lost and only the transcript survives, his own
-voice clone reads the line (his decision, 2026-09-29), and this makes the clean studio
-read sound like what it stands in for: a phone held close in a
-small room, sent over Telegram.
+voice clone reads the line (his decision, 2026-09-29). He talks quietly, at home, with a
+small noise floor in the room, and he thinks out loud (his note, the same night). So the
+line carries his disfluencies (uh, um, a restart, a self-correction) and `[pause 1.2]`
+marks where he stops to think. The pauses come out of the text before the clone reads it
+and go back in as real silence at the aligned word boundary, with his room running under
+them. Then the read goes through his phone:
 
     band      highpass 100 Hz, lowpass 8 kHz (24 dB/oct)     a phone mic's voice input
-    colour    -2 dB at 250 Hz, +3 dB at 2.8 kHz               a small capsule's presence
+    colour    -2 dB at 250 Hz, +1.5 dB at 2.8 kHz, -2 dB above 6 kHz   a quiet voice, not projected
     room      reflections at 11 and 23 ms                     a small room, close to the mouth
     AGC       3:1 above -24 dBFS, fast attack                 the phone's level control
-    level     linear gain to -18 LUFS, peaks held at -1.5 dBFS
-    tone      pink room tone at -50 dBFS, from 0.35 s before the first word to 0.5 s after the last
+    level     linear gain to -22 LUFS, peaks held at -1.5 dBFS
+    tone      his room: a dark room tone at -54 dBFS, or the real one (`--room`), from
+              0.35 s before the first word to 0.5 s after the last, and under every pause
     codec     Opus, mono, 48 kHz, 24 kbps, VoIP mode           Telegram's voice-note format
 
 `measure` reads one of his surviving notes (loudness, room tone, bitrate) so a rebuilt
-note can be matched to the real ones next to it. The filter never edits the speech
+note can be matched to the real ones next to it; `room_tone` lifts the quiet stretches
+out of one so his actual room plays under the clone. The filter never edits the speech
 itself: no time-stretch, no cuts.
 """
 
@@ -24,17 +29,21 @@ import json
 import re
 import statistics
 import subprocess
-from dataclasses import asdict, dataclass
+import wave
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Sequence, Tuple
 
 from . import ffmpeg
+from .captions import Word, normalize_text
 
 HIS_VOICE = "XwGJOzi38Fyoct3IvqA9"  # his Professional Voice Clone, eleven_v4
-# anoisesrc pink at amplitude 1, band-limited, reads -17.6 dBFS RMS; through Opus, measure() reads
-# its quietest tenth about 2.4 dB lower. noise_db means that reading, on both sides of a match.
-NOISE_GAIN_DB = 17.6 + 2.4
+# The synthetic room tone (pink, darkened) at amplitude 1 through Opus reads NOISE_GAIN_DB below
+# full scale in measure(); noise_db means that reading, on both sides of a match.
+NOISE_GAIN_DB = 19.7
+GATED_DB = -80.0  # a real note whose pauses read below this was noise-suppressed: no room to copy
 NOTE_EXTS = (".ogg", ".opus")  # these outputs are the Opus note itself; anything else is decoded
+DEFAULT_PAUSE_S = 0.8
 
 
 class VoiceNoteError(ValueError):
@@ -46,13 +55,14 @@ class NoteStyle:
     highpass_hz: float = 100.0
     lowpass_hz: float = 8000.0
     room: bool = True
-    lufs: float = -18.0
+    lufs: float = -22.0  # he talks quietly
     peak_db: float = -1.5
-    noise_db: float = -50.0  # room tone: RMS of the quietest tenth of 100 ms windows, as measure() reads it
+    noise_db: float = -54.0  # room tone: RMS of the quietest tenth of 100 ms windows, as measure() reads it
     lead_s: float = 0.35
     tail_s: float = 0.5
     kbps: int = 24
     seed: int = 7
+    room_tone: Optional[str] = None  # a WAV of his real room (room_tone()); None = the synthetic one
 
     def problems(self) -> List[str]:
         out = []
@@ -68,19 +78,34 @@ class NoteStyle:
             out.append("lead and tail: 0 to 5 s")
         if not 6 <= self.kbps <= 256:
             out.append(f"{self.kbps} kbps: Opus takes 6 to 256")
+        if self.room_tone and not Path(self.room_tone).exists():
+            out.append(f"room tone file {self.room_tone} is missing")
         return out
 
 
 def voice_chain(style: NoteStyle) -> str:
-    """The speech path before its level is set: band-limit, mic colour, room, AGC."""
+    """The speech path before its level is set: band-limit, a quiet voice's colour, room, AGC."""
     band = (f"highpass=f={style.highpass_hz:g}:poles=2,highpass=f={style.highpass_hz:g}:poles=2,"
             f"lowpass=f={style.lowpass_hz:g}:poles=2,lowpass=f={style.lowpass_hz:g}:poles=2")
     parts = ["aresample=48000", "aformat=sample_fmts=fltp:channel_layouts=mono", band,
-             "equalizer=f=250:t=q:w=1:g=-2", "equalizer=f=2800:t=q:w=1.2:g=3"]
+             "equalizer=f=250:t=q:w=1:g=-2", "equalizer=f=2800:t=q:w=1.2:g=1.5", "highshelf=f=6000:g=-2"]
     if style.room:
-        parts.append("aecho=0.9:0.9:11|23:0.18|0.1")
+        parts.append("aecho=0.9:0.9:11|23:0.22|0.12")
     parts.append("acompressor=threshold=-24dB:ratio=3:attack=5:release=90:makeup=2")
     return ",".join(parts)
+
+
+def room_chain(style: NoteStyle, total: float) -> Tuple[List[str], str]:
+    """Extra ffmpeg inputs and the filter that makes the room bed [n], `total` seconds long."""
+    if style.room_tone:
+        reading = _floor(Path(style.room_tone))
+        gain = style.noise_db - reading
+        return (["-stream_loop", "-1", "-i", style.room_tone],
+                f"[1:a]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=mono,atrim=0:{total:.3f},"
+                f"asetpts=PTS-STARTPTS,volume={gain:.2f}dB[n]")
+    return ([], f"anoisesrc=d={total:.3f}:c=pink:r=48000:a=1:seed={style.seed},"
+                f"highpass=f={style.highpass_hz:g},lowpass=f=3500,equalizer=f=150:t=q:w=1:g=4,"
+                f"volume={style.noise_db + NOISE_GAIN_DB:.2f}dB[n]")
 
 
 _LOUDNORM_JSON = re.compile(r"\{[^{}]*\"input_i\"[^{}]*\}", re.S)
@@ -108,18 +133,17 @@ def render(src: Path, out: Path, style: Optional[NoteStyle] = None) -> dict:
     total = style.lead_s + speech + style.tail_s
     out.parent.mkdir(parents=True, exist_ok=True)
     note = out if out.suffix.lower() in NOTE_EXTS else out.with_name(out.stem + ".note.ogg")
+    room_inputs, room = room_chain(style, total)
 
     def encode(gain: float) -> float:
         graph = (f"[0:a]{voice_chain(style)},volume={gain:.2f}dB,"
                  f"alimiter=limit={10 ** (style.peak_db / 20):.4f}:level=0,"
-                 f"adelay={round(style.lead_s * 1000)}:all=1,apad=whole_dur={total:.3f}[v];"
-                 f"anoisesrc=d={total:.3f}:c=pink:r=48000:a=1:seed={style.seed},"
-                 f"highpass=f={style.highpass_hz:g},lowpass=f={style.lowpass_hz:g},"
-                 f"volume={style.noise_db + NOISE_GAIN_DB:.2f}dB[n];"
+                 f"adelay={round(style.lead_s * 1000)}:all=1,apad=whole_dur={total:.3f}[v];{room};"
                  f"[v][n]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,"
                  f"afade=t=in:d=0.02,afade=t=out:st={max(0.0, total - 0.04):.3f}:d=0.04[out]")
-        ffmpeg.run(["-y", "-i", str(src), "-filter_complex", graph, "-map", "[out]", "-ac", "1", "-ar", "48000",
-                    "-c:a", "libopus", "-b:a", f"{style.kbps}k", "-vbr", "on", "-application", "voip", str(note)])
+        ffmpeg.run(["-y", "-i", str(src), *room_inputs, "-filter_complex", graph, "-map", "[out]", "-ac", "1",
+                    "-ar", "48000", "-c:a", "libopus", "-b:a", f"{style.kbps}k", "-vbr", "on", "-application", "voip",
+                    str(note)])
         return loudness(note)
 
     gain = max(-40.0, min(40.0, style.lufs - measured))
@@ -136,11 +160,82 @@ def render(src: Path, out: Path, style: Optional[NoteStyle] = None) -> dict:
             "style": asdict(style)}
 
 
+# --- thinking pauses ----------------------------------------------------------------------
+
+_PAUSE = re.compile(r"\s*\[pause(?:\s+(\d+(?:\.\d+)?)\s*s?)?\]", re.I)
+_TAG = re.compile(r"\[[^\[\]\n]{1,48}\]")
+
+
+def split_pauses(text: str) -> Tuple[str, List[Tuple[int, float]]]:
+    """Take `[pause]` / `[pause 1.2]` out of a line: (line for the clone, [(words before it, seconds)]).
+
+    Where the text runs straight into a pause, an ellipsis is left so the clone trails off
+    there instead of reading through it.
+    """
+    pieces, pauses, pos = [], [], 0
+    for m in _PAUSE.finditer(text):
+        before = "".join(pieces) + text[pos:m.start()]
+        if before.strip() and not before.rstrip()[-1] in ".,!?…—-":
+            before = before.rstrip() + "…"
+        pieces, pos = [before], m.end()
+        pauses.append((len(_TAG.sub(" ", before).split()), float(m.group(1)) if m.group(1) else DEFAULT_PAUSE_S))
+    return normalize_text("".join(pieces) + text[pos:]), pauses
+
+
+def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[int, float]]) -> List[Word]:
+    """Put the pauses back into the clean read as silence, between the aligned words; returns shifted words."""
+    if not pauses:
+        return list(words)
+    at = []
+    for k, seconds in pauses:
+        if not words or k <= 0:
+            t = 0.0
+        elif k >= len(words):
+            t = words[-1].end
+        else:
+            t = (words[k - 1].end + words[k].start) / 2
+        at.append((t, seconds))
+    at.sort()
+    with wave.open(str(wav_path), "rb") as wf:
+        params, rate = wf.getparams(), wf.getframerate()
+        frame_bytes = wf.getsampwidth() * wf.getnchannels()
+        audio = wf.readframes(wf.getnframes())
+    chunks, last = [], 0
+    for t, seconds in at:
+        cut = min(len(audio), round(t * rate) * frame_bytes)
+        chunks += [audio[last:cut], b"\x00" * (round(seconds * rate) * frame_bytes)]
+        last = cut
+    chunks.append(audio[last:])
+    with wave.open(str(wav_path), "wb") as wf:
+        wf.setparams(params)
+        wf.writeframes(b"".join(chunks))
+    shifted = []
+    for w in words:
+        d = sum(s for t, s in at if w.start >= t)
+        shifted.append(Word(w.text, round(w.start + d, 3), round(w.end + d, 3)))
+    return shifted
+
+
 # --- matching a real note -----------------------------------------------------------------
 
 _BITRATE = re.compile(r"Duration: .*?bitrate: (\d+) kb/s")
 _AUDIO = re.compile(r"Stream #\d+:\d+.*?Audio: (\w+), (\d+) Hz, (\w+)")
 _RMS = re.compile(r"lavfi\.astats\.Overall\.RMS_level=(-?[\d.]+|-inf)")
+
+
+def _levels(path: Path, rate: int, window_s: float = 0.1) -> List[float]:
+    err = ffmpeg.run(["-nostats", "-i", str(path), "-vn", "-af",
+                      f"asetnsamples=n={max(1, round(rate * window_s))}:p=0,astats=metadata=1:reset=1,"
+                      "ametadata=mode=print:key=lavfi.astats.Overall.RMS_level", "-f", "null", "-"])
+    return sorted(float(v) for v in _RMS.findall(err) if v != "-inf")
+
+
+def _floor(path: Path) -> float:
+    """The quietest tenth of a file's 100 ms windows (RMS dBFS): how measure() reads room tone."""
+    levels = _levels(path, 48000)
+    if not levels:
+        return -120.0
+    return statistics.quantiles(levels, n=10)[0] if len(levels) >= 2 else levels[0]
 
 
 def measure(path: Path, window_s: float = 0.1) -> dict:
@@ -151,10 +246,7 @@ def measure(path: Path, window_s: float = 0.1) -> dict:
     if not audio:
         raise VoiceNoteError(f"no audio stream in {path}")
     rate = int(audio.group(2))
-    err = ffmpeg.run(["-nostats", "-i", str(path), "-vn", "-af",
-                      f"asetnsamples=n={max(1, round(rate * window_s))}:p=0,astats=metadata=1:reset=1,"
-                      "ametadata=mode=print:key=lavfi.astats.Overall.RMS_level", "-f", "null", "-"])
-    levels = sorted(float(v) for v in _RMS.findall(err) if v != "-inf")
+    levels = _levels(path, rate, window_s)
     if not levels:
         raise VoiceNoteError(f"{path} is silent")
     floor = statistics.quantiles(levels, n=10)[0] if len(levels) >= 2 else levels[0]
@@ -165,8 +257,38 @@ def measure(path: Path, window_s: float = 0.1) -> dict:
 
 
 def matched(style: NoteStyle, ref: dict) -> NoteStyle:
-    """A style that lands a rebuilt note at a real one's loudness, room tone and bitrate."""
+    """A style that lands a rebuilt note at a real one's loudness, room tone and bitrate.
+
+    A note whose pauses read below GATED_DB was noise-suppressed on the way in, and its
+    silence isn't his room, so the room tone stays as it is.
+    """
     kbps = ref.get("kbps")
-    return NoteStyle(**{**asdict(style), "lufs": max(-40.0, min(-8.0, float(ref["lufs"]))),
-                        "noise_db": max(-100.0, min(-20.0, float(ref["noise_db"]))),
-                        "kbps": max(6, min(256, int(kbps))) if kbps else style.kbps})
+    noise = float(ref["noise_db"])
+    return replace(style, lufs=max(-40.0, min(-8.0, float(ref["lufs"]))),
+                   noise_db=max(-100.0, min(-20.0, noise)) if noise >= GATED_DB else style.noise_db,
+                   kbps=max(6, min(256, int(kbps))) if kbps else style.kbps)
+
+
+def room_tone(real: Path, out: Path, min_s: float = 0.2) -> Optional[dict]:
+    """His room, lifted from one of his real notes: its quiet stretches, joined into a WAV to loop.
+
+    Returns None when the note has no room in it (noise-suppressed, or too little silence).
+    """
+    from .cut import silences
+
+    ref = measure(real)
+    if ref["noise_db"] < GATED_DB:
+        return None
+    edge = 0.03  # keep clear of the words on either side
+    # silencedetect compares sample peaks, and room noise peaks sit 10-12 dB over its RMS reading
+    spans = [(a + edge, b - edge) for a, b in silences(real, ref["noise_db"] + 14, min_s) if b - a >= min_s + 2 * edge]
+    if sum(b - a for a, b in spans) < 0.5:
+        return None
+    chains = [f"[0:a]atrim={a:.3f}:{b:.3f},asetpts=PTS-STARTPTS,afade=t=in:d=0.01,"
+              f"afade=t=out:st={b - a - 0.01:.3f}:d=0.01[s{i}]" for i, (a, b) in enumerate(spans)]
+    graph = ";".join(chains) + ";" + "".join(f"[s{i}]" for i in range(len(spans))) + f"concat=n={len(spans)}:v=0:a=1[out]"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    ffmpeg.run(["-y", "-i", str(real), "-filter_complex", graph, "-map", "[out]", "-ac", "1", "-ar", "48000",
+                "-c:a", "pcm_s16le", str(out)])
+    return {"path": str(out), "seconds": round(sum(b - a for a, b in spans), 2), "stretches": len(spans),
+            "noise_db": ref["noise_db"]}

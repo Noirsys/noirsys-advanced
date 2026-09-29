@@ -51,6 +51,7 @@ This supersedes Bet 0's framing in `02-growth-playbook.md` ("Agent Log: her chan
 - **Trust.** Put "true story" on screen and in the description. Lines get shaped, so never claim "every word from the record". It answers the skepticism of developer audiences toward AI-made content (*Writing code by hand is now an advantage*: 345.8K views).
 - **His voice carries it.** Use his real recordings wherever they exist; about 40% of episode 1 is his voice.
   - Where only a transcript survives, his own voice clone reads the line, made to sound like the phone note it replaces (`noirstudio voicenote`, matched to his surviving notes). His decision, 2026-09-29.
+  - His lines sound like him, not like a read: uh and um, restarts, self-corrections, thinking pauses. Quiet, with his room under it. His note, the same night.
   - **Content, not testimony** (his decision, 2026-09-29): lines can be tightened, reordered, cut or added to make an episode great. Digs stay word for word, so we always know what really happened before we shape it. No invented words for anyone but him and Harriet.
   - Both voices run on ElevenLabs `eleven_v4`.
 
