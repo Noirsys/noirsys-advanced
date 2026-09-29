@@ -292,7 +292,7 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
 # --- matching a real note -----------------------------------------------------------------
 
 _BITRATE = re.compile(r"Duration: .*?bitrate: (\d+) kb/s")
-_AUDIO = re.compile(r"Stream #\d+:\d+.*?Audio: (\w+), (\d+) Hz, (\w+)")
+_AUDIO = re.compile(r"Stream #\d+:\d+.*?Audio: (\w+)[^,]*, (\d+) Hz, (\w+)")  # a WAV says "pcm_s16le ([1][0][0][0] / 0x0001),"
 _RMS = re.compile(r"lavfi\.astats\.Overall\.RMS_level=(-?[\d.]+|-inf)")
 
 

@@ -163,6 +163,7 @@ noirstudio safe-area ep01.mp4                     # how often text sits under th
 noirstudio voicenote --measure his-real-note.ogg  # a surviving note: codec, bitrate, loudness, room tone
 noirstudio voicenote --say "his line" note.ogg --match his-real-note.ogg   # a lost note, rebuilt
 noirstudio voicenote clean-read.wav note.wav      # or filter a read you already have
+noirstudio voiceprint his/*.ogg --vs reads/*.ogg  # how close our reads are to his real notes: pitch swing, pauses, crispness
 ```
 
 A **dig** asks for raw moments, not pitches. She is told to put away anything she has already written up and search the record itself. Each moment has to carry the exchange line by line (who, when, where it lives), and `"verbatim": false` marks anything she recalled rather than copied. She also returns her dig log (what she searched) and the threads she didn't open. The moments she has already brought are sent back with the next dive so she goes somewhere new. `--follow` sends one moment back and asks for all of it, word for word.
@@ -177,6 +178,13 @@ She runs on Hermes behind Michael's n8n, which is OpenAI-compatible: `POST …/j
 - Opus at 24 kbps mono (Telegram's format).
 
 **"Too perfect, too dynamic, too articulate"** (his note, the same night): a clone trained on his studio voice performs, and he mumbles at home. `--rough 0-3` (default 2) makes it lazier. In the filter, each step softens the top end (lowpass 8 → 6.5 / 5.5 / 4.8 kHz, a shelf, a de-esser), takes the presence out of the consonants, adds a little body, and squashes the swings in level; step 2 takes about 9 dB out of everything above 5 kHz, measured. In the text, `roughen` turns ellipses, dashes and "!" into commas, drops mid-line question marks, and (2+) writes "gonna", "wanna", "kinda", "dunno". `--stability` (default 0.85; the v3 read was 0.5) is the clone's steadiness, and it is the strongest lever on the intonation. `--rough 0 --stability 0.5` reproduces v3 exactly, so the two can be A/B'd. The scripts' lines matter as much as the settings: write him the way his transcripts read (run-ons, repeats, "like", little punctuation), not the way a sentence is built. The ceiling is the clone's training data; where a real recording survives it beats any clone.
+
+**How close is it?** `voiceprint` turns those three complaints into numbers, so a read can be judged against his real notes before anyone listens (it needs numpy: `pip install "noirstudio[voice]"`). It reads each file at 16 kHz and reports, per file and as a median with the middle half over a set:
+- *dynamic*: how far the pitch swings (`f0_sd_st`, `f0_range_st`, `f0_move_st_s`, in semitones) and how far the level swings (`level_sd_db`, `level_range_db`);
+- *articulate*: how crisp the top end is (`hf_db`, the share of 4-8 kHz energy; `centroid_hz`) and how even the syllables run (`syll_cv`);
+- *perfect*: how few and how short the pauses are (`pauses_per_min`, `pause_median_s`, `pause_ratio`, `longest_pause_s`; a pause is a gap of 0.2 s or more).
+
+`noirstudio voiceprint his/*.ogg --vs reads/*.ogg` sets his notes next to ours and says, per metric, whether ours is *close* (inside his middle half, or within 20% of his median), *too performed* (on the polished side of him by more than that: more swing, a crisper top end, fewer pauses) or *past him* (beyond him the other way). A `.words.json` beside a read (which `voicenote --say` writes) or a `--words MAP.json` gives words per minute. It measures habits, not words, and it can't hear: the last call is still an ear's.
 
 Loudness is set by linear gain (-22 LUFS: he talks quietly), checked after encoding. `--match` measures one of his surviving notes (loudness, the quietest tenth of its 100 ms windows as room tone, bitrate) and lands the rebuilt one on the same numbers. A note whose pauses read below -80 dBFS was noise-suppressed on the way in, so its room tone isn't copied. `--room` lifts the quiet stretches out of one of his real notes and loops them under the rebuilt one, so the room is his actual room. The filter never edits the speech itself (no time-stretch, no cuts). `--say` also writes the word timings, shifted by the lead-in, for his captions.
 

@@ -19,6 +19,7 @@
     noirstudio cut diary/<ep>.cuts.yaml --master EP.mp4   platform versions of a finished episode
     noirstudio safe-area EP.mp4                  how often text sits under the platforms' buttons/captions
     noirstudio voicenote --say "um, his line [pause 1]" OUT.ogg [--match|--room REAL.ogg]   a lost voice note of his, rebuilt
+    noirstudio voiceprint HIS.ogg ... --vs OURS.ogg ...   how close our reads are to his real notes, in numbers
 """
 
 from __future__ import annotations
@@ -435,6 +436,69 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_voiceprint(args: argparse.Namespace) -> int:
+    import json
+
+    from .ffmpeg import FFmpegError
+    from .voicenote import VoiceNoteError
+    from .voiceprint import compare, summarize, table, voiceprint
+
+    counts = json.loads(Path(args.words).read_text(encoding="utf-8")) if args.words else {}
+
+    def words_for(path: Path):
+        """A word count for one file: from --words (a number, or the transcript), else a .words.json beside it."""
+        given = counts.get(path.name, counts.get(str(path), counts.get(path.stem)))
+        if isinstance(given, str):
+            given = len(given.split())
+        side = path.with_name(path.stem + ".words.json")
+        if given is None and side.exists():
+            listed = json.loads(side.read_text(encoding="utf-8")).get("words")
+            given = len(listed) if isinstance(listed, list) else None
+        return given
+
+    def read(paths):
+        rows, failed = [], []
+        for name in paths:
+            path = Path(name)
+            try:
+                rows.append(voiceprint(path, words=words_for(path), levels=not args.fast))
+            except (VoiceNoteError, FFmpegError, FileNotFoundError) as exc:
+                failed.append(f"{name}: {str(exc).splitlines()[0]}")
+        return rows, failed
+
+    his, bad = read(args.paths)
+    ours, bad_ours = read(args.vs or [])
+    bad += bad_ours
+    his_sum = summarize(his, args.min_speech)
+    ours_sum = summarize(ours, args.min_speech) if ours else None
+    rows = compare(his_sum, ours_sum) if ours_sum and ours_sum["n"] and his_sum["n"] else []
+    if args.json:
+        print(json.dumps({"his": his, "his_summary": his_sum, "ours": ours, "ours_summary": ours_sum,
+                          "compare": rows, "failed": bad}, indent=2))
+        return 1 if bad and not his else 0
+    label = "his" if ours_sum else "these"
+    print(f"{label}: {his_sum['n']} files, {his_sum['speech_min']} min of speech"
+          + (f" ({his_sum['skipped']} skipped: under {args.min_speech:g} s of speech)" if his_sum["skipped"] else ""))
+    if ours_sum:
+        print(f"ours: {ours_sum['n']} files, {ours_sum['speech_min']} min of speech"
+              + (f" ({ours_sum['skipped']} skipped)" if ours_sum["skipped"] else ""))
+    for line in bad:
+        print(f"skipped {line}", file=sys.stderr)
+    if rows:
+        print()
+        print(table(rows))
+        print("\ntoo performed: ours sits on the polished side of his middle half by more than 20%.  "
+              "past him: beyond him the other way.")
+    else:
+        for key, value in his_sum.items():
+            if isinstance(value, dict):
+                print(f"  {key:<17}{value['median']:g}  ({value['q1']:g} to {value['q3']:g})")
+    for key in ("wpm_speech", "wpm_total"):
+        if his_sum.get(key) and ours_sum and ours_sum.get(key):
+            print(f"{key}: his {his_sum[key]['median']:g}, ours {ours_sum[key]['median']:g}")
+    return 1 if bad and not his else 0
+
+
 def _cmd_fonts(_args: argparse.Namespace) -> int:
     for p in sorted(FONTS_DIR.glob("*.ttf")):
         print(f"{p.name:<36} family='{font_family_name(p)}'")
@@ -588,6 +652,16 @@ def build_parser() -> argparse.ArgumentParser:
     vn.add_argument("--no-room", action="store_true", help="no small-room reflections")
     vn.add_argument("--json", action="store_true")
     vn.set_defaults(fn=_cmd_voicenote)
+
+    vp = sub.add_parser("voiceprint", help="how close reads are to his real notes: pitch swing, pauses, crispness (needs numpy)")
+    vp.add_argument("paths", nargs="+", metavar="HIS", help="his real notes (or any set of audio to measure)")
+    vp.add_argument("--vs", nargs="+", metavar="OURS", help="our reads, to set next to his")
+    vp.add_argument("--words", metavar="MAP.json",
+                    help="file name -> word count (or the transcript), for words per minute; a .words.json beside a read counts too")
+    vp.add_argument("--min-speech", type=float, default=2.0, help="skip clips with less speech than this, s (default 2)")
+    vp.add_argument("--fast", action="store_true", help="skip the loudness and room-tone readings")
+    vp.add_argument("--json", action="store_true")
+    vp.set_defaults(fn=_cmd_voiceprint)
     return p
 
 

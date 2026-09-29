@@ -20,6 +20,7 @@ noirstudio harriet dig [--focus ...|--follow ID] && noirstudio harriet collect  
 noirstudio harriet moments | pitch | inbox                      # what she found; curated pitches
 noirstudio cut diary/<ep>.cuts.yaml --master EP.mp4 [--check]    # full / <=3:00 / <=60 s versions, -14 LUFS
 noirstudio voicenote --say "his line" OUT.ogg --match REAL.ogg   # a lost voice note of his, rebuilt (ELEVENLABS_API_KEY)
+noirstudio voiceprint HIS.ogg ... --vs OURS.ogg ...              # how close our reads are to his real notes, in numbers (needs numpy)
 noirstudio validate specs/<id>.yaml
 noirstudio render specs/<id>.yaml --out renders/<id>             # offline preview, no keys
 noirstudio render specs/<id>.yaml --out renders/<id> --live      # ELEVENLABS_API_KEY
