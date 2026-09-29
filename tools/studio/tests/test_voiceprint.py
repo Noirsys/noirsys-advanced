@@ -203,7 +203,8 @@ def test_voicenote_cli_swing_on_a_read_you_already_have(tmp_path, capsys):
     capsys.readouterr()
     assert cli.main(["voicenote", str(src), str(flat), "--swing", "2.0", "--json"]) == 0
     report = json.loads(capsys.readouterr().out)
-    assert report["swing"]["target_st"] == 2.0 and report["swing"]["after_st"] < report["swing"]["before_st"]
+    assert report["swing"]["swing_target_st"] == 2.0
+    assert report["swing"]["swing_after_st"] < report["swing"]["swing_before_st"]
     assert not (tmp_path / "flat.swung.wav").exists()  # the working copy is cleaned up
     assert vp.voiceprint(flat, levels=False)["f0_sd_st"] < 0.75 * vp.voiceprint(plain, levels=False)["f0_sd_st"]
 
@@ -252,9 +253,81 @@ def test_say_with_swing_hesitate_and_raw_end_to_end(tmp_path, monkeypatch):
     args = ["voicenote", "--say", text, str(out), "--rough", "2", "--raw", "--swing", "2.0", "--hesitate", "2"]
     assert cli.main(args) == 0
     got = json.loads((tmp_path / "note.words.json").read_text(encoding="utf-8"))
-    assert got["swing"]["before_st"] > 3 and got["swing"]["after_st"] == pytest.approx(2.0, abs=0.7)
+    assert got["swing"]["swing_before_st"] > 3 and got["swing"]["swing_after_st"] == pytest.approx(2.0, abs=0.4)
     assert got["pauses"] and all(p["auto"] for p in got["pauses"])
     assert [w["text"] for w in got["words"]] == tokens  # the captions are the script's own words
     added = sum(p["s"] for p in got["pauses"])
     assert ffmpeg.probe_duration(out) == pytest.approx(0.35 + 4.6 + added + 0.5, abs=0.25)  # lead + read + pauses + tail
     assert got["words"][-1]["end"] == pytest.approx(0.35 + 0.3 + 4.0 + added - 0.6 * step, abs=0.2)
+
+
+# --- prosody: pitch level, swing and pace, found by measuring ---------------------------------
+
+def test_prosody_moves_the_pitch_level_the_swing_and_the_pace_together(tmp_path):
+    pytest.importorskip("parselmouth")
+    from noirstudio import ffmpeg
+    from noirstudio import voicenote as vn
+
+    src = _expressive_read(tmp_path)
+    got = vn.prosody(src, tmp_path / "his.wav", swing_st=2.5, median_hz=105, pace=1.25)
+    assert got["median_before_hz"] == pytest.approx(126, rel=0.05)
+    assert got["median_after_hz"] == pytest.approx(105, rel=0.06)  # 3.5 semitones lower
+    assert got["swing_after_st"] == pytest.approx(2.5, abs=0.35)  # found by measuring, not by the factor alone
+    assert got["pace_effective"] == pytest.approx(1.25, abs=0.03)
+    assert abs(got["drift_s"]) < 0.05
+    assert ffmpeg.probe_duration(tmp_path / "his.wav") == pytest.approx(1.25 * ffmpeg.probe_duration(src), rel=0.03)
+
+
+def test_prosody_pitch_alone_leaves_swing_and_pace_be(tmp_path):
+    pytest.importorskip("parselmouth")
+    from noirstudio import voicenote as vn
+
+    src = _expressive_read(tmp_path)
+    got = vn.prosody(src, tmp_path / "low.wav", median_hz=100)
+    assert got["median_after_hz"] == pytest.approx(100, rel=0.06)
+    assert got["swing_after_st"] == pytest.approx(got["swing_before_st"], rel=0.2)  # moving the level moves the swing a little;
+    assert got["pace_effective"] == pytest.approx(1.0, abs=0.02) and got["factor"] == 1.0  # asking for a swing corrects for it
+
+
+def test_prosody_with_nothing_to_change_copies_the_read_and_refuses_silly_numbers(tmp_path):
+    pytest.importorskip("parselmouth")
+    from noirstudio import voicenote as vn
+
+    steady = write(tmp_path / "steady.wav", np.concatenate([hush(0.3), 0.15 * tone(3.0), hush(0.3, seed=2)]))
+    got = vn.prosody(steady, tmp_path / "same.wav", swing_st=3.0)
+    assert got["pace_effective"] == 1.0 and (tmp_path / "same.wav").read_bytes() == steady.read_bytes()
+    for bad in ({"swing_st": 0.1}, {"median_hz": 20}, {"pace": 3.0}):
+        with pytest.raises(vn.VoiceNoteError):
+            vn.prosody(steady, tmp_path / "x.wav", **bad)
+
+
+def test_say_with_pitch_and_pace_scales_the_captions_with_the_speech(tmp_path, monkeypatch):
+    pytest.importorskip("parselmouth")
+    from noirstudio import ffmpeg
+    from noirstudio.voice import ElevenLabsVoice
+
+    mono = _expressive_read(tmp_path, "tts.wav")
+    stereo = tmp_path / "tts_stereo.wav"
+    ffmpeg.run(["-y", "-i", str(mono), "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", str(stereo)])
+    text = "so we should just go with the first one and see what happens"
+    tokens = text.split()
+    aligned = [{"text": w, "start": round(0.3 + i * 0.3, 3), "end": round(0.3 + i * 0.3 + 0.25, 3)} for i, w in enumerate(tokens)]
+
+    def fake_send(self, method, path, data, content_type, accept, query=""):
+        return json.dumps({"words": aligned}).encode() if path == "/v1/forced-alignment" else stereo.read_bytes()
+
+    monkeypatch.setenv("ELEVENLABS_API_KEY", "test-key")
+    monkeypatch.setattr(ElevenLabsVoice, "_send", fake_send)
+    plain, slow = tmp_path / "plain.ogg", tmp_path / "slow.ogg"
+    assert cli.main(["voicenote", "--say", text, str(plain), "--rough", "0"]) == 0
+    assert cli.main(["voicenote", "--say", text, str(slow), "--rough", "0", "--pitch", "105", "--pace", "1.25"]) == 0
+    a = json.loads((tmp_path / "plain.words.json").read_text(encoding="utf-8"))
+    b = json.loads((tmp_path / "slow.words.json").read_text(encoding="utf-8"))
+    assert b["swing"]["median_after_hz"] == pytest.approx(105, rel=0.07)
+    k = b["swing"]["pace_effective"]
+    assert k == pytest.approx(1.25, abs=0.03)
+    # a word's time on the captions is the alignment's, scaled by how much the speech was stretched
+    first, last = a["words"][0], a["words"][-1]
+    assert b["words"][-1]["end"] == pytest.approx(0.35 + (last["end"] - 0.35) * k, abs=0.03)
+    assert b["words"][0]["start"] == pytest.approx(0.35 + (first["start"] - 0.35) * k, abs=0.03)
+    assert ffmpeg.probe_duration(slow) > ffmpeg.probe_duration(plain) + 0.8

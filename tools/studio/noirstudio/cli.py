@@ -377,8 +377,8 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
     from .captions import Word
     from .ffmpeg import FFmpegError
     from .voice import VoiceError
-    from .voicenote import (NoteStyle, VoiceNoteError, hesitations, insert_pauses, matched, measure, rawify, render,
-                            roughen, room_tone, split_pauses, swing)
+    from .voicenote import (NoteStyle, VoiceNoteError, hesitations, insert_pauses, matched, measure, prosody, rawify,
+                            render, roughen, room_tone, split_pauses)
 
     if len(args.paths) != (1 if args.say or args.measure else 2):
         print("usage: voicenote IN OUT | voicenote --say TEXT OUT | voicenote --measure REAL", file=sys.stderr)
@@ -411,23 +411,25 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
             text = roughen(args.say, style.rough)
             line, pauses = split_pauses(rawify(text) if args.raw else text, trail="," if style.rough else "…")
             said = ElevenLabsVoice().synthesize(line, voice, out.with_name(out.stem + ".clean.wav"))
+            src, aligned = said.audio_path, said.words
+            if args.swing or args.pitch or args.pace:  # his pitch, swing and pace, on the speech before any pause goes in
+                unswung = src.with_name(out.stem + ".unswung.wav")
+                shutil.copyfile(src, unswung)
+                swung = prosody(unswung, src, args.swing, args.pitch, args.pace or 1.0)
+                k = swung["pace_effective"]
+                aligned = [Word(w.text, round(w.start * k, 3), round(w.end * k, 3)) for w in said.words]
             shown = None
             if args.raw:  # the clone read a run-on; the script's own words (casing, commas) still go on the captions
                 for source in (args.say, text):  # as written, else as roughened
                     tokens = [t for t in split_pauses(source, trail="")[0].split() if any(c.isalnum() for c in t)]
-                    if len(tokens) == len(said.words):
+                    if len(tokens) == len(aligned):
                         shown = tokens
                         break
-            auto = hesitations(" ".join(shown) if shown else line, said.words, pauses, args.hesitate, style.seed)
+            auto = hesitations(" ".join(shown) if shown else line, aligned, pauses, args.hesitate, style.seed)
             pauses = sorted(pauses + auto)
-            timed = insert_pauses(said.audio_path, said.words, pauses)
+            timed = insert_pauses(src, aligned, pauses)
             if shown:
                 timed = [Word(t, w.start, w.end) for t, w in zip(shown, timed)]
-            src = said.audio_path
-            if args.swing:
-                unswung = src.with_name(out.stem + ".unswung.wav")
-                shutil.copyfile(src, unswung)
-                swung = swing(unswung, src, args.swing)
             words = {"said": args.say, "read": line, "voice_id": args.voice, "model_id": args.model,
                      "stability": args.stability, "rough": style.rough, "swing": swung,
                      "timings": said.meta.get("timings"), "lead_s": style.lead_s,
@@ -437,9 +439,9 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
                                 "end": round(w.end + style.lead_s, 3)} for w in timed]}
         else:
             src = Path(args.paths[0])
-            if args.swing:
+            if args.swing or args.pitch or args.pace:
                 flat = out.with_name(out.stem + ".swung.wav")
-                swung = swing(src, flat, args.swing)
+                swung = prosody(src, flat, args.swing, args.pitch, args.pace or 1.0)
                 src = flat
         report = render(src, out, style)
         if flat is not None:
@@ -461,8 +463,11 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
               f"{report['lufs']:+.1f} LUFS  room tone {st['noise_db']:+.1f} dBFS  opus {st['kbps']} kbps"
               + (f"  words: {report['words']}" if words is not None else ""))
         if swung is not None:
-            print(f"pitch swing {swung['before_st']} -> {swung['after_st']} st (target {swung['target_st']:g}, "
-                  f"factor {swung['factor']:g})")
+            print(f"prosody: swing {swung['swing_before_st']} -> {swung['swing_after_st']} st"
+                  + (f" (target {swung['swing_target_st']:g})" if swung["swing_target_st"] else "")
+                  + f", pitch {swung['median_before_hz']} -> {swung['median_after_hz']} Hz"
+                  + (f" (target {swung['median_target_hz']:g})" if swung["median_target_hz"] else "")
+                  + f", pace x{swung['pace_effective']:g}")
     return 0
 
 
@@ -682,7 +687,13 @@ def build_parser() -> argparse.ArgumentParser:
                     "0 = none (default), 1 = his rate, 2 = twice as often. [pause N] markers in the line count toward it")
     vn.add_argument("--swing", type=float, metavar="ST",
                     help="flatten the read's pitch to at most this swing, in semitones (standard deviation; needs "
-                    "praat-parselmouth). `voiceprint` measures his: a clone swings further than he does at home")
+                    "praat-parselmouth). `voiceprint` measures his: a clone swings further than he does at home (3.1)")
+    vn.add_argument("--pitch", type=float, metavar="HZ",
+                    help="move the read's median pitch here (needs praat-parselmouth). The clone sat at 126-144 Hz on "
+                    "lines whose real recordings sit at 100-108")
+    vn.add_argument("--pace", type=float, metavar="X",
+                    help="slow (or quicken) the speech, pitch kept (needs praat-parselmouth): 1.2 is 20%% slower. "
+                    "The clone spoke about a quarter faster than he does")
     vn.add_argument("--lufs", type=float, help="loudness (default -22: he talks quietly)")
     vn.add_argument("--noise-db", type=float, help="room tone, dBFS (default -54)")
     vn.add_argument("--kbps", type=int, help="Opus bitrate (default 24)")

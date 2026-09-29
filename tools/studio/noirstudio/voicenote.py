@@ -376,41 +376,85 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
     return shifted
 
 
-# --- pitch swing --------------------------------------------------------------------------
+# --- pitch and pace -----------------------------------------------------------------------
 
-def swing(src: Path, out: Path, target_st: float, floor_hz: float = 70.0, ceiling_hz: float = 300.0) -> dict:
-    """Bring a read's pitch swing down to `target_st` semitones (standard deviation), median unchanged.
+def prosody(src: Path, out: Path, swing_st: Optional[float] = None, median_hz: Optional[float] = None,
+            pace: float = 1.0, floor_hz: float = 70.0, ceiling_hz: float = 300.0) -> dict:
+    """Bring a read's pitch level, pitch swing and speaking rate down to his, as `voiceprint` measures them.
 
-    A clone performs: its pitch rises and falls further than he does when he talks quietly at home
-    (`voiceprint` measures both). Praat's "Change gender" with a pitch range factor scales the
-    excursions around the median and leaves the voice, the formants and the timing alone, so the
-    aligned word timings stay valid. A read that already swings less than the target is copied as
-    it is: this only ever flattens. Needs praat-parselmouth (`pip install "noirstudio[voice]"`).
+    On the same words as two of his real notes, the clone sat 3 to 5 semitones higher (126-144 Hz
+    against his 100-108), swung its pitch twice as far (6 semitones against his 3) and spoke a
+    quarter faster (225 words a minute of speech against his 175). Praat's "Change gender" is a
+    pitch-synchronous resynthesis: it moves the pitch median (`median_hz`), scales the excursions
+    around it (`swing_st`, the pitch standard deviation in semitones as `voiceprint` reads it) and
+    lengthens the speech (`pace` 1.2 is 20% slower), while the voice, the formants and the level
+    stay. Praat scales the excursions it tracks and the estimator also sees jitter it doesn't, so the
+    factor is found by measuring the result and correcting, not assumed. A read already flatter than
+    `swing_st` keeps its swing: this only ever flattens.
+
+    Returns the before and after numbers, and `pace_effective`: what to multiply the aligned word
+    timings by. Needs praat-parselmouth (`pip install "noirstudio[voice]"`).
     """
     try:
         import parselmouth
         from parselmouth.praat import call
     except ImportError as exc:
-        raise VoiceNoteError('--swing needs praat-parselmouth: pip install "noirstudio[voice]"') from exc
+        raise VoiceNoteError('pitch, swing and pace need praat-parselmouth: pip install "noirstudio[voice]"') from exc
     from .voiceprint import voiceprint
 
-    if not 0.3 <= target_st <= 8:
-        raise VoiceNoteError(f"swing {target_st:g}: expected 0.3 to 8 semitones")
-    before = voiceprint(src, levels=False).get("f0_sd_st")
-    if not before or before <= target_st:
-        if Path(src) != Path(out):
+    if swing_st is not None and not 0.3 <= swing_st <= 8:
+        raise VoiceNoteError(f"swing {swing_st:g}: expected 0.3 to 8 semitones")
+    if median_hz is not None and not 60 <= median_hz <= 250:
+        raise VoiceNoteError(f"pitch {median_hz:g} Hz: expected 60 to 250")
+    if not 0.6 <= pace <= 1.6:
+        raise VoiceNoteError(f"pace {pace:g}: expected 0.6 to 1.6 (1.2 is 20% slower)")
+    src, out = Path(src), Path(out)
+    seen = voiceprint(src, levels=False)
+    sd0, median0 = seen.get("f0_sd_st"), seen.get("f0_median_hz")
+    flatten = swing_st is not None and bool(sd0) and sd0 > swing_st
+    if not flatten and median_hz is None and pace == 1.0:
+        if src != out:
             shutil.copyfile(src, out)
-        return {"target_st": target_st, "before_st": before, "after_st": before, "factor": 1.0, "drift_s": 0.0}
-    factor = max(0.15, min(1.0, target_st / before))
+        return {"swing_target_st": swing_st, "swing_before_st": sd0, "swing_after_st": sd0, "factor": 1.0,
+                "median_target_hz": None, "median_before_hz": median0, "median_after_hz": median0,
+                "pace": 1.0, "pace_effective": 1.0, "drift_s": 0.0}
     sound = parselmouth.Sound(str(src))
     if sound.n_channels > 1:  # a clone's read arrives as 48 kHz stereo, and Praat's gender change takes mono only
         sound = sound.convert_to_mono()
-    result = call(sound, "Change gender", floor_hz, ceiling_hz, 1.0, 0, factor, 1.0)
-    Path(out).parent.mkdir(parents=True, exist_ok=True)
-    result.save(str(out), "WAV")
-    after = voiceprint(out, levels=False).get("f0_sd_st")
-    return {"target_st": target_st, "before_st": before, "after_st": after, "factor": round(factor, 3),
-            "drift_s": round(ffmpeg.probe_duration(out) - ffmpeg.probe_duration(src), 3)}
+
+    def run(factor: float) -> dict:
+        result = call(sound, "Change gender", floor_hz, ceiling_hz, 1.0, float(median_hz or 0), factor, float(pace))
+        out.parent.mkdir(parents=True, exist_ok=True)
+        result.save(str(out), "WAV")
+        return voiceprint(out, levels=False)
+
+    factor = max(0.15, swing_st / sd0) if flatten else 1.0
+    got = run(factor)
+    if flatten:  # two secant steps on (factor -> measured swing), from (1.0 -> what it was)
+        earlier = (1.0, sd0)
+        for _ in range(2):
+            sd = got.get("f0_sd_st")
+            if sd is None or sd <= swing_st * 1.08 or sd == earlier[1] or factor == earlier[0]:
+                break
+            nxt = factor + (swing_st - sd) * (factor - earlier[0]) / (sd - earlier[1])
+            nxt = max(0.15, min(factor, nxt))
+            if factor - nxt < 0.01:
+                break
+            earlier, factor = (factor, sd), nxt
+            got = run(factor)
+    seconds_in, seconds_out = ffmpeg.probe_duration(src), ffmpeg.probe_duration(out)
+    return {"swing_target_st": swing_st, "swing_before_st": sd0, "swing_after_st": got.get("f0_sd_st"),
+            "factor": round(factor, 3), "median_target_hz": median_hz, "median_before_hz": median0,
+            "median_after_hz": got.get("f0_median_hz"), "pace": pace,
+            "pace_effective": round(seconds_out / seconds_in, 4) if seconds_in else 1.0,
+            "drift_s": round(seconds_out - seconds_in * pace, 3)}
+
+
+def swing(src: Path, out: Path, target_st: float, floor_hz: float = 70.0, ceiling_hz: float = 300.0) -> dict:
+    """Only the pitch swing of `prosody`: flatten a read to `target_st` semitones, median and pace unchanged."""
+    got = prosody(src, out, swing_st=target_st, floor_hz=floor_hz, ceiling_hz=ceiling_hz)
+    return {"target_st": target_st, "before_st": got["swing_before_st"], "after_st": got["swing_after_st"],
+            "factor": got["factor"], "drift_s": got["drift_s"]}
 
 
 # --- matching a real note -----------------------------------------------------------------
