@@ -382,3 +382,28 @@ def test_cli_raw_keeps_the_scripts_own_words_on_the_captions(clean, tmp_path, mo
     assert [w["text"] for w in got["words"]] == tokens  # "So," "uh," "I" "think..." "we" "should" "go" "now!"
     assert got["read"] == "so uh i think we should go now"
     assert got["words"][3]["start"] == pytest.approx(0.1 + 3 * 0.3 + 0.35)  # the timings are the alignment's, plus the lead-in
+
+
+def test_cli_raw_still_places_pauses_by_the_scripts_punctuation(clean, tmp_path, monkeypatch):
+    import noirstudio.voicenote as vn
+
+    text = "So, uh, I think we should probably just go with the first one, you know, and see what happens, right?"
+    said = "so uh i think we should probably just go with the first one you know and see what happens right".split()
+    seen = []
+    real = vn.hesitations
+
+    def spy(line, words, explicit=(), scale=1.0, seed=7, habits=None):
+        seen.append(line)
+        return real(line, words, explicit, scale, seed, habits)
+
+    def fake_send(self, method, path, data, content_type, accept, query=""):
+        if path == "/v1/forced-alignment":
+            return json.dumps({"words": [{"text": w, "start": round(0.1 + i * 0.3, 3), "end": round(0.1 + i * 0.3 + 0.25, 3)}
+                                         for i, w in enumerate(said)]}).encode()
+        return clean.read_bytes()
+
+    monkeypatch.setenv("ELEVENLABS_API_KEY", "test-key")
+    monkeypatch.setattr(ElevenLabsVoice, "_send", fake_send)
+    monkeypatch.setattr(vn, "hesitations", spy)
+    assert main(["voicenote", "--say", text, str(tmp_path / "c.ogg"), "--raw", "--hesitate", "1"]) == 0
+    assert seen == [text]  # the commas reach the pause-placer even though the clone never sees them

@@ -411,15 +411,18 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
             text = roughen(args.say, style.rough)
             line, pauses = split_pauses(rawify(text) if args.raw else text, trail="," if style.rough else "…")
             said = ElevenLabsVoice().synthesize(line, voice, out.with_name(out.stem + ".clean.wav"))
-            auto = hesitations(line, said.words, pauses, args.hesitate, style.seed)
+            shown = None
+            if args.raw:  # the clone read a run-on; the script's own words (casing, commas) still go on the captions
+                for source in (args.say, text):  # as written, else as roughened
+                    tokens = [t for t in split_pauses(source, trail="")[0].split() if any(c.isalnum() for c in t)]
+                    if len(tokens) == len(said.words):
+                        shown = tokens
+                        break
+            auto = hesitations(" ".join(shown) if shown else line, said.words, pauses, args.hesitate, style.seed)
             pauses = sorted(pauses + auto)
             timed = insert_pauses(said.audio_path, said.words, pauses)
-            if args.raw:  # the clone read a run-on; the captions keep the script's own casing and punctuation
-                for source in (args.say, text):  # the script as written, else as roughened
-                    shown = [t for t in split_pauses(source, trail="")[0].split() if any(c.isalnum() for c in t)]
-                    if len(shown) == len(timed):
-                        timed = [Word(t, w.start, w.end) for t, w in zip(shown, timed)]
-                        break
+            if shown:
+                timed = [Word(t, w.start, w.end) for t, w in zip(shown, timed)]
             src = said.audio_path
             if args.swing:
                 unswung = src.with_name(out.stem + ".unswung.wav")
