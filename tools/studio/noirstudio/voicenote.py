@@ -402,7 +402,10 @@ def swing(src: Path, out: Path, target_st: float, floor_hz: float = 70.0, ceilin
             shutil.copyfile(src, out)
         return {"target_st": target_st, "before_st": before, "after_st": before, "factor": 1.0, "drift_s": 0.0}
     factor = max(0.15, min(1.0, target_st / before))
-    result = call(parselmouth.Sound(str(src)), "Change gender", floor_hz, ceiling_hz, 1.0, 0, factor, 1.0)
+    sound = parselmouth.Sound(str(src))
+    if sound.n_channels > 1:  # a clone's read arrives as 48 kHz stereo, and Praat's gender change takes mono only
+        sound = sound.convert_to_mono()
+    result = call(sound, "Change gender", floor_hz, ceiling_hz, 1.0, 0, factor, 1.0)
     Path(out).parent.mkdir(parents=True, exist_ok=True)
     result.save(str(out), "WAV")
     after = voiceprint(out, levels=False).get("f0_sd_st")

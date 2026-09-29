@@ -214,3 +214,47 @@ def test_max_speech_keeps_long_dictations_out_of_a_short_comparison():
     assert vp.summarize(rows)["pause_median_s"]["median"] == 0.7
     short = vp.summarize(rows, 2.0, 25.0)
     assert short["n"] == 2 and short["skipped"] == 1 and short["pause_median_s"]["median"] == 0.6
+
+
+def test_swing_takes_the_stereo_wav_a_clones_read_arrives_as(tmp_path):
+    pytest.importorskip("parselmouth")
+    from noirstudio import ffmpeg
+    from noirstudio import voicenote as vn
+
+    mono = _expressive_read(tmp_path, "mono.wav")
+    stereo = tmp_path / "stereo.wav"  # what voice.to_wav() hands the tool: 48 kHz, two channels
+    ffmpeg.run(["-y", "-i", str(mono), "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", str(stereo)])
+    got = vn.swing(stereo, tmp_path / "flat.wav", 2.0)
+    assert got["after_st"] == pytest.approx(2.0, abs=0.6) and abs(got["drift_s"]) < 0.02
+
+
+def test_say_with_swing_hesitate_and_raw_end_to_end(tmp_path, monkeypatch):
+    """The whole H recipe through the fake clone: stereo 48 kHz in (as voice.to_wav makes it), a note and its captions out."""
+    pytest.importorskip("parselmouth")
+    from noirstudio import ffmpeg
+    from noirstudio.voice import ElevenLabsVoice
+
+    mono = _expressive_read(tmp_path, "tts.wav")
+    stereo = tmp_path / "tts_stereo.wav"
+    ffmpeg.run(["-y", "-i", str(mono), "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", str(stereo)])
+    text = "So, uh, I think we should probably just go with the first one, you know, and see what happens."
+    tokens = text.split()
+    step = 4.0 / len(tokens)
+    aligned = [{"text": w.lower().strip(",."), "start": round(0.3 + i * step, 3), "end": round(0.3 + i * step + step * 0.85, 3)}
+               for i, w in enumerate(tokens)]
+
+    def fake_send(self, method, path, data, content_type, accept, query=""):
+        return json.dumps({"words": aligned}).encode() if path == "/v1/forced-alignment" else stereo.read_bytes()
+
+    monkeypatch.setenv("ELEVENLABS_API_KEY", "test-key")
+    monkeypatch.setattr(ElevenLabsVoice, "_send", fake_send)
+    out = tmp_path / "note.ogg"
+    args = ["voicenote", "--say", text, str(out), "--rough", "2", "--raw", "--swing", "2.0", "--hesitate", "2"]
+    assert cli.main(args) == 0
+    got = json.loads((tmp_path / "note.words.json").read_text(encoding="utf-8"))
+    assert got["swing"]["before_st"] > 3 and got["swing"]["after_st"] == pytest.approx(2.0, abs=0.7)
+    assert got["pauses"] and all(p["auto"] for p in got["pauses"])
+    assert [w["text"] for w in got["words"]] == tokens  # the captions are the script's own words
+    added = sum(p["s"] for p in got["pauses"])
+    assert ffmpeg.probe_duration(out) == pytest.approx(0.35 + 4.6 + added + 0.5, abs=0.25)  # lead + read + pauses + tail
+    assert got["words"][-1]["end"] == pytest.approx(0.35 + 0.3 + 4.0 + added - 0.6 * step, abs=0.2)
