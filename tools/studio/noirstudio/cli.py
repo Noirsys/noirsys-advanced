@@ -376,8 +376,8 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
 
     from .ffmpeg import FFmpegError
     from .voice import VoiceError
-    from .voicenote import (NoteStyle, VoiceNoteError, insert_pauses, matched, measure, render, roughen, room_tone,
-                            split_pauses, swing)
+    from .voicenote import (NoteStyle, VoiceNoteError, hesitations, insert_pauses, matched, measure, render, roughen,
+                            room_tone, split_pauses, swing)
 
     if len(args.paths) != (1 if args.say or args.measure else 2):
         print("usage: voicenote IN OUT | voicenote --say TEXT OUT | voicenote --measure REAL", file=sys.stderr)
@@ -409,6 +409,8 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
                           similarity_boost=args.similarity)
             line, pauses = split_pauses(roughen(args.say, style.rough), trail="," if style.rough else "…")
             said = ElevenLabsVoice().synthesize(line, voice, out.with_name(out.stem + ".clean.wav"))
+            auto = hesitations(line, said.words, pauses, args.hesitate, style.seed)
+            pauses = sorted(pauses + auto)
             timed = insert_pauses(said.audio_path, said.words, pauses)
             src = said.audio_path
             if args.swing:
@@ -418,7 +420,8 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
             words = {"said": args.say, "read": line, "voice_id": args.voice, "model_id": args.model,
                      "stability": args.stability, "rough": style.rough, "swing": swung,
                      "timings": said.meta.get("timings"), "lead_s": style.lead_s,
-                     "pauses": [{"after_words": k, "s": s} for k, s in pauses],
+                     "pauses": [{"after_words": k, "s": s, **({"auto": True} if (k, s) in auto else {})}
+                                for k, s in pauses],
                      "words": [{"text": w.text, "start": round(w.start + style.lead_s, 3),
                                 "end": round(w.end + style.lead_s, 3)} for w in timed]}
         else:
@@ -485,8 +488,8 @@ def _cmd_voiceprint(args: argparse.Namespace) -> int:
     his, bad = read(args.paths)
     ours, bad_ours = read(args.vs or [])
     bad += bad_ours
-    his_sum = summarize(his, args.min_speech)
-    ours_sum = summarize(ours, args.min_speech) if ours else None
+    his_sum = summarize(his, args.min_speech, args.max_speech)
+    ours_sum = summarize(ours, args.min_speech, args.max_speech) if ours else None
     rows = compare(his_sum, ours_sum) if ours_sum and ours_sum["n"] and his_sum["n"] else []
     if args.json:
         print(json.dumps({"his": his, "his_summary": his_sum, "ours": ours, "ours_summary": ours_sum,
@@ -494,7 +497,9 @@ def _cmd_voiceprint(args: argparse.Namespace) -> int:
         return 1 if bad and not his else 0
     label = "his" if ours_sum else "these"
     print(f"{label}: {his_sum['n']} files, {his_sum['speech_min']} min of speech"
-          + (f" ({his_sum['skipped']} skipped: under {args.min_speech:g} s of speech)" if his_sum["skipped"] else ""))
+          + (f" ({his_sum['skipped']} skipped: outside {args.min_speech:g} to {args.max_speech:g} s of speech)"
+             if his_sum["skipped"] and args.max_speech else
+             f" ({his_sum['skipped']} skipped: under {args.min_speech:g} s of speech)" if his_sum["skipped"] else ""))
     if ours_sum:
         print(f"ours: {ours_sum['n']} files, {ours_sum['speech_min']} min of speech"
               + (f" ({ours_sum['skipped']} skipped)" if ours_sum["skipped"] else ""))
@@ -658,6 +663,9 @@ def build_parser() -> argparse.ArgumentParser:
     vn.add_argument("--rough", type=int, choices=[0, 1, 2, 3], default=2,
                     help="how lazy he sounds, in the text and the filter: 0 = the clean phone note (v3), 1-3 = quieter, "
                     "less crisp, flatter (default 2)")
+    vn.add_argument("--hesitate", type=float, default=0.0, metavar="X",
+                    help="add the thinking pauses he makes on his own, at his measured rate (17 a minute, median 0.85 s): "
+                    "0 = none (default), 1 = his rate, 2 = twice as often. [pause N] markers in the line count toward it")
     vn.add_argument("--swing", type=float, metavar="ST",
                     help="flatten the read's pitch to at most this swing, in semitones (standard deviation; needs "
                     "praat-parselmouth). `voiceprint` measures his: a clone swings further than he does at home")
@@ -678,6 +686,8 @@ def build_parser() -> argparse.ArgumentParser:
     vp.add_argument("--words", metavar="MAP.json",
                     help="file name -> word count (or the transcript), for words per minute; a .words.json beside a read counts too")
     vp.add_argument("--min-speech", type=float, default=2.0, help="skip clips with less speech than this, s (default 2)")
+    vp.add_argument("--max-speech", type=float, help="skip clips with more speech than this, s: a long dictation pauses more "
+                    "than a short line, so 25 keeps his notes comparable with short reads")
     vp.add_argument("--fast", action="store_true", help="skip the loudness and room-tone readings")
     vp.add_argument("--json", action="store_true")
     vp.set_defaults(fn=_cmd_voiceprint)

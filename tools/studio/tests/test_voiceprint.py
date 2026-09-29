@@ -206,3 +206,11 @@ def test_voicenote_cli_swing_on_a_read_you_already_have(tmp_path, capsys):
     assert report["swing"]["target_st"] == 2.0 and report["swing"]["after_st"] < report["swing"]["before_st"]
     assert not (tmp_path / "flat.swung.wav").exists()  # the working copy is cleaned up
     assert vp.voiceprint(flat, levels=False)["f0_sd_st"] < 0.75 * vp.voiceprint(plain, levels=False)["f0_sd_st"]
+
+
+def test_max_speech_keeps_long_dictations_out_of_a_short_comparison():
+    rows = [{"speech_s": 5.0, "pause_median_s": 0.5}, {"speech_s": 12.0, "pause_median_s": 0.7},
+            {"speech_s": 90.0, "pause_median_s": 3.0}]
+    assert vp.summarize(rows)["pause_median_s"]["median"] == 0.7
+    short = vp.summarize(rows, 2.0, 25.0)
+    assert short["n"] == 2 and short["skipped"] == 1 and short["pause_median_s"]["median"] == 0.6

@@ -10,8 +10,8 @@ from noirstudio import ffmpeg
 from noirstudio.cli import main
 from noirstudio.captions import Word
 from noirstudio.voice import ElevenLabsVoice
-from noirstudio.voicenote import (HIS_VOICE, NoteStyle, VoiceNoteError, insert_pauses, loudness, matched, measure,
-                                  render, room_tone, roughen, split_pauses, voice_chain)
+from noirstudio.voicenote import (HIS_VOICE, NoteStyle, VoiceNoteError, hesitations, insert_pauses, loudness, matched,
+                                  measure, render, room_tone, roughen, split_pauses, voice_chain)
 
 # voiced at 140 Hz with harmonics, syllable-paced, plus air at 10 kHz: a stand-in for a studio read
 SPEECHY = ("(0.3*sin(2*PI*140*t)+0.2*sin(2*PI*280*t)+0.1*sin(2*PI*420*t)+0.06*sin(2*PI*2800*t)"
@@ -265,3 +265,76 @@ def test_cli_rough_and_stability_reach_the_clone(clean, tmp_path, monkeypatch):
     assert (words["said"], words["rough"], words["stability"]) == (said, 3, 0.95)  # the record of what was read, and how
     assert main(["voicenote", "--say", said, str(out), "--rough", "0", "--stability", "0.5"]) == 0
     assert json.loads(calls[2][1])["text"] == said  # rough 0 sends the line exactly as written
+
+
+# --- how he stops to think ---------------------------------------------------------------------
+
+def _words(n, step=0.35, length=0.32):
+    return [Word(f"w{i}", round(i * step, 3), round(i * step + length, 3)) for i in range(n)]
+
+
+def test_hesitations_land_on_his_measured_rate_and_length():
+    words = _words(180)  # 63 s of speech, with 0.03 s between the words
+    line = " ".join("word," if i % 7 == 6 else "word" for i in range(180))
+    got = hesitations(line, words, seed=3)
+    minutes = (words[-1].end - words[0].start) / 60
+    assert len(got) / minutes == pytest.approx(17, rel=0.2)  # about 17 a minute
+    lengths = sorted(s for _, s in got)
+    assert 0.5 < lengths[len(lengths) // 2] < 1.1  # the median is near his 0.85 s, less the gap the clone left
+    assert max(lengths) <= 3.0 and min(lengths) >= 0.1
+    ks = [k for k, _ in got]
+    assert ks == sorted(ks) and all(2 <= k <= len(words) - 2 for k in ks)  # never at the edges
+    assert all(b - a >= 3 for a, b in zip(ks, ks[1:]))  # never bunched
+
+
+def test_hesitations_prefer_the_places_a_person_stops():
+    words = _words(200)
+    line = " ".join("word," if i % 8 == 7 else "word" for i in range(200))  # a comma after every 8th word
+    after_comma = sum(1 for seed in range(12) for k, _ in hesitations(line, words, seed=seed) if k % 8 == 0)
+    total = sum(len(hesitations(line, words, seed=seed)) for seed in range(12))
+    assert after_comma / total > 0.5  # a comma is 1 boundary in 8, and 3 in 4 pauses follow one
+    # with no punctuation to go on, a breath the clone already drew is where it goes
+    gappy = [Word(f"w{i}", i * 0.35 + (0.4 if i >= 60 else 0), i * 0.35 + 0.32 + (0.4 if i >= 60 else 0)) for i in range(120)]
+    plain = " ".join("word" for _ in range(120))
+    picks = [k for seed in range(10) for k, _ in hesitations(plain, gappy, seed=seed)]
+    assert sum(1 for k in picks if k == 60) >= 6  # the one gap in the read gets picked almost every time
+
+
+def test_hesitations_are_repeatable_and_count_the_ones_already_written():
+    words = _words(120)
+    line = " ".join(["word"] * 120)
+    assert hesitations(line, words, seed=1) == hesitations(line, words, seed=1)
+    assert hesitations(line, words, seed=1) != hesitations(line, words, seed=2)
+    assert hesitations(line, words, scale=0) == []
+    assert hesitations(line, _words(6)) == []  # a short line is left alone
+    plain = hesitations(line, words, seed=1)
+    marked = [(k, 1.0) for k in range(10, 110, 10)]  # ten written pauses already cover his rate for 42 s
+    extra = hesitations(line, words, explicit=marked, seed=1)
+    assert len(extra) < len(plain)
+    assert all(abs(k - m) > 2 for k, _ in extra for m, _ in marked)  # and none sits on top of a written one
+    assert len(hesitations(line, words, scale=2, seed=1)) > 1.6 * len(plain)
+
+
+def test_cli_hesitate_adds_his_pauses_and_marks_them(clean, tmp_path, monkeypatch):
+    text = "so uh I think, like, we should probably just go with the first one, you know, and see what happens, right?"
+    n = len(text.split())
+    aligned = [{"text": w, "start": round(0.1 + i * 0.3, 3), "end": round(0.1 + i * 0.3 + 0.27, 3)}
+               for i, w in enumerate(text.split())]
+
+    def fake_send(self, method, path, data, content_type, accept, query=""):
+        if path == "/v1/forced-alignment":
+            return json.dumps({"words": aligned}).encode()
+        return clean.read_bytes()
+
+    monkeypatch.setenv("ELEVENLABS_API_KEY", "test-key")
+    monkeypatch.setattr(ElevenLabsVoice, "_send", fake_send)
+    out = tmp_path / "note.ogg"
+    assert main(["voicenote", "--say", text, str(out), "--rough", "0"]) == 0
+    plain = json.loads((tmp_path / "note.words.json").read_text(encoding="utf-8"))
+    assert plain["pauses"] == []
+    assert main(["voicenote", "--say", text, str(out), "--rough", "0", "--hesitate", "2"]) == 0
+    got = json.loads((tmp_path / "note.words.json").read_text(encoding="utf-8"))
+    assert got["pauses"] and all(p["auto"] for p in got["pauses"])
+    added = sum(p["s"] for p in got["pauses"])
+    assert got["words"][-1]["end"] == pytest.approx(plain["words"][-1]["end"] + added, abs=0.02)  # the captions moved with them
+    assert n == len(got["words"])

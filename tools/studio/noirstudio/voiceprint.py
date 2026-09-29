@@ -210,9 +210,14 @@ def voiceprint(path: Path, words: Optional[int] = None, levels: bool = True) -> 
     return out
 
 
-def summarize(rows: Sequence[dict], min_speech_s: float = 2.0) -> dict:
-    """Median and quartiles of every metric over the files with enough speech to read."""
-    keep = [r for r in rows if r.get("speech_s", 0) >= min_speech_s]
+def summarize(rows: Sequence[dict], min_speech_s: float = 2.0, max_speech_s: Optional[float] = None) -> dict:
+    """Median and quartiles of every metric over the files with enough speech to read.
+
+    A long dictation stops to think more than a short line does, so `max_speech_s` keeps a set of his
+    notes comparable with a set of short reads.
+    """
+    keep = [r for r in rows if r.get("speech_s", 0) >= min_speech_s
+            and (max_speech_s is None or r.get("speech_s", 0) <= max_speech_s)]
     out: dict = {"n": len(keep), "skipped": len(rows) - len(keep),
                  "speech_min": round(sum(r["speech_s"] for r in keep) / 60, 1)}
     for key in NUMERIC:

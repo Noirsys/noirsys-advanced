@@ -41,6 +41,8 @@ itself: no time-stretch, no cuts.
 from __future__ import annotations
 
 import json
+import math
+import random
 import re
 import shutil
 import statistics
@@ -255,6 +257,68 @@ def split_pauses(text: str, trail: str = "…") -> Tuple[str, List[Tuple[int, fl
         pieces, pos = [before], m.end()
         pauses.append((len(_TAG.sub(" ", before).split()), float(m.group(1)) if m.group(1) else DEFAULT_PAUSE_S))
     return normalize_text("".join(pieces) + text[pos:]), pauses
+
+
+# How he stops to think, measured on 87 of his real notes (29 min of speech, `voiceprint`, 2026-09-29):
+# about 17 pauses a minute, median 0.88 s, middle half 0.49 to 1.54 s. The clone's own median was 0.34 s.
+HIS_PAUSES = {"rate_per_min": 17.0, "median_s": 0.85, "sigma": 0.85, "min_s": 0.25, "max_s": 3.0}
+_PUNCT = ".,?!;:…—-\"'"
+_FILLERS = {"uh", "um", "er", "erm", "ah", "hmm", "mm"}
+_LEADS = {"so", "and", "but", "like", "well", "okay", "ok", "because", "cause", "then", "yeah", "honestly",
+          "actually", "basically", "anyway", "i", "y'know", "you"}
+_SEARCHING = {"the", "a", "an", "to", "of", "my", "your", "his", "her", "that", "this", "some", "for", "with"}
+
+
+def hesitations(line: str, words: Sequence[Word], explicit: Sequence[Tuple[int, float]] = (), scale: float = 1.0,
+                seed: int = 7, habits: Optional[dict] = None) -> List[Tuple[int, float]]:
+    """Where and for how long he stops to think, drawn from his measured habits: [(words before it, seconds)].
+
+    A clone reads straight through; he stops about 17 times a minute, for a median of 0.85 s and
+    sometimes for several seconds. `scale` 1 is his rate (2 is twice as often, 0 none) and the
+    `[pause N]` markers already in the line count toward it. A pause lands where a person's does:
+    after a comma or a full stop, where the clone already drew breath, before "so", "and", "like",
+    after "uh" and "um", and after "the" and "to" while the next word is being looked for. Never
+    at the first or last two words, and never within two words of another pause. The same line
+    and seed always give the same pauses. What comes back is the *extra* silence to insert: the
+    gap the clone already left at that spot is taken off.
+    """
+    h = {**HIS_PAUSES, **(habits or {})}
+    n = len(words)
+    if scale <= 0 or n < 8:
+        return []
+    rng = random.Random(f"{seed}:{line}")
+    tokens = line.split()
+    tokens = tokens if len(tokens) == n else None  # punctuation only helps when it lines up with the aligned words
+    span = words[-1].end - words[0].start + sum(s for _, s in explicit)
+    expected = scale * h["rate_per_min"] * span / 60 - len(explicit)
+    if expected <= 0:
+        return []
+    count = int(expected) + (1 if rng.random() < expected - int(expected) else 0)
+    weight = {}
+    for b in range(2, n - 1):  # a pause after word b-1, with at least two words on each side
+        if any(abs(b - k) <= 2 for k, _ in explicit):
+            continue
+        w = 0.3
+        if words[b].start - words[b - 1].end >= 0.12:  # the clone drew breath here already
+            w += 3.0
+        if tokens:
+            before, after = tokens[b - 1], tokens[b].lower().strip(_PUNCT)
+            if before[-1:] in _PUNCT:
+                w += 3.0
+            w += 1.5 * (after in _LEADS) + 1.5 * (before.lower().strip(_PUNCT) in _FILLERS)
+            w += 1.0 * (before.lower().strip(_PUNCT) in _SEARCHING)
+        weight[b] = w
+    chosen: List[int] = []
+    while len(chosen) < count and weight:
+        b = rng.choices(list(weight), list(weight.values()))[0]
+        chosen.append(b)
+        for near in range(b - 2, b + 3):
+            weight.pop(near, None)
+    out = []
+    for b in sorted(chosen):
+        length = min(h["max_s"], max(h["min_s"], rng.lognormvariate(math.log(h["median_s"]), h["sigma"])))
+        out.append((b, round(max(0.1, length - max(0.0, words[b].start - words[b - 1].end)), 2)))
+    return out
 
 
 def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[int, float]]) -> List[Word]:
