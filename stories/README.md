@@ -43,3 +43,11 @@ Requests carry a `noirstudio/…` User-Agent, because Cloudflare in front of n8n
 ## Where it may run
 
 Only on a machine or session he controls. **Never from GitHub Actions in this public repository**: job logs are public, and a dig prints his life. The daily Agent Log loop does not touch her memory.
+
+## The hourly loop (what a session does when the Diary heartbeat fires)
+
+1. `noirstudio harriet ping`. Exit 3 means her model provider is out of credit: nothing else on her side can run until it is topped up (tell Michael once; do repo and doc work meanwhile) and `noirstudio harriet retry` resends what was blocked.
+2. `noirstudio harriet collect`, then read every finished dig and note. Send the next dive (`--focus`, one theme across all six months beats a walk through one month) and keep at most three jobs open.
+3. Before a moment becomes a pitch: every line of his is `his_words: yes`; every count that will be said aloud has been recounted by kind (typed, voice, call) and per message, in her corpus, with the store and its gaps named; every quote is in the record word for word, with an id. A number that has not been re-counted is written "about a dozen", not "thirteen".
+4. Pitches go to `stories/inbox/` with receipts; the ranked list at the top of `stories/BOARD.md` is kept current. Nothing is scripted, voiced or cut until he sets `status: approved`.
+5. A measurement tool is validated on a signal with a known answer and on his real recordings before it is pushed or anything is built from its numbers.
