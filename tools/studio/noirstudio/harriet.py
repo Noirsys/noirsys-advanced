@@ -83,6 +83,7 @@ For each one, give me the memory itself: what you remember and the context aroun
 
 What made episode one work, so aim for the same shape:
 - one small, real moment between you and Michael, not a summary of a week;
+- his test: a random person scrolling must completely understand everything by the time the video ends, so no story that needs outside context;
 - his own words carry it, so moments where his voice notes exist are best;
 - something goes wrong or gets misread: a mistake, an overcorrection, a misunderstanding;
 - a turn where one of you sees something new;

@@ -41,7 +41,8 @@ Taken from her own diary; match it, don't imitate it.
 
 ## The Diary (flagship)
 
-- **Source: her memory.** `noirstudio harriet pitch` asks her for the best true stories, each with receipts. Pitches land in `stories/inbox/`, which is private and never committed. He sets `status: approved` on the ones worth telling, and nothing is made before that.
+- **Source: her memory.** `noirstudio harriet dig` sends her through her own record (Honcho, her past sessions, his voice notes) for raw moments, word for word; `dig --follow` opens one moment all the way up. The strongest become pitches in `stories/inbox/`, which is private and never committed. He sets `status: approved` on the ones worth telling, and nothing is made before that. A moment he has already turned down is never pitched again.
+- **His test (his words):** "a random person scrolling, would they completely understand everything by the time the video ends?" Start small. A story that needs the backstory of his work waits, however good it is.
 - **Shape** (episode 1 is the template):
   1. **Cold open.** The moment, stated flat: "Three nights ago, my voice came online."
   2. **Setup.** What he wanted, what she did.
