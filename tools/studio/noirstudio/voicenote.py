@@ -22,7 +22,8 @@ talks like a tired man at home. So `rough` 1-3 make it lazier, each step:
     body      +1 / +2 / +3 dB at 180 Hz                                             closer to the mouth, less studio
     AGC       ratio 3.5 / 4.5 / 6 from -26 / -28 / -32 dBFS, slower release          the swings in level get squashed
 
-and `roughen` does the same to the text before the clone reads it: ellipses, dashes,
+and `swing` (optional, `--swing ST`) flattens the read's pitch to what `voiceprint` measures in his
+real notes, and `roughen` does the same to the text before the clone reads it: ellipses, dashes,
 exclamation marks and mid-line question marks each cue a performed rise or drop, so they
 become commas, and (rough 2+) "going to" becomes "gonna". The clone's stability (higher =
 steadier, less expressive) is the other half, and lives in the `--say` call.
@@ -41,6 +42,7 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 import statistics
 import subprocess
 import wave
@@ -287,6 +289,40 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
         d = sum(s for t, s in at if w.start >= t)
         shifted.append(Word(w.text, round(w.start + d, 3), round(w.end + d, 3)))
     return shifted
+
+
+# --- pitch swing --------------------------------------------------------------------------
+
+def swing(src: Path, out: Path, target_st: float, floor_hz: float = 70.0, ceiling_hz: float = 300.0) -> dict:
+    """Bring a read's pitch swing down to `target_st` semitones (standard deviation), median unchanged.
+
+    A clone performs: its pitch rises and falls further than he does when he talks quietly at home
+    (`voiceprint` measures both). Praat's "Change gender" with a pitch range factor scales the
+    excursions around the median and leaves the voice, the formants and the timing alone, so the
+    aligned word timings stay valid. A read that already swings less than the target is copied as
+    it is: this only ever flattens. Needs praat-parselmouth (`pip install "noirstudio[voice]"`).
+    """
+    try:
+        import parselmouth
+        from parselmouth.praat import call
+    except ImportError as exc:
+        raise VoiceNoteError('--swing needs praat-parselmouth: pip install "noirstudio[voice]"') from exc
+    from .voiceprint import voiceprint
+
+    if not 0.3 <= target_st <= 8:
+        raise VoiceNoteError(f"swing {target_st:g}: expected 0.3 to 8 semitones")
+    before = voiceprint(src, levels=False).get("f0_sd_st")
+    if not before or before <= target_st:
+        if Path(src) != Path(out):
+            shutil.copyfile(src, out)
+        return {"target_st": target_st, "before_st": before, "after_st": before, "factor": 1.0, "drift_s": 0.0}
+    factor = max(0.15, min(1.0, target_st / before))
+    result = call(parselmouth.Sound(str(src)), "Change gender", floor_hz, ceiling_hz, 1.0, 0, factor, 1.0)
+    Path(out).parent.mkdir(parents=True, exist_ok=True)
+    result.save(str(out), "WAV")
+    after = voiceprint(out, levels=False).get("f0_sd_st")
+    return {"target_st": target_st, "before_st": before, "after_st": after, "factor": round(factor, 3),
+            "drift_s": round(ffmpeg.probe_duration(out) - ffmpeg.probe_duration(src), 3)}
 
 
 # --- matching a real note -----------------------------------------------------------------

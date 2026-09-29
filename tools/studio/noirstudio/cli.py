@@ -371,12 +371,13 @@ def _cmd_safe_area(args: argparse.Namespace) -> int:
 
 def _cmd_voicenote(args: argparse.Namespace) -> int:
     import json
+    import shutil
     from dataclasses import replace
 
     from .ffmpeg import FFmpegError
     from .voice import VoiceError
     from .voicenote import (NoteStyle, VoiceNoteError, insert_pauses, matched, measure, render, roughen, room_tone,
-                            split_pauses)
+                            split_pauses, swing)
 
     if len(args.paths) != (1 if args.say or args.measure else 2):
         print("usage: voicenote IN OUT | voicenote --say TEXT OUT | voicenote --measure REAL", file=sys.stderr)
@@ -392,7 +393,7 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
         given = {"lufs": args.lufs, "noise_db": args.noise_db, "kbps": args.kbps, "lead_s": args.lead,
                  "tail_s": args.tail, "highpass_hz": args.highpass, "lowpass_hz": args.lowpass, "rough": args.rough}
         style = replace(style, room=not args.no_room, **{k: v for k, v in given.items() if v is not None})
-        out, words = Path(args.paths[-1]), None
+        out, words, swung, flat = Path(args.paths[-1]), None, None, None
         if args.room:
             room = room_tone(Path(args.room), out.with_name(out.stem + ".room.wav"))
             if room:
@@ -410,18 +411,30 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
             said = ElevenLabsVoice().synthesize(line, voice, out.with_name(out.stem + ".clean.wav"))
             timed = insert_pauses(said.audio_path, said.words, pauses)
             src = said.audio_path
+            if args.swing:
+                unswung = src.with_name(out.stem + ".unswung.wav")
+                shutil.copyfile(src, unswung)
+                swung = swing(unswung, src, args.swing)
             words = {"said": args.say, "read": line, "voice_id": args.voice, "model_id": args.model,
-                     "stability": args.stability, "rough": style.rough,
+                     "stability": args.stability, "rough": style.rough, "swing": swung,
                      "timings": said.meta.get("timings"), "lead_s": style.lead_s,
                      "pauses": [{"after_words": k, "s": s} for k, s in pauses],
                      "words": [{"text": w.text, "start": round(w.start + style.lead_s, 3),
                                 "end": round(w.end + style.lead_s, 3)} for w in timed]}
         else:
             src = Path(args.paths[0])
+            if args.swing:
+                flat = out.with_name(out.stem + ".swung.wav")
+                swung = swing(src, flat, args.swing)
+                src = flat
         report = render(src, out, style)
+        if flat is not None:
+            flat.unlink(missing_ok=True)
     except (VoiceNoteError, VoiceError, FFmpegError, FileNotFoundError) as exc:
         print(f"VOICENOTE FAILED: {exc}", file=sys.stderr)
         return 2
+    if swung is not None:
+        report["swing"] = swung
     if words is not None:
         words_path = out.with_name(out.stem + ".words.json")
         words_path.write_text(json.dumps(words, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -433,6 +446,9 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
         print(f"{report['path']}  {report['duration_s']:.2f}s ({report['speech_s']:.2f}s of speech)  "
               f"{report['lufs']:+.1f} LUFS  room tone {st['noise_db']:+.1f} dBFS  opus {st['kbps']} kbps"
               + (f"  words: {report['words']}" if words is not None else ""))
+        if swung is not None:
+            print(f"pitch swing {swung['before_st']} -> {swung['after_st']} st (target {swung['target_st']:g}, "
+                  f"factor {swung['factor']:g})")
     return 0
 
 
@@ -642,6 +658,9 @@ def build_parser() -> argparse.ArgumentParser:
     vn.add_argument("--rough", type=int, choices=[0, 1, 2, 3], default=2,
                     help="how lazy he sounds, in the text and the filter: 0 = the clean phone note (v3), 1-3 = quieter, "
                     "less crisp, flatter (default 2)")
+    vn.add_argument("--swing", type=float, metavar="ST",
+                    help="flatten the read's pitch to at most this swing, in semitones (standard deviation; needs "
+                    "praat-parselmouth). `voiceprint` measures his: a clone swings further than he does at home")
     vn.add_argument("--lufs", type=float, help="loudness (default -22: he talks quietly)")
     vn.add_argument("--noise-db", type=float, help="room tone, dBFS (default -54)")
     vn.add_argument("--kbps", type=int, help="Opus bitrate (default 24)")

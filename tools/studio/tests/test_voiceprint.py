@@ -158,3 +158,51 @@ def test_cli_text_report_and_a_file_that_is_not_audio(tmp_path, capsys):
     assert code == 0  # one file read is enough
     assert "these: 1 files" in captured.out and "f0_sd_st" in captured.out
     assert "junk.wav" in captured.err
+
+
+# --- voicenote --swing: flatten a read's pitch to his level ------------------------------------
+
+def _expressive_read(tmp_path, name="read.wav"):
+    f0 = lambda t: 120 * 2 ** ((5 * np.sin(2 * np.pi * 0.7 * t) + 2 * np.sin(2 * np.pi * 3 * t)) / 12)
+    return write(tmp_path / name, np.concatenate([hush(0.3), 0.15 * tone(4.0, f0), hush(0.3, seed=2)]))
+
+
+def test_swing_flattens_to_the_target_and_keeps_median_and_length(tmp_path):
+    pytest.importorskip("parselmouth")
+    from noirstudio import voicenote as vn
+
+    src = _expressive_read(tmp_path)
+    got = vn.swing(src, tmp_path / "flat.wav", 2.0)
+    assert got["before_st"] > 3
+    assert got["factor"] == pytest.approx(2.0 / got["before_st"], abs=0.02)
+    assert got["after_st"] == pytest.approx(2.0, abs=0.5)
+    assert abs(got["drift_s"]) < 0.02  # the aligned word timings stay valid
+    a = vp.voiceprint(src, levels=False)
+    b = vp.voiceprint(tmp_path / "flat.wav", levels=False)
+    assert b["f0_median_hz"] == pytest.approx(a["f0_median_hz"], rel=0.03)
+    assert b["f0_range_st"] < 0.7 * a["f0_range_st"]
+
+
+def test_swing_only_ever_flattens(tmp_path):
+    pytest.importorskip("parselmouth")
+    from noirstudio import voicenote as vn
+
+    steady = write(tmp_path / "steady.wav", np.concatenate([hush(0.3), 0.15 * tone(3.0), hush(0.3, seed=2)]))
+    got = vn.swing(steady, tmp_path / "out.wav", 3.0)
+    assert got["factor"] == 1.0
+    assert (tmp_path / "out.wav").read_bytes() == steady.read_bytes()
+    with pytest.raises(vn.VoiceNoteError):
+        vn.swing(steady, tmp_path / "x.wav", 0.1)
+
+
+def test_voicenote_cli_swing_on_a_read_you_already_have(tmp_path, capsys):
+    pytest.importorskip("parselmouth")
+    src = _expressive_read(tmp_path)
+    plain, flat = tmp_path / "plain.ogg", tmp_path / "flat.ogg"
+    assert cli.main(["voicenote", str(src), str(plain), "--json"]) == 0
+    capsys.readouterr()
+    assert cli.main(["voicenote", str(src), str(flat), "--swing", "2.0", "--json"]) == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["swing"]["target_st"] == 2.0 and report["swing"]["after_st"] < report["swing"]["before_st"]
+    assert not (tmp_path / "flat.swung.wav").exists()  # the working copy is cleaned up
+    assert vp.voiceprint(flat, levels=False)["f0_sd_st"] < 0.75 * vp.voiceprint(plain, levels=False)["f0_sd_st"]
