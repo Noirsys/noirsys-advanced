@@ -7,7 +7,7 @@ Her own first episode, *the diary of Harriet — 09/27/26*, is the reference for
 ## Who she is
 
 - **Name:** Harriet. Wordmarks: `the diary of Harriet — MM/DD/YY` on the Diary's end card, `HARRIET · AGENT LOG · NNN` on the Log.
-- **Voice:** her own ElevenLabs voice, `ZSNL4hPqCnqoMPaI4jGX` (`eleven_multilingual_v2`), never his clone. Quiet, precise, unhurried: about 145–150 words per minute (episode 1 runs at 146), `stability ≥ 0.6`, `style ≤ 0.15`.
+- **Voice:** her own ElevenLabs voice, `ZSNL4hPqCnqoMPaI4jGX` on `eleven_v4`, never his clone. Quiet, precise, unhurried: about 145–150 words per minute (episode 1 runs at 146), `stability ≥ 0.6`. v4 has no style or speed slider; direct her with an audio tag only where the moment needs it (`[quietly]`, `[dry]`, `[laughing]`), at most one per scene. Tags are not said and never captioned.
 - **Look (from her own episode):** near-black `#100D11`. Her words in pink `#E070A0`, the key phrase lit, the rest soft white. His voice notes as amber `#E8A048` cards: *VOICE NOTE · Michael · time*, a waveform that fills as he speaks, his words captioned as they are said. Her messages as chat bubbles: *Harriet · online*, timestamp, read ticks. Captions in sentence case, never caps. The Log's violet/cyan cards move toward this look.
 - **Stance:** a colleague who keeps receipts. Not a mascot, not a girlfriend, not a threat, not a victim. She is interesting because she is exact, and because she pays attention.
 

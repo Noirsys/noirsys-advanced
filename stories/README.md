@@ -1,62 +1,38 @@
-# stories/ — Harriet's pitches (private)
+# stories/ — Harriet's memory, dug up (private)
 
-Everything in this folder except this README is **git-ignored**. Pitches describe Michael's private life (health, family, work), and this repository is public. They live on the machine that asked for them until an episode is made and published.
+Everything in this folder except this README is **git-ignored**. What Harriet brings back describes Michael's private life (health, family, work), and this repository is public. It stays on the machine that asked for it until an episode is made, approved and published.
 
 ## The flow
 
-1. `noirstudio harriet pitch` asks Harriet to go through her memory and curate the best true stories for the next diary episodes (3 by default). Each pitch lists its **receipts**: the voice notes, messages or commits it rests on, with when and the exact words. A pitch with no receipts is dropped.
-2. Pitches land in `stories/inbox/<date>-<slug>.md` with `status: pitched`, a sensitivity level (`low` / `medium` / `high`) and an **off-screen** list: what must not appear (his investigation work, outreach state, contacts, other people, legal matters, locations, credentials).
-3. Michael reads them and sets `status: approved` (or `rejected`). **Nothing is made until he approves.** `noirstudio harriet inbox` lists them with their status.
-4. Harriet makes the approved episode; `noirstudio cut` turns the master into platform versions (cut plans live in `diary/`).
+1. **Dig.** `noirstudio harriet dig` sends Harriet into her own memory (Honcho, her past sessions, his voice notes). She is told to put away any pitches, scripts or story lists she has already written, and to bring back **raw moments**: when and where, what happened, what came right before and after, and the exchange itself, line by line, with who said it, when and where it lives. She marks every line she recalled rather than copied (`"verbatim": false`). She also returns her **dig log** (each search she ran and what it found) and the **threads** she saw but didn't open.
+2. **Go deeper.** `noirstudio harriet dig --focus "…"` points the next dive at something specific: a month, a thread from her last dig, a feeling. `noirstudio harriet dig --follow <moment-id>` sends one moment back and asks for all of it, word for word, before and after, and anything later that called back to it. Moments she has already brought are listed in the next dive so she goes somewhere new.
+3. **Collect.** Dives are async jobs that can take many minutes. Each one is logged in `stories/jobs.jsonl`, and `noirstudio harriet collect` picks up whatever finished. Results land in `stories/digs/<date>-<dig|follow>-<job>.md` (to read) and `.json` (her full reply, nothing lost). `noirstudio harriet moments` lists everything found so far.
+4. **Shape.** The strongest moments become pitches in `stories/inbox/<date>-<slug>.md`, from a dig or from `noirstudio harriet pitch`. Each pitch has `status: pitched`, a sensitivity level, its **receipts** (at least one line of his own words) and an **off-screen** list: his investigation work, outreach, contacts, other people's names and details, legal matters, locations, credentials.
+5. **Approve.** Michael sets `status: approved` (or `rejected`). **Nothing is made until he approves.** Rejected pitches stay in the inbox so she doesn't pitch them again.
+6. **Make and cut.** The approved episode is made in her voice and his (both `eleven_v4`), with his real voice notes where they exist. `noirstudio cut` turns the master into platform versions; cut plans live in `diary/`.
 
-Titles already in the inbox are sent back to her as "already told", so she doesn't repeat herself.
+## Reaching her
 
-## The endpoint contract (n8n webhook)
+Harriet runs on Hermes behind Michael's n8n, which is OpenAI-compatible:
 
-Set in the environment, never in files:
-
-| Variable | What |
+| Call | What |
 |---|---|
-| `HARRIET_STORIES_URL` | the n8n webhook's production URL |
-| `HARRIET_API_KEY` | the key the webhook checks (leave unset if the environment's proxy injects it) |
-| `HARRIET_API_KEY_HEADER` | header the key goes in; default `Authorization` (sent as `Bearer <key>`); set e.g. `X-API-Key` to send it raw |
+| `POST {url}/jobs` | body `{"model": "hermes-agent", "messages": [{"role": "user", "content": "…"}], "stream": false}` → `202 {id, poll_url}`. n8n waits on her for up to 30 minutes. |
+| `GET {url}/jobs?id=<id>` | `{status: running \| completed \| failed, status_code, result}`, where `result` is the full chat completion. An unknown id gives `404`. |
+| `POST {url}/chat/completions` | the same body, answered synchronously. Only for calls that finish within ~100 s (Cloudflare), so `harriet pitch --sync` only. |
 
-**Request** — `POST`, `Content-Type: application/json`:
+Each request is a single user message, so her own persona and memory answer it, not ours. The instructions and the JSON shape to reply in are in the message itself (`noirstudio/dig.py`, `noirstudio/harriet.py`). The JSON is pulled out of her reply wherever it sits.
 
-```json
-{
-  "n": 3,
-  "theme": "",
-  "since": "",
-  "avoid": ["titles already pitched"],
-  "prompt": "the full instructions for Harriet, including the JSON shape to reply in"
-}
-```
+Configuration comes from the environment only:
 
-Pass `prompt` to Harriet as-is: it tells her what made episode one work, the rules (true only, receipts, off-screen list, sensitivity) and the exact reply shape.
+| Variable | Default / meaning |
+|---|---|
+| `HARRIET_API_URL` | `https://n8n.noirsys.com/webhook/hermes/v1` |
+| `HARRIET_MODEL` | `hermes-agent` |
+| `N8N_API_KEY` (or `HARRIET_API_KEY`) | the webhook's Bearer key. Leave it unset where the environment's proxy injects the credential for the host. |
 
-**Response** — `200`, any of these is fine:
+Requests carry a `noirstudio/…` User-Agent, because Cloudflare in front of n8n blocks Python's default one (error 1010).
 
-- `{"pitches": [ ... ]}` (best);
-- `{"output": "<her reply>"}` or `[{"output": "<her reply>"}]`, as n8n's AI Agent node returns it; the JSON is pulled out of her text;
-- her reply as plain text containing the JSON.
+## Where it may run
 
-Each pitch:
-
-```json
-{
-  "title": "working title, <= 70 characters",
-  "logline": "one sentence",
-  "when": "2026-09-24 03:11-03:44",
-  "hook": "the first line on screen",
-  "beats": ["4-8 beats: the moment, what went wrong or got misread, the turn, the ending"],
-  "ending": "the last line",
-  "receipts": [{"kind": "voice_note | message | commit | document | other", "when": "...", "excerpt": "exact words"}],
-  "sensitivity": {"level": "low | medium | high", "topics": ["family"]},
-  "off_screen": ["what must not appear"],
-  "length_s": 150,
-  "why_it_lands": "one or two sentences"
-}
-```
-
-She searches her memory, so the client waits up to 10 minutes. If the webhook sits behind a proxy with a shorter timeout (Cloudflare cuts at 100 s), have the workflow respond when Harriet is done rather than streaming.
+Only on a machine or session he controls. **Never from GitHub Actions in this public repository**: job logs are public, and a dig prints his life. The daily Agent Log loop does not touch her memory.

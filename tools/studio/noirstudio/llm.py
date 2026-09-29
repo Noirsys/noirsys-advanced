@@ -53,6 +53,10 @@ class LLMError(RuntimeError):
     pass
 
 
+# Cloudflare-fronted endpoints block Python-urllib's default User-Agent (error 1010)
+USER_AGENT = "noirstudio/0.1 (+https://github.com/Noirsys/noirsys-advanced)"
+
+
 # --- dotenv / config ------------------------------------------------------------
 
 _DOTENV_LINE = re.compile(r"""^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$""")
@@ -153,7 +157,8 @@ class LLMClient:
         }
         if json_mode:
             body["response_format"] = {"type": "json_object"}
-        headers = {"Content-Type": "application/json", "Accept": "application/json", **self.extra_headers}
+        headers = {"Content-Type": "application/json", "Accept": "application/json", "User-Agent": USER_AGENT,
+                   **self.extra_headers}
         if self.api_key:  # a key-less server, or one whose proxy injects the credential, gets no header
             headers["Authorization"] = f"Bearer {self.api_key}"
         t0 = time.time()

@@ -13,8 +13,10 @@
     noirstudio draft agent-log --entry 2 --activity ... --brief ...   LLM-draft the next entry (rules enforced)
     noirstudio draft short my-slug --topic "..." | draft titles "..."
     noirstudio loop agent-log [--push --pr]      the whole daily loop in one command (what CI runs)
-    noirstudio harriet pitch [-n 3] | inbox       Harriet pitches diary stories from her memory (private inbox)
-    noirstudio cut specs/diary/<ep>.cuts.yaml --master EP.mp4   platform versions of a finished episode
+    noirstudio harriet dig [--focus ...] [--follow ID] | collect | moments   Harriet goes through her memory (private)
+    noirstudio harriet pitch [--kinds emotional,funny] | inbox   curated pitches from her (private inbox)
+    noirstudio cut diary/<ep>.cuts.yaml --master EP.mp4   platform versions of a finished episode
+    noirstudio safe-area EP.mp4                  how often text sits under the platforms' buttons/captions
 """
 
 from __future__ import annotations
@@ -211,32 +213,94 @@ def _cmd_loop(args: argparse.Namespace) -> int:
 
 
 def _cmd_harriet(args: argparse.Namespace) -> int:
+    from . import dig as d
     from . import harriet as h
     from .llm import LLMError
 
-    root = Path(args.dir)
-    if args.harriet_cmd == "inbox":
-        files = sorted(p for p in root.glob("*.md") if p.name != "README.md") if root.exists() else []
+    root, cmd = Path(args.root), args.harriet_cmd
+    inbox = root / "inbox"
+    say = lambda m: print(m, file=sys.stderr)  # noqa: E731
+    if cmd == "inbox":
+        files = sorted(p for p in inbox.glob("*.md") if p.name != "README.md") if inbox.exists() else []
         for p in files:
             s = h.read_status(p)
             print(f"{str(s.get('status', '?')):<9} {str(s.get('sensitivity', '?')):<7} {p.name} — {s.get('title', '')}")
-        print(f"{len(files)} pitch(es) in {root}" if files else f"no pitches in {root}")
+        print(f"{len(files)} pitch(es) in {inbox}" if files else f"no pitches in {inbox}")
+        return 0
+    if cmd == "moments":
+        moments = d.all_moments(root)
+        for m in moments:
+            lines = [x for x in m.get("exchange") or [] if isinstance(x, dict)]
+            his = sum(1 for x in lines if x.get("speaker") == "michael")
+            copied = sum(1 for x in lines if x.get("verbatim") is not False)
+            print(f"{str(m.get('id')):<32} {str(m.get('kind', '?')):<12} {str(m.get('when', '?'))[:16]:<16} "
+                  f"lines {len(lines):>2} (his {his}, copied {copied}) audio {m.get('his_audio', '?')}")
+        print(f"{len(moments)} moment(s) in {root / 'digs'}")
         return 0
     try:
-        kept, dropped = h.mine_pitches(n=args.n, theme=args.theme, since=args.since,
-                                       avoid=h.told_titles(root) if root.exists() else [])
+        if cmd == "collect":
+            changed = d.collect(root)
+            for job in changed:
+                print(f"{job['id']} ({job.get('what')}): {job['status']}"
+                      + (f" → {', '.join(map(str, job.get('saved') or []))}" if job.get("saved") else "")
+                      + (f": {job['error']}" if job.get("error") else ""))
+            running = [j for j in h.read_jobs(root) if j.get("status") == "running"]
+            for job in running:
+                print(f"{job['id']} ({job.get('what')}): still running, started {job.get('started_at')}")
+            if not changed and not running:
+                print("no open jobs")
+            return 0
+        if cmd == "dig":
+            if args.follow:
+                moment = d.find_moment(root, args.follow)
+                if not moment:
+                    say(f"no moment `{args.follow}` in {root / 'digs'} (see `noirstudio harriet moments`)")
+                    return 1
+                prompt, what = d.follow_request(moment, args.focus), "follow"
+            else:
+                prompt, what = d.dig_request(args.n or d.DIG_N, args.focus, avoid=h.told_titles(inbox),
+                                             known=d.known_lines(root)), "dig"
+            job = d.start(root, what, prompt, focus=args.focus, follow=args.follow)
+            print(f"{what} job {job['id']} started; she has up to 30 min")
+            if not args.wait:
+                print("collect it with: noirstudio harriet collect")
+                return 0
+            done = d.wait_for(root, job["id"], log=say)
+            if done["status"] == "running":
+                print("still digging; collect it later with: noirstudio harriet collect")
+                return 0
+            for path in done.get("saved") or []:
+                print(f"wrote {path}")
+            if done.get("error"):
+                say(f"HARRIET: {done['error']}")
+            return 0 if done["status"] == "collected" else 2
+        kinds = [k.strip() for k in args.kinds.split(",") if k.strip()] if args.kinds else list(h.DEFAULT_KINDS)
+        started = []
+
+        def logged(job: dict) -> None:
+            started.append(job["id"])
+            h.log_job(root, id=job["id"], poll_url=job["poll_url"], what="pitch", status="running",
+                      started_at=d._now())
+
+        kept, dropped = h.mine_pitches(n=args.n or len(kinds), theme=args.theme, since=args.since, kinds=kinds,
+                                       avoid=h.told_titles(inbox), mode="sync" if args.sync else "jobs",
+                                       log=say, on_start=logged)
     except LLMError as exc:
         print(f"HARRIET: {exc}", file=sys.stderr)
         return 2
     for reason in dropped:
-        print(f"dropped {reason}", file=sys.stderr)
+        say(f"dropped {reason}")
     if args.json:
         print(h.dump_json(kept))
+        paths = []
     else:
-        for path in h.write_inbox(kept, root):
+        paths = h.write_inbox(kept, inbox)
+        for path in paths:
             print(f"wrote {path}")
         if kept:
             print("Read them; set `status: approved` on the ones worth telling. They stay out of git.")
+    for job_id in started:
+        h.log_job(root, id=job_id, status="collected", saved=[str(p) for p in paths])
     return 0 if kept else 2
 
 
@@ -276,6 +340,23 @@ def _cmd_cut(args: argparse.Namespace) -> int:
         loud = o["loudness"]
         print(f"{o['name']:<14} {o['duration_s']:7.2f}s  {loud['lufs']:+.1f} LUFS  {loud['true_peak_db']:+.1f} dBTP  {o['path']}")
     return 0
+
+
+def _cmd_safe_area(args: argparse.Namespace) -> int:
+    import json
+
+    from .safearea import audit, verdict
+
+    report = audit(Path(args.video), fps=args.fps)
+    if args.json:
+        print(json.dumps(report, indent=2))
+        return 0
+    x0, y0, x1, y1 = report["content_extents"] or (0, 0, 0, 0)
+    print(f"{report['frames']} frames at {args.fps}/s; content spans x {x0}-{x1}, y {y0}-{y1} "
+          f"(safe box x 120-888, y 288-1248)")
+    for line in verdict(report):
+        print(f"warning: {line}")
+    return 1 if verdict(report) else 0
 
 
 def _cmd_fonts(_args: argparse.Namespace) -> int:
@@ -371,13 +452,21 @@ def build_parser() -> argparse.ArgumentParser:
     lp.add_argument("--debug", action="store_true")
     lp.set_defaults(fn=_cmd_loop)
 
-    hr = sub.add_parser("harriet", help="ask Harriet for diary stories from her memory (HARRIET_STORIES_URL)")
-    hr.add_argument("harriet_cmd", choices=["pitch", "inbox"])
-    hr.add_argument("-n", type=int, default=3, help="how many stories she curates (default 3)")
-    hr.add_argument("--theme", default="", help="optional focus, e.g. 'the week the voice came online'")
-    hr.add_argument("--since", default="", help="only moments from this date on")
-    hr.add_argument("--dir", default="stories/inbox", help="where pitches are kept (git-ignored: his private life)")
-    hr.add_argument("--json", action="store_true", help="print the pitches as JSON instead of writing files")
+    hr = sub.add_parser("harriet", help="Harriet's memory: dig for raw moments, pitch diary stories (Hermes via n8n)")
+    hr.add_argument("harriet_cmd", choices=["dig", "collect", "moments", "pitch", "inbox"],
+                    help="dig: she goes through her memory (async job); collect: pick up finished jobs; "
+                         "moments: what she has found; pitch/inbox: curated pitches")
+    hr.add_argument("-n", type=int, default=0, help="dig: how many moments (default 10); pitch: how many stories")
+    hr.add_argument("--focus", default="", help="dig: where to look this time, e.g. 'the first month'; "
+                                                "with --follow: what to ask about that moment")
+    hr.add_argument("--follow", default="", help="dig: a moment id to open all the way up, word for word")
+    hr.add_argument("--wait", action="store_true", help="dig: wait for her (up to 30 min) instead of collecting later")
+    hr.add_argument("--kinds", default="", help="pitch: comma-separated, one story each: e.g. 'emotional,funny'")
+    hr.add_argument("--sync", action="store_true", help="pitch: the ~100 s endpoint instead of an async job")
+    hr.add_argument("--theme", default="", help="pitch: optional focus, e.g. 'the week the voice came online'")
+    hr.add_argument("--since", default="", help="pitch: only moments from this date on")
+    hr.add_argument("--root", default="stories", help="where her material is kept (git-ignored: his private life)")
+    hr.add_argument("--json", action="store_true", help="pitch: print the pitches as JSON instead of writing files")
     hr.set_defaults(fn=_cmd_harriet)
 
     ct = sub.add_parser("cut", help="cut a finished master into platform versions from a cut plan (YAML)")
@@ -387,6 +476,12 @@ def build_parser() -> argparse.ArgumentParser:
     ct.add_argument("--only", action="append", default=[], help="render just this output (repeatable)")
     ct.add_argument("--check", action="store_true", help="validate the plan and its seams; render nothing")
     ct.set_defaults(fn=_cmd_cut)
+
+    sa = sub.add_parser("safe-area", help="how often a vertical video's text sits under Shorts/Reels/TikTok UI")
+    sa.add_argument("video")
+    sa.add_argument("--fps", type=float, default=1.0, help="frames sampled per second (default 1)")
+    sa.add_argument("--json", action="store_true")
+    sa.set_defaults(fn=_cmd_safe_area)
     return p
 
 

@@ -8,7 +8,7 @@ niche: ai-agents
 
 voice:
   # voice_id: YOUR_ELEVENLABS_VOICE_ID
-  model_id: eleven_multilingual_v2
+  model_id: eleven_v4
   words_per_minute: 160
 
 captions:

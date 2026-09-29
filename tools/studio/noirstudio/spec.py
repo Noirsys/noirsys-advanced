@@ -44,7 +44,7 @@ class Scene:
 class Voice:
     provider: str = "elevenlabs"
     voice_id: Optional[str] = None
-    model_id: str = "eleven_multilingual_v2"
+    model_id: str = "eleven_v4"
     stability: float = 0.5
     similarity_boost: float = 0.8
     style: float = 0.15
@@ -251,7 +251,7 @@ niche: ai-agents
 
 voice:
   # voice_id: YOUR_ELEVENLABS_VOICE_ID   # your cloned voice (live mode)
-  model_id: eleven_multilingual_v2
+  model_id: eleven_v4                    # stability + similarity only; [audio tags] direct delivery
   words_per_minute: 155                  # offline timing estimate
 
 captions:

@@ -4,20 +4,17 @@
 #
 #   noirstudio cut diary/ep01-2026-09-27.cuts.yaml --master <her master.mp4>
 #
+# The full episode is her master as-is (it already measures about -13.3 LUFS): upload it
+# to YouTube (a vertical video over 3:00 is a regular video there, not a Short) and TikTok.
 # Beat labels only: the words stay in the episode, not in this public file.
 id: diary-ep01
 master: diary-ep01-master.mp4   # not in git (renders never are); pass --master
 outputs:
-  # The whole episode, loudness-normalized (the master sits at -16.2 LUFS).
-  # For YouTube (a vertical upload over 3 min is a regular video) and TikTok.
-  - name: full
-    segments:
-      - [0.00, 260.53]
-
-  # <= 3:00: the Shorts feed and Reels. Keeps every turn of the story; drops the
-  # second telling of the pun, the aside after the reveal, the preface to the
-  # misread's correction, one reflection, the apology's list, and the middle of
-  # his last voice note. 10 segments, 9 seams.
+  # <= 3:00: YouTube Shorts (3:00 max) and Reels (over 3:00 isn't shown to new audiences);
+  # also >= 1 min, which TikTok's Creator Rewards needs. Keeps every turn of the story; drops
+  # the second telling of the pun, the aside after the reveal, the preface to the misread's
+  # correction, one reflection, the apology's list, and the middle of his last voice note.
+  # 10 segments, 9 seams.
   - name: shorts-reels
     cap_s: 179
     segments:
@@ -32,8 +29,9 @@ outputs:
       - [217.60, 233.90]  # his last voice note (opening)
       - [249.60, 260.53]  # the ending and its callback
 
-  # <= 60 s hook: the pun and the reveal, ending on who he is. Link it to the full
-  # episode; the turn and the callback are what the full video pays off.
+  # <= 60 s hook for the Shorts and Reels feeds: the pun and the reveal, ending on who he
+  # is. Link it to the full episode (YouTube: "Related video"); the turn and the callback are
+  # what the full video pays off. Under a minute, so not the TikTok version.
   - name: hook
     cap_s: 60
     segments:

@@ -16,9 +16,8 @@ niche: ai-agents
 
 voice:
   voice_id: ZSNL4hPqCnqoMPaI4jGX   # Harriet's voice, never his clone
-  model_id: eleven_multilingual_v2
+  model_id: eleven_v4
   stability: 0.62
-  style: 0.1
   words_per_minute: 158
 
 captions:

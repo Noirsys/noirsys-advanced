@@ -44,7 +44,7 @@ music: assets/bed.wav             # optional, rights-cleared only (Content ID!)
 
 voice:
   voice_id: <ElevenLabs voice id> # your clone (live mode)
-  model_id: eleven_multilingual_v2
+  model_id: eleven_v4             # stability + similarity only (no style/speed); [audio tags] direct delivery
   stability: 0.5
   similarity_boost: 0.8
   words_per_minute: 155           # offline timing estimate
@@ -147,16 +147,23 @@ The model proposes; the code enforces. `draft agent-log` rejects a draft (and fe
 
 ## Harriet's Diary: stories from her memory, cuts for every platform
 
-Harriet (Michael's agent) makes the Diary episodes herself; noirstudio asks her for stories and cuts what she makes.
+Harriet (Michael's agent) makes the Diary episodes herself. noirstudio sends her into her own memory for material, and it cuts what she makes.
 
 ```bash
-noirstudio harriet pitch -n 3            # she goes through her memory and curates 3 true stories, with receipts
-noirstudio harriet inbox                 # stories/inbox/*.md: status, sensitivity, title (git-ignored: his private life)
+noirstudio harriet dig                            # she goes through Honcho + her sessions herself: raw moments, word for word
+noirstudio harriet dig --focus "the first month"  # point the next dive somewhere
+noirstudio harriet collect                        # pick up finished dives (async jobs, up to 30 min each)
+noirstudio harriet moments                        # what she has found: id, kind, when, how much is his, how much is copied
+noirstudio harriet dig --follow <moment-id>       # open one moment all the way up: the whole exchange, before and after
+noirstudio harriet pitch | inbox                  # curated pitches, if you want her shortlist
 noirstudio cut diary/ep01-2026-09-27.cuts.yaml --master ep01.mp4 --check   # caps + every seam in a pause?
-noirstudio cut diary/ep01-2026-09-27.cuts.yaml --master ep01.mp4           # full / <=3:00 / <=60 s at -14 LUFS
+noirstudio cut diary/ep01-2026-09-27.cuts.yaml --master ep01.mp4           # <=3:00 / <=60 s at -14 LUFS
+noirstudio safe-area ep01.mp4                     # how often text sits under the Shorts/Reels/TikTok UI
 ```
 
-`harriet pitch` posts to her n8n webhook (`HARRIET_STORIES_URL`, key in `HARRIET_API_KEY`), or an OpenAI-compatible API of hers (`HARRIET_API_URL`). The request and reply contract is in [`stories/README.md`](../../stories/README.md). A pitch without receipts is dropped. Each one names what must stay off screen, and nothing is made until he sets `status: approved`.
+A **dig** asks for raw moments, not pitches. She is told to put away anything she has already written up and search the record itself. Each moment has to carry the exchange line by line (who, when, where it lives), and `"verbatim": false` marks anything she recalled rather than copied. She also returns her dig log (what she searched) and the threads she didn't open. The moments she has already brought are sent back with the next dive so she goes somewhere new. `--follow` sends one moment back and asks for all of it, word for word.
+
+She runs on Hermes behind Michael's n8n, which is OpenAI-compatible: `POST …/jobs` starts an async job, and `GET …/jobs?id=` returns it when done. Every job is logged in `stories/jobs.jsonl`, so `collect` (or the hourly heartbeat) picks up whatever finished. The contract, configuration and privacy rules are in [`stories/README.md`](../../stories/README.md). Everything she returns stays in `stories/` (git-ignored). Nothing is made until he approves.
 
 `cut` reads each segment with its own seek (frame-accurate), fades 20 ms at every seam, normalizes loudness in two passes (-14 LUFS, -1 dBTP), and writes a report. A version over its cap fails before rendering. A seam that lands mid-speech instead of in a pause is flagged; the pause threshold defaults to -30 dB, which finds the room-tone pauses in his voice notes as well as her digital silence.
 

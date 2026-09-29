@@ -10,13 +10,14 @@ This repo is Noirsys's content engine and growth plan. Read this before touching
 - `strategy/` — research (`01-*`, real vidIQ/YouTube numbers), the playbook (`02-*`), and the Harriet decision (`04-*`).
 - `tools/studio/persona/agent-log.md` — Harriet's persona bible, for both her formats (the Diary and the Agent Log). Binding.
 - `diary/` — cut plans for her Diary episodes (`noirstudio cut`). Beat labels only; never quotes. Not under `specs/`: CI's render job treats `specs/**/*.yaml` as video specs.
-- `stories/` — her pitches from `noirstudio harriet pitch`. **Git-ignored**: they describe his private life and the repo is public. Nothing is made until he sets `status: approved`.
+- `stories/` — what Harriet digs out of her memory (`noirstudio harriet dig`) and her pitches. **Git-ignored**: it describes his private life and the repo is public. Nothing is made until he sets `status: approved`. See `stories/README.md`.
 
 ## Commands
 
 ```bash
-cd tools/studio && pip install -e . && python -m pytest -q      # 70+ tests, ~30s, no network
-noirstudio harriet pitch [-n 3] && noirstudio harriet inbox      # she mines her memory for stories (HARRIET_STORIES_URL)
+cd tools/studio && pip install -e . && python -m pytest -q      # 90+ tests, ~30s, no network
+noirstudio harriet dig [--focus ...|--follow ID] && noirstudio harriet collect   # she goes through her memory (N8N_API_KEY or proxy)
+noirstudio harriet moments | pitch | inbox                      # what she found; curated pitches
 noirstudio cut diary/<ep>.cuts.yaml --master EP.mp4 [--check]    # full / <=3:00 / <=60 s versions, -14 LUFS
 noirstudio validate specs/<id>.yaml
 noirstudio render specs/<id>.yaml --out renders/<id>             # offline preview, no keys
@@ -53,7 +54,7 @@ If something blocks (no network, no activity, failing tests), open the PR anyway
 - Never push to the default branch directly from automation; PRs only.
 - Never commit renders, audio, or `work/` directories (see `.gitignore`).
 - Keep the persona bible's "never says" list. Every number in a spec must exist in `specs/evidence/`.
-- Voices (`eleven_multilingual_v2`): his Professional Voice Clone `XwGJOzi38Fyoct3IvqA9` is for specs he narrates (e.g. `specs/straightshot-teaser.yaml`). Harriet (the Diary and the Agent Log) speaks with `ZSNL4hPqCnqoMPaI4jGX` — the drafter sets it on every entry, and a test fails any Agent Log spec without it or with his clone.
+- Voices (`eleven_v4`, both): his Professional Voice Clone `XwGJOzi38Fyoct3IvqA9` is for specs he narrates (e.g. `specs/straightshot-teaser.yaml`). Harriet (the Diary and the Agent Log) speaks with `ZSNL4hPqCnqoMPaI4jGX` — the drafter sets it on every entry, and a test fails any Agent Log spec without it or with his clone. v4 takes stability + similarity only and has no `/with-timestamps`: caption timings come from forced alignment (see `voice.py`).
 - Harriet's pitches and receipts (his voice notes, her messages) never go in git until the episode is published; he approves every story first. Her off-screen list is binding: his investigation work, outreach state, contacts, other people, legal matters, locations, credentials.
 - Music beds are off by default (Content ID). Don't add them.
 - Tests must pass before a push. Add a test when you add a module.
