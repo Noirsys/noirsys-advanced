@@ -138,6 +138,16 @@ def test_collect_marks_failed_jobs(tmp_path):
     assert done["status"] == "failed" and h.read_jobs(tmp_path)[0]["status"] == "failed"
 
 
+def test_a_job_that_ran_past_her_limit_is_told_to_go_out_in_pieces(tmp_path):
+    h.log_job(tmp_path, id="big", poll_url=f"{URL}/jobs?id=big", what="note", status="running")
+    gateway = {"status": "failed", "status_code": 502,
+               "result": {"error": {"message": "timeout of 1800000ms exceeded", "type": "upstream_error"}}}
+    (done,) = d.collect(tmp_path, request=FakeN8N((200, gateway)))
+    assert done["status"] == "failed" and "smaller pieces" in done["error"]
+    assert "smaller pieces" in h.read_jobs(tmp_path)[0]["error"]
+    assert not h.job_timed_out("Harriet job x failed: HTTP 500: boom") and not h.job_timed_out(None)
+
+
 NO_CREDIT = ("Billing or credits exhausted: HTTP 402: Insufficient Balance (request_id: x)\n\nDeepSeek reported that billing, "
              "credits, or account entitlement is exhausted for deepseek-flash.\nAdd credits or update billing with that provider.")
 

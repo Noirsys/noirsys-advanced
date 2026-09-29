@@ -242,6 +242,16 @@ def out_of_credit(reply: object) -> bool:
     return len(text) < 1200 and ("Billing or credits exhausted" in text or "Insufficient Balance" in text)
 
 
+TIMEOUT_HINT = ("Her 30-minute limit ran out and nothing came back. Send the request again in smaller pieces, "
+                "and ask her to start long commands in the background and to reply within 20 minutes with what exists.")
+
+
+def job_timed_out(error: object) -> bool:
+    """True if a failed job's error is the gateway's 30-minute limit: the request asked for too much."""
+    text = str(error or "")
+    return "timeout of" in text and "ms exceeded" in text
+
+
 # --- the job log: stories/jobs.jsonl, so a later `collect` picks up what finished ----------------
 
 

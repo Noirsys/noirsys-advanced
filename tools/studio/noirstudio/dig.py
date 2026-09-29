@@ -270,8 +270,9 @@ def collect(root: Path, *, request: h.Requester = None) -> List[dict]:
         except h.CreditError:
             reply = h.CREDIT_HINT  # her provider is out of credit, said through the job's own status
         except LLMError as exc:
-            h.log_job(root, id=job["id"], status="failed", error=str(exc)[:500])
-            changed.append({**job, "status": "failed", "error": str(exc)})
+            error = f"{exc} {h.TIMEOUT_HINT}" if h.job_timed_out(exc) else str(exc)
+            h.log_job(root, id=job["id"], status="failed", error=error[:500])
+            changed.append({**job, "status": "failed", "error": error})
             continue
         if reply is None:
             continue
