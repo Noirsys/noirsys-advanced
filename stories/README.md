@@ -26,6 +26,8 @@ Each request is a single user message, so her own persona and memory answer it, 
 **Every job runs in its own session.** She carries nothing from one job to the next except what is on her disk. Her build loop reads its scripts and amendments from files there, not from past jobs. So a note that changes production (a script, an amendment, a decision) must tell her to write it into a named file and to confirm the path. A note she only answers "noted" is lost to the loop. Two more consequences:
 - A job that takes longer than n8n's 30 minutes ends in HTTP 502, even if her work goes on. Ask her to run builds in the background and reply "started".
 - If her model provider runs out of credit, every job comes back with her 402 message as the reply.
+- **Our requests land in her store as his messages.** A job arrives as a user turn in an `api-*` session, so it is stored under his account. Any count of what *he* said (thank-yous, laughs, message totals) must leave those sessions out, and any row that reads like him but talks about him in the third person ("Michael decides...") is ours. Two such rows were nearly counted as his best thank-yous on 2026-09-29; her dig caught them.
+- **Check a ruler before trusting a number from it.** A measurement change is run on the box against his real recordings and against a synthetic signal whose answer is known, before it is pushed and before anything is built from it (the 200 Hz high-pass in `voiceprint` was not, and read his pitch swing at twice its size for two hours).
 
 Configuration comes from the environment only:
 
