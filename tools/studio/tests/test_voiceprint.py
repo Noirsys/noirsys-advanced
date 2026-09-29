@@ -160,6 +160,54 @@ def test_cli_text_report_and_a_file_that_is_not_audio(tmp_path, capsys):
     assert "junk.wav" in captured.err
 
 
+# --- timeline: what is inside one clip -----------------------------------------------------------
+
+def _laugh_then_words():
+    """Half a second of room, a 1.6 s train of five bursts a second that fades (a laugh's shape, on a 220 Hz
+    buzz), 0.6 s of room, then 1.2 s of a steady 120 Hz voice."""
+    t = np.arange(int(1.6 * RATE)) / RATE
+    buzz = tone(1.6, lambda x: 220 + 0 * x)
+    trail = buzz * np.clip(np.sin(2 * np.pi * 5 * t), 0, None) ** 2 * np.exp(-t / 1.0)
+    laugh = 0.3 * trail / np.abs(trail).max()
+    words = 0.2 * tone(1.2) * np.hanning(int(1.2 * RATE)) ** 0.5
+    return np.concatenate([hush(0.5), laugh, hush(0.6, seed=2), words, hush(0.3, seed=3)])
+
+
+def test_timeline_tells_a_train_of_fading_bursts_from_a_steady_voice(tmp_path):
+    tl = vp.timeline(write(tmp_path / "l.wav", _laugh_then_words()))
+    assert tl["duration_s"] == pytest.approx(4.2, abs=0.01)
+    assert len(tl["rows"]) == pytest.approx(42, abs=1) and tl["rows"][0]["t_s"] == 0.0
+    burst, steady = tl["events"]  # the 0.6 s of room is longer than the 0.3 s that joins bursts into one event
+    assert burst["start_s"] == pytest.approx(0.5, abs=0.1) and burst["dur_s"] == pytest.approx(1.5, abs=0.25)
+    assert 4 <= burst["bursts_per_s"] <= 6.5 and burst["burst_cv"] < 0.25
+    assert burst["decay_db_s"] < -3  # it fades
+    assert burst["f0_median_hz"] == pytest.approx(220, rel=0.05)
+    assert steady["start_s"] == pytest.approx(2.7, abs=0.1) and steady["f0_median_hz"] == pytest.approx(120, rel=0.05)
+    assert steady["bursts"] <= 1 and "decay_db_s" not in steady
+    quiet = next(r for r in tl["rows"] if r["t_s"] == 0.2)
+    loud = next(r for r in tl["rows"] if r["t_s"] == 3.0)
+    assert quiet["on"] == 0.0 and quiet["f0_hz"] is None
+    assert loud["on"] >= 0.9 and loud["f0_hz"] == pytest.approx(120, rel=0.05) and loud["level_db"] > quiet["level_db"] + 30
+
+
+def test_cli_timeline_prints_the_table_and_json(tmp_path, capsys):
+    clip = write(tmp_path / "clip.wav", _laugh_then_words())
+    assert cli.main(["voiceprint", str(clip), "--timeline"]) == 0
+    text = capsys.readouterr().out
+    assert "clip.wav" in text and "events" in text and "bursts" in text and "#####" in text
+    assert cli.main(["voiceprint", str(clip), "--timeline", "--step", "0.2", "--json"]) == 0
+    out = json.loads(capsys.readouterr().out)
+    assert out["failed"] == [] and len(out["timelines"]) == 1
+    assert out["timelines"][0]["step_s"] == 0.2 and len(out["timelines"][0]["events"]) == 2
+
+
+def test_cli_timeline_of_a_silent_clip_is_skipped_not_a_crash(tmp_path, capsys):
+    quiet = write(tmp_path / "quiet.wav", hush(2.0))
+    code = cli.main(["voiceprint", str(quiet), "--timeline"])
+    captured = capsys.readouterr()
+    assert code == 1 and "quiet.wav" in captured.err
+
+
 # --- voicenote --swing: flatten a read's pitch to his level ------------------------------------
 
 def _expressive_read(tmp_path, name="read.wav"):

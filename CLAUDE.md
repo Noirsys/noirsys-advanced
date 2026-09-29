@@ -21,6 +21,7 @@ noirstudio harriet moments | pitch | inbox                      # what she found
 noirstudio cut diary/<ep>.cuts.yaml --master EP.mp4 [--check]    # full / <=3:00 / <=60 s versions, -14 LUFS
 noirstudio voicenote --say "his line" OUT.ogg --match REAL.ogg   # a lost voice note of his, rebuilt (ELEVENLABS_API_KEY)
 noirstudio voiceprint HIS.ogg ... --vs OURS.ogg ...              # how close our reads are to his real notes, in numbers (needs numpy)
+noirstudio voiceprint CLIP.ogg --timeline                        # inside one clip, 100 ms at a time: level, pitch, bursts (a laugh? a breath?)
 noirstudio validate specs/<id>.yaml
 noirstudio render specs/<id>.yaml --out renders/<id>             # offline preview, no keys
 noirstudio render specs/<id>.yaml --out renders/<id> --live      # ELEVENLABS_API_KEY

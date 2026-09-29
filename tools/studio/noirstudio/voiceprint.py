@@ -13,6 +13,9 @@ and sets the two side by side, in numbers, before anyone has to trust their ears
 
 `voiceprint` reads one file; `summarize` takes the median and spread over a set of them;
 `compare` puts his notes next to ours and says which numbers are off, and which way.
+`timeline` looks inside one clip, tenth of a second by tenth of a second, for the question a
+machine transcript can't answer (is that a laugh, a breath, or nothing?): it shows the sound and
+its bursts, and leaves the naming to whoever listens.
 
 Nothing here judges the words. It reads the audio at 16 kHz mono: a 40 ms frame every 10 ms,
 a speech gate 8 dB over the room (or 35 dB under the loudest frames, for a clean read with
@@ -46,6 +49,7 @@ _BLOCK = 4096  # frames per numpy block
 # The harmonics carry the period in both, so reading from 200 Hz up compares like with like.
 PITCH_BAND = "highpass=f=200:poles=2,highpass=f=200:poles=2,lowpass=f=3500:poles=2"
 PITCH_WINDOW_DB = 25.0  # pitch is read only on frames within this many dB of the loud ones: the quiet tails are all noise
+EVENT_GAP_S = 0.30  # in a timeline, sound less than this apart is one event: a laugh is a train of bursts, not one
 
 # For each metric: +1 if a bigger number sounds more performed, -1 if a smaller one does.
 DIRECTION: Dict[str, int] = {
@@ -159,8 +163,9 @@ def _pitch(lag, val, on):
     return fixed
 
 
-def _syllables(band_db, on, cuts) -> Tuple[int, List[float]]:
-    """Syllable nuclei: peaks of the 300-3000 Hz level, 3 dB proud of the dip on each side."""
+def _peaks(band_db, on):
+    """Syllable nuclei: peaks of the 300-3000 Hz level, 3 dB proud of the dip on each side. Returns the
+    frame of each peak and the smoothed level they were found in."""
     np = _np()
     sm = np.convolve(band_db, np.ones(3) / 3, mode="same")
     peaks = []
@@ -168,6 +173,11 @@ def _syllables(band_db, on, cuts) -> Tuple[int, List[float]]:
         if on[i] and sm[i] > sm[i - 1] and sm[i] >= sm[i + 1] and sm[i] == sm[i - 8:i + 9].max():
             if sm[i] - max(sm[i - 12:i].min(), sm[i + 1:i + 13].min()) >= 3.0:
                 peaks.append(i)
+    return peaks, sm
+
+
+def _syllables(band_db, on, cuts) -> Tuple[int, List[float]]:
+    peaks, _ = _peaks(band_db, on)
     gaps = [(peaks[k + 1] - peaks[k]) * HOP / RATE for k in range(len(peaks) - 1)
             if not any(peaks[k] < c <= peaks[k + 1] for c in cuts)]
     return len(peaks), [g for g in gaps if g <= 0.5]
@@ -219,6 +229,97 @@ def voiceprint(path: Path, words: Optional[int] = None, levels: bool = True) -> 
         m = measure(path)
         out.update(lufs=m["lufs"], noise_db=m["noise_db"])
     return out
+
+
+def timeline(path: Path, step_s: float = 0.1) -> dict:
+    """One clip, moment by moment: every `step_s`, the peak level, the top end, the pitch and how much of the
+    step is over the speech gate; and the runs of sound (events), each with its length, level, pitch and how
+    many bursts it holds, how evenly spaced they are and how fast they die away.
+
+    A laugh is a train of four to six bursts a second that fades; so is a run of syllables, and a cough is
+    one burst. This shows the sound, not what it was: it is for someone who has heard the clip, or is
+    about to, and for a clip whose transcript has words in it and a stretch with none.
+    """
+    np = _np()
+    path = Path(path)
+    x = _decode(path)
+    a = _analyse(x, pitch=False)
+    p = _analyse(_decode(path, PITCH_BAND))
+    on, gate = _speech(a["rms"])
+    if not on.any():
+        raise VoiceNoteError(f"no sound over the gate in {path}")
+    loud = float(np.percentile(p["rms"][on], 95))
+    voiced = on & (p["val"] >= VOICED)
+    st = _pitch(p["lag"], p["val"], on & (p["rms"] > loud - PITCH_WINDOW_DB))
+    hz = 100 * 2 ** (st / 12)  # NaN where a frame has no pitch
+    peaks, smooth = _peaks(p["mid"], on)
+
+    step = max(1, round(step_s * RATE / HOP))
+    rows = []
+    for i in range(0, len(on), step):
+        sl = slice(i, min(len(on), i + step))
+        f = hz[sl][~np.isnan(hz[sl])]
+        rows.append({"t_s": round(i * HOP / RATE, 2), "level_db": round(float(a["rms"][sl].max()), 1),
+                     "hf_db": round(float(a["hf"][sl].mean()), 1) if on[sl].any() else None,
+                     "f0_hz": round(float(np.median(f)), 1) if len(f) else None,
+                     "on": round(float(on[sl].mean()), 2)})
+
+    close = int(EVENT_GAP_S * RATE / HOP)
+    spans: List[List[int]] = []
+    for s, e, v in _runs(on):
+        if v:
+            if spans and s - spans[-1][1] < close:
+                spans[-1][1] = e
+            else:
+                spans.append([s, e])
+    events = []
+    for s, e in spans:
+        here = on[s:e]
+        lvl = a["rms"][s:e][here]
+        pitch = st[s:e][~np.isnan(st[s:e])]
+        hit = [k for k in peaks if s <= k < e]
+        dur = (e - s) * HOP / RATE
+        ev = {"start_s": round(s * HOP / RATE, 2), "end_s": round(e * HOP / RATE, 2), "dur_s": round(dur, 2),
+              "peak_db": round(float(lvl.max()), 1), "mean_db": round(float(lvl.mean()), 1),
+              "hf_db": round(float(a["hf"][s:e][here].mean()), 1),
+              "voiced_share": round(float(voiced[s:e].sum()) / max(1, int(here.sum())), 2),
+              "bursts": len(hit), "bursts_per_s": round(len(hit) / dur, 1) if dur else 0.0}
+        if len(pitch) >= 5:
+            ev["f0_median_hz"] = round(100 * 2 ** (float(np.median(pitch)) / 12), 1)
+            ev["f0_sd_st"] = round(float(pitch.std()), 2)
+        gaps = [(hit[k + 1] - hit[k]) * HOP / RATE for k in range(len(hit) - 1)]
+        if len(gaps) >= 3:
+            ev["burst_cv"] = round(statistics.pstdev(gaps) / statistics.mean(gaps), 2)
+        if len(hit) >= 3:  # dB per second of the burst peaks, least squares: negative is a fade
+            ev["decay_db_s"] = round(float(np.polyfit(np.array(hit) * HOP / RATE, smooth[hit], 1)[0]), 1)
+        events.append(ev)
+    return {"path": str(path), "duration_s": round(len(x) / RATE, 2), "gate_db": round(gate, 1),
+            "loud_db": round(loud, 1), "step_s": step_s, "rows": rows, "events": events}
+
+
+def timeline_text(t: dict) -> str:
+    """The timeline as a table a person can read down: one line per step, with a bar for the level."""
+    lines = [f"{Path(t['path']).name}: {t['duration_s']} s, gate {t['gate_db']} dB, loud {t['loud_db']} dB "
+             f"(95th percentile of the sound)", "", "   t_s  level_db  hf_db  f0_hz   on"]
+    floor = t["gate_db"] - 10
+    for r in t["rows"]:
+        bar = "#" * max(0, min(40, int(round((r["level_db"] - floor) / 2))))
+        hf = "-" if r["hf_db"] is None else f"{r['hf_db']:g}"
+        f0 = "-" if r["f0_hz"] is None else f"{r['f0_hz']:g}"
+        lines.append(f"{r['t_s']:6.2f} {r['level_db']:9.1f} {hf:>6} {f0:>6} {r['on']:4.1f}  {bar}")
+    lines += ["", f"events (sound over the gate; sound less than {EVENT_GAP_S:g} s apart is one event):",
+              "  #  start_s  end_s  dur_s  peak_db  mean_db  voiced  f0_hz  f0_sd_st  hf_db  bursts  per_s  burst_cv  decay_db_s"]
+
+    def cell(ev, key, width, fmt="{:g}"):
+        return f"{'-' if ev.get(key) is None else fmt.format(ev[key]):>{width}}"
+
+    for i, ev in enumerate(t["events"], 1):
+        lines.append(f"{i:3d}  " + "  ".join([
+            cell(ev, "start_s", 7), cell(ev, "end_s", 5), cell(ev, "dur_s", 5), cell(ev, "peak_db", 7),
+            cell(ev, "mean_db", 7), cell(ev, "voiced_share", 6), cell(ev, "f0_median_hz", 5),
+            cell(ev, "f0_sd_st", 8), cell(ev, "hf_db", 5), cell(ev, "bursts", 6), cell(ev, "bursts_per_s", 5),
+            cell(ev, "burst_cv", 8), cell(ev, "decay_db_s", 10)]))
+    return "\n".join(lines)
 
 
 def summarize(rows: Sequence[dict], min_speech_s: float = 2.0, max_speech_s: Optional[float] = None) -> dict:

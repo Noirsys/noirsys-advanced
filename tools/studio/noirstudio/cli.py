@@ -476,7 +476,22 @@ def _cmd_voiceprint(args: argparse.Namespace) -> int:
 
     from .ffmpeg import FFmpegError
     from .voicenote import VoiceNoteError
-    from .voiceprint import compare, summarize, table, voiceprint
+    from .voiceprint import compare, summarize, table, timeline, timeline_text, voiceprint
+
+    if args.timeline:
+        looked, failed = [], []
+        for name in args.paths:
+            try:
+                looked.append(timeline(Path(name), args.step))
+            except (VoiceNoteError, FFmpegError, FileNotFoundError) as exc:
+                failed.append(f"{name}: {str(exc).splitlines()[0]}")
+        for line in failed:
+            print(f"skipped {line}", file=sys.stderr)
+        if args.json:
+            print(json.dumps({"timelines": looked, "failed": failed}, indent=2))
+        else:
+            print("\n\n".join(timeline_text(t) for t in looked))
+        return 0 if looked else 1
 
     counts = json.loads(Path(args.words).read_text(encoding="utf-8")) if args.words else {}
 
@@ -714,6 +729,10 @@ def build_parser() -> argparse.ArgumentParser:
     vp.add_argument("--max-speech", type=float, help="skip clips with more speech than this, s: a long dictation pauses more "
                     "than a short line, so 25 keeps his notes comparable with short reads")
     vp.add_argument("--fast", action="store_true", help="skip the loudness and room-tone readings")
+    vp.add_argument("--timeline", action="store_true",
+                    help="look inside each clip instead: level, top end and pitch every --step, and the runs of sound "
+                    "with their bursts (is that a laugh, a breath, or nothing?)")
+    vp.add_argument("--step", type=float, default=0.1, metavar="S", help="--timeline: seconds per row (default 0.1)")
     vp.add_argument("--json", action="store_true")
     vp.set_defaults(fn=_cmd_voiceprint)
     return p
