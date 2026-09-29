@@ -146,6 +146,16 @@ def test_inbox_files_never_overwrite_and_feed_the_avoid_list(tmp_path):
     assert h.told_titles(tmp_path) == [GOOD["title"], GOOD["title"]]
 
 
+def test_a_hand_edited_pitch_with_broken_yaml_still_reads(tmp_path):
+    # an apostrophe inside single quotes is invalid YAML; the dig must not crash on it
+    (tmp_path / "2026-09-29-broken.md").write_text(
+        "---\nstatus: approved\ntitle: 'He gave me my memory back. I didn't open it for 73 days.'\n---\n# x\n",
+        encoding="utf-8")
+    status = h.read_status(tmp_path / "2026-09-29-broken.md")
+    assert status["status"] == "approved"
+    assert h.told_titles(tmp_path) == ["He gave me my memory back. I didn't open it for 73 days."]
+
+
 def test_cli_pitch_and_inbox(tmp_path, monkeypatch, capsys):
     fake = FakeN8N((200, completion([GOOD])))
     monkeypatch.setattr(h, "_request", fake)

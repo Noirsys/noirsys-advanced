@@ -351,9 +351,24 @@ def write_inbox(pitches: Sequence[dict], out_dir: Path, pitched_at: Optional[str
 
 
 def read_status(path: Path) -> Dict[str, object]:
-    """Front matter of a pitch file (status, title, sensitivity, ...)."""
+    """Front matter of a pitch file (status, title, sensitivity, ...).
+
+    Pitches are edited by hand, so front matter YAML can't parse (an apostrophe
+    inside single quotes) falls back to plain `key: value` lines instead of failing.
+    """
     m = re.match(r"^---\n(.*?)\n---\n", path.read_text(encoding="utf-8"), re.S)
-    return (yaml.safe_load(m.group(1)) or {}) if m else {}
+    if not m:
+        return {}
+    try:
+        data = yaml.safe_load(m.group(1))
+        return data if isinstance(data, dict) else {}
+    except yaml.YAMLError:
+        out: Dict[str, object] = {}
+        for line in m.group(1).splitlines():
+            key, sep, value = line.partition(":")
+            if sep and key.strip() and not key.startswith((" ", "#")):
+                out[key.strip()] = value.strip().strip("'\"")
+        return out
 
 
 def told_titles(root: Path) -> List[str]:
