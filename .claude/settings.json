@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__github__actions_list",
+      "mcp__github__pull_request_read",
+      "mcp__github__get_job_logs",
+      "mcp__github__actions_get",
+      "mcp__github__list_pull_requests",
+      "Bash(python -m pytest -q)",
+      "Bash(noirstudio validate *)",
+      "Bash(git check-ignore *)",
+      "Bash(curl -sS \"$HTTPS_PROXY/__agentproxy/status\")"
+    ]
+  }
+}
