@@ -282,6 +282,11 @@ def split_pauses(text: str, trail: str = "…") -> Tuple[str, List[Tuple[int, fl
 
 # How he stops to think, measured on 87 of his real notes (29 min of speech, `voiceprint`, 2026-09-29):
 # about 17 pauses a minute, median 0.88 s, middle half 0.49 to 1.54 s. The clone's own median was 0.34 s.
+# "Him at home" (P3, 2026-09-29): his real numbers on Praat's tracker (101 notes: a pitch swing of 2.1 semitones, a median
+# pitch of 104 Hz, 17 pauses a minute; strategy/04) and the settings that moved the clone toward them. `--match` and `--room`
+# depend on the note being rebuilt and stay outside it. Opt-in, like every one of its parts, until he has heard it.
+HOME_PRESET = {"stability": 0.9, "rough": 2, "raw": True, "swing": 2.1, "pitch": 104.0, "pace": 1.2, "hesitate": 1.0}
+
 HIS_PAUSES = {"rate_per_min": 17.0, "median_s": 0.85, "sigma": 0.85, "min_s": 0.25, "max_s": 3.0}
 _PUNCT = ".,?!;:…—-\"'"
 _FILLERS = {"uh", "um", "er", "erm", "ah", "hmm", "mm"}

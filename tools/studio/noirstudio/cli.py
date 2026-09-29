@@ -390,9 +390,19 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
     from .captions import Word
     from .ffmpeg import FFmpegError
     from .voice import VoiceError
-    from .voicenote import (NoteStyle, VoiceNoteError, hesitations, insert_pauses, matched, measure, prosody, rawify,
-                            render, roughen, room_tone, split_pauses)
+    from .voicenote import (HOME_PRESET, NoteStyle, VoiceNoteError, hesitations, insert_pauses, matched, measure, prosody,
+                            rawify, render, roughen, room_tone, split_pauses)
 
+    if args.preset:  # the recipe fills in what was not asked for; anything asked for wins
+        for key, value in HOME_PRESET.items():
+            if key == "raw":
+                args.raw = True
+            elif getattr(args, key) is None:
+                setattr(args, key, value)
+    if args.stability is None:
+        args.stability = 0.85
+    if args.hesitate is None:
+        args.hesitate = 0.0
     if len(args.paths) != (1 if args.say or args.measure else 2):
         print("usage: voicenote IN OUT | voicenote --say TEXT OUT | voicenote --measure REAL", file=sys.stderr)
         return 1
@@ -736,19 +746,22 @@ def build_parser() -> argparse.ArgumentParser:
                     "stops to think (default 0.8 s). His clone reads it (ELEVENLABS_API_KEY)")
     vn.add_argument("--voice", default=HIS_VOICE, help="voice id for --say (default: his clone)")
     vn.add_argument("--model", default="eleven_v4")
-    vn.add_argument("--stability", type=float, default=0.85,
+    vn.add_argument("--preset", choices=["home"],
+                    help="`home`: the whole recipe measured from his real notes (stability 0.9, --rough 2, --raw, --swing 2.1, "
+                    "--pitch 104, --pace 1.2, --hesitate 1); any of those flags you pass still wins. Use with --match and --room")
+    vn.add_argument("--stability", type=float, default=None,
                     help="the clone's steadiness: higher is flatter and less performed (default 0.85; 0.5 is the v3 read)")
     vn.add_argument("--similarity", type=float, default=0.8)
     vn.add_argument("--match", metavar="REAL", help="one of his real notes: match its loudness, room tone and bitrate")
     vn.add_argument("--room", metavar="REAL", help="one of his real notes: loop its quiet stretches (his room) under the note")
     vn.add_argument("--measure", action="store_true", help="read PATH (a real note) and print what --match would use")
-    vn.add_argument("--rough", type=int, choices=[0, 1, 2, 3], default=2,
+    vn.add_argument("--rough", type=int, choices=[0, 1, 2, 3], default=None,
                     help="how lazy he sounds, in the text and the filter: 0 = the clean phone note (v3), 1-3 = quieter, "
                     "less crisp, flatter (default 2)")
     vn.add_argument("--raw", action="store_true",
                     help="write the line the way his transcripts read: lowercase, no punctuation, run together (a clone "
                     "performs punctuation: it falls at a full stop and lifts at a question)")
-    vn.add_argument("--hesitate", type=float, default=0.0, metavar="X",
+    vn.add_argument("--hesitate", type=float, default=None, metavar="X",
                     help="add the thinking pauses he makes on his own, at his measured rate (17 a minute, median 0.85 s): "
                     "0 = none (default), 1 = his rate, 2 = twice as often. [pause N] markers in the line count toward it")
     vn.add_argument("--swing", type=float, metavar="ST",

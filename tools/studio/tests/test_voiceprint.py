@@ -487,6 +487,48 @@ def test_say_with_swing_hesitate_and_raw_end_to_end(tmp_path, monkeypatch):
     assert got["words"][-1]["end"] == pytest.approx(0.35 + 0.3 + 4.0 + added - 0.6 * step, abs=0.2)
 
 
+def test_preset_home_fills_in_the_recipe_and_what_you_pass_wins(tmp_path, monkeypatch):
+    """`--preset home` is the measured recipe (stability 0.9, rough 2, raw, swing 2.1, pitch 104, pace 1.2, hesitate 1)."""
+    pytest.importorskip("parselmouth")
+    from noirstudio import ffmpeg
+    from noirstudio.voice import ElevenLabsVoice
+
+    mono = _expressive_read(tmp_path, "tts.wav")
+    stereo = tmp_path / "tts_stereo.wav"
+    ffmpeg.run(["-y", "-i", str(mono), "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", str(stereo)])
+    text = "So, uh, I think we should probably just go with the first one, you know, and see what happens."
+    tokens = text.split()
+    step = 4.0 / len(tokens)
+    aligned = [{"text": w.lower().strip(",."), "start": round(0.3 + i * step, 3), "end": round(0.3 + i * step + step * 0.85, 3)}
+               for i, w in enumerate(tokens)]
+    sent = []
+
+    def fake_send(self, method, path, data, content_type, accept, query=""):
+        if path == "/v1/forced-alignment":
+            return json.dumps({"words": aligned}).encode()
+        sent.append(json.loads(data))
+        return stereo.read_bytes()
+
+    monkeypatch.setenv("ELEVENLABS_API_KEY", "test-key")
+    monkeypatch.setattr(ElevenLabsVoice, "_send", fake_send)
+
+    def build(name, *flags):
+        out = tmp_path / f"{name}.ogg"
+        assert cli.main(["voicenote", "--say", text, str(out), *flags]) == 0
+        return json.loads((tmp_path / f"{name}.words.json").read_text(encoding="utf-8"))
+
+    home = build("home", "--preset", "home")
+    assert sent[-1]["voice_settings"]["stability"] == 0.9 and home["stability"] == 0.9 and home["rough"] == 2
+    assert home["swing"]["swing_target_st"] == 2.1 and home["swing"]["swing_after_st"] == pytest.approx(2.1, abs=0.5)
+    assert home["swing"]["pace_effective"] == pytest.approx(1.2, abs=0.05)
+    assert [w["text"] for w in home["words"]] == tokens  # --raw: the captions keep the script's own words
+    mine = build("mine", "--preset", "home", "--stability", "0.5", "--swing", "3.0", "--rough", "1")
+    assert sent[-1]["voice_settings"]["stability"] == 0.5 and mine["stability"] == 0.5 and mine["rough"] == 1
+    assert mine["swing"]["swing_target_st"] == 3.0
+    plain = build("plain")  # without the preset nothing changes: the old defaults
+    assert sent[-1]["voice_settings"]["stability"] == 0.85 and plain["rough"] == 2 and plain["swing"] is None
+
+
 # --- prosody: pitch level, swing and pace, found by measuring ---------------------------------
 
 def test_prosody_moves_the_pitch_level_the_swing_and_the_pace_together(tmp_path):
