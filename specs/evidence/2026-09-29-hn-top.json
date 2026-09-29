@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-09-29T16:28:15+00:00",
+  "stories": [
+    {
+      "id": "49890226",
+      "title": "A Privacy Analysis of Web and Mobile Conversational AI Agents [pdf]",
+      "url": "https://jorgegarciaherrero.com/wp-content/interactivos/20260916-Prompt-like-a-butterfly-sting-like-a-tracker-(clean).pdf",
+      "points": 357,
+      "comments": 115,
+      "created_at": "2026-09-29T09:03:41Z",
+      "pph": 48.18,
+      "query": "ai agents"
+    },
+    {
+      "id": "49893709",
+      "title": "Unsurprisingly, Meta's new Muse AI agent blatantly ignores users permissions",
+      "url": "https://appleinsider.com/articles/26/09/28/metas-new-ai-agent-blatantly-ignores-users-permissions",
+      "points": 135,
+      "comments": 28,
+      "created_at": "2026-09-29T14:15:24Z",
+      "pph": 60.965,
+      "query": "ai agents"
+    },
+    {
+      "id": "49890051",
+      "title": "Using any C++ library in Godot",
+      "url": "https://blog.conan.io/cpp/conan/gamedev/godot/cmake/2026/09/29/Using-Any-Cpp-Library-In-Godot.html",
+      "points": 129,
+      "comments": 35,
+      "created_at": "2026-09-29T08:40:37Z",
+      "pph": 16.551,
+      "query": "mcp"
+    },
+    {
+      "id": "49890748",
+      "title": "Muse gives out your home address without telling you",
+      "url": "https://www.theguardian.com/technology/2026/sep/28/metas-ai-agent-muse-home-address",
+      "points": 12,
+      "comments": 2,
+      "created_at": "2026-09-29T10:12:40Z",
+      "pph": 1.917,
+      "query": "ai agents"
+    },
+    {
+      "id": "49889780",
+      "title": "Meta's new AI agent built lists of people in vulnerable groups on request",
+      "url": "https://hntrbrk.com/breaking-news/muse-doxxing",
+      "points": 10,
+      "comments": 0,
+      "created_at": "2026-09-29T08:06:40Z",
+      "pph": 1.196,
+      "query": "ai agents"
+    },
+    {
+      "id": "49881201",
+      "title": "Show HN: I'm a dermatologist and I vibe coded a 3D biophysical skin model",
+      "url": "https://www.drmagnuslynch.com/skin",
+      "points": 6,
+      "comments": 0,
+      "created_at": "2026-09-28T17:12:55Z",
+      "pph": 0.258,
+      "query": "claude code"
+    },
+    {
+      "id": "49884291",
+      "title": "Show HN: A never-ending chess match between Claude and Codex",
+      "url": "https://claudevcodex.com/",
+      "points": 5,
+      "comments": 1,
+      "created_at": "2026-09-28T21:02:46Z",
+      "pph": 0.257,
+      "query": "claude code"
+    },
+    {
+      "id": "49880443",
+      "title": "Show HN: Low Poly Earth \u2013 The whole planet in 3D, built from OpenStreetMap data",
+      "url": "https://lowpolyearth.pages.dev/",
+      "points": 5,
+      "comments": 1,
+      "created_at": "2026-09-28T16:21:33Z",
+      "pph": 0.207,
+      "query": "claude code"
+    },
+    {
+      "id": "49888905",
+      "title": "Show HN: Open-source skills for end-to-end video ad campaigns",
+      "url": "https://github.com/SupercmoHQ/superCMO-skills",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-09-29T06:11:45Z",
+      "pph": 0.389,
+      "query": "claude code"
+    },
+    {
+      "id": "49887154",
+      "title": "Show HN: Talktome - let your AI Agent call you",
+      "url": "https://github.com/rohanprichard/talktome",
+      "points": 4,
+      "comments": 4,
+      "created_at": "2026-09-29T02:01:08Z",
+      "pph": 0.277,
+      "query": "claude code"
+    }
+  ]
+}
