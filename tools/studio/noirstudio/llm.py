@@ -220,17 +220,32 @@ def resolve_client(provider: Optional[str] = None, model: Optional[str] = None, 
 _FENCE = re.compile(r"```(?:json|yaml|yml)?\s*(.*?)```", re.S)
 
 
+def _mend_json(text: str) -> str:
+    """The slip models make in a long JSON reply: a value opened with a double quote and closed with a single one at the
+    end of its line (`"after": "...no lingering.',`). Only such lines are touched, and only when the text would not parse."""
+    fixed = []
+    for line in text.split("\n"):
+        m = re.match(r"^(\s*\"[^\"\\]+\"\s*:\s*\")(.*)['\u2019](,?)\s*$", line)
+        if m and not re.search(r'(?<!\\)"\s*,?\s*$', line):
+            line = m.group(1) + m.group(2) + '"' + m.group(3)
+        fixed.append(line)
+    return "\n".join(fixed)
+
+
 def extract_json(text: str) -> dict:
-    """Pull the first JSON object out of a model reply (fenced or bare)."""
+    """Pull the first JSON object out of a model reply (fenced or bare). A reply that is nearly JSON (a raw tab or
+    newline inside a string, a closing quote of the wrong kind) is mended rather than thrown away."""
     candidates: List[str] = [m.group(1) for m in _FENCE.finditer(text)] + [text]
     for cand in candidates:
         start, end = cand.find("{"), cand.rfind("}")
         if start == -1 or end <= start:
             continue
-        try:
-            obj = json.loads(cand[start : end + 1])
-            if isinstance(obj, dict):
-                return obj
-        except json.JSONDecodeError:
-            continue
+        body = cand[start : end + 1]
+        for attempt in (body, _mend_json(body)):
+            try:
+                obj = json.loads(attempt, strict=False)
+                if isinstance(obj, dict):
+                    return obj
+            except json.JSONDecodeError:
+                continue
     raise LLMError("model reply contained no JSON object:\n" + text[:400])
