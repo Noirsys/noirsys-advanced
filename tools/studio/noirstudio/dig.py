@@ -220,7 +220,7 @@ def start(root: Path, what: str, prompt: str, *, request: h.Requester = None, **
     """Start a job (dig | follow | pitch) and log it, so `collect` can pick it up later."""
     job = h.start_job(prompt, request=request)
     h.log_job(root, id=job["id"], poll_url=job["poll_url"], what=what, status="running", started_at=_now(),
-              **{k: v for k, v in meta.items() if v})
+              prompt=prompt, **{k: v for k, v in meta.items() if v})
     return job
 
 
@@ -270,10 +270,46 @@ def collect(root: Path, *, request: h.Requester = None) -> List[dict]:
             continue
         if reply is None:
             continue
+        if h.out_of_credit(reply):  # her provider is out of credit: nothing to keep, and the job can be retried
+            h.log_job(root, id=job["id"], status="blocked", error="provider out of credit (HTTP 402)")
+            changed.append({**job, "status": "blocked", "error": h.CREDIT_HINT})
+            continue
         saved = save_reply(root, job, reply)
         h.log_job(root, id=job["id"], status="collected", saved=[str(p) for p in saved])
         changed.append({**job, "status": "collected", "saved": saved})
     return changed
+
+
+def retry(root: Path, *, request: h.Requester = None) -> List[dict]:
+    """Send again every job that came back blocked (out of credit), with the same prompt. Returns the new jobs."""
+    started = []
+    for job in h.read_jobs(root):
+        if job.get("status") != "blocked" or not job.get("prompt"):
+            continue
+        meta = {k: job[k] for k in ("focus", "follow", "note") if job.get(k)}
+        new = start(root, str(job.get("what") or "dig"), str(job["prompt"]), request=request, **meta)
+        h.log_job(root, id=job["id"], status="retried", retried_as=new["id"])
+        started.append({**new, "what": job.get("what"), "was": job["id"]})
+    return started
+
+
+def ping(*, request: h.Requester = None, sleep: Optional[Callable[[float], None]] = None,
+         wait_s: int = 120, poll_s: int = 5) -> str:
+    """One tiny job to see whether she answers: "ready", "out of credit" or "no answer". Nothing is logged or kept."""
+    sleep = sleep or h.time.sleep
+    job = h.start_job("Harriet, noirstudio: a one-word test. Reply with the single word: ready. Nothing else, no tools.",
+                      request=request)
+    waited = 0
+    while waited < wait_s:
+        sleep(poll_s)
+        waited += poll_s
+        try:
+            reply = h.poll_job(job, request=request)
+        except LLMError as exc:
+            return f"failed: {str(exc)[:200]}"
+        if reply is not None:
+            return "out of credit" if h.out_of_credit(reply) else "ready"
+    return "no answer"
 
 
 def wait_for(root: Path, job_id: str, *, request: h.Requester = None, sleep: Optional[Callable[[float], None]] = None,

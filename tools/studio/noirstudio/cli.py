@@ -241,6 +241,17 @@ def _cmd_harriet(args: argparse.Namespace) -> int:
         print(f"{len(moments)} moment(s) in {root / 'digs'}")
         return 0
     try:
+        if cmd == "ping":
+            verdict = d.ping()
+            print(verdict if verdict != "out of credit" else f"OUT OF CREDIT: {h.CREDIT_HINT}")
+            return {"ready": 0, "out of credit": 3}.get(verdict, 2)
+        if cmd == "retry":
+            again = d.retry(root)
+            for job in again:
+                print(f"{job['was']} ({job.get('what')}) sent again as {job['id']}")
+            if not again:
+                print("nothing blocked to send again")
+            return 0
         if cmd == "collect":
             changed = d.collect(root)
             for job in changed:
@@ -250,6 +261,8 @@ def _cmd_harriet(args: argparse.Namespace) -> int:
             running = [j for j in h.read_jobs(root) if j.get("status") == "running"]
             for job in running:
                 print(f"{job['id']} ({job.get('what')}): still running, started {job.get('started_at')}")
+            if any(j["status"] == "blocked" for j in changed):
+                print(f"BLOCKED: {h.CREDIT_HINT}")
             if not changed and not running:
                 print("no open jobs")
             return 0
@@ -651,9 +664,10 @@ def build_parser() -> argparse.ArgumentParser:
     lp.set_defaults(fn=_cmd_loop)
 
     hr = sub.add_parser("harriet", help="Harriet's memory: dig for raw moments, pitch diary stories (Hermes via n8n)")
-    hr.add_argument("harriet_cmd", choices=["dig", "collect", "moments", "tell", "pitch", "inbox"],
+    hr.add_argument("harriet_cmd", choices=["dig", "collect", "moments", "tell", "pitch", "inbox", "ping", "retry"],
                     help="dig: she goes through her memory (async job); collect: pick up finished jobs; "
-                         "moments: what she has found; tell: send her a note (--note); pitch/inbox: curated pitches")
+                         "moments: what she has found; tell: send her a note (--note); pitch/inbox: curated pitches; "
+                         "ping: does she answer (or is her provider out of credit)?; retry: send the blocked jobs again")
     hr.add_argument("--note", default="", help="tell: the note or request, sent as-is; her answer lands in stories/notes/")
     hr.add_argument("-n", type=int, default=0, help="dig: how many moments (default 10); pitch: how many stories")
     hr.add_argument("--focus", default="", help="dig: where to look this time, e.g. 'the first month'; "

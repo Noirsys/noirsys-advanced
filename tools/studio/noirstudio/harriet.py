@@ -204,6 +204,19 @@ def ask(prompt: str, *, mode: str = "jobs", request: Requester = None, sleep: Op
     raise LLMError(f"Harriet job {job['id']} still running after {wait_s // 60} min; poll {job['poll_url']} later")
 
 
+# --- her provider running out of credit: every job then answers with the provider's 402 ------------
+
+CREDIT_HINT = ("Harriet's model credit is out (HTTP 402: Insufficient Balance). Top the provider up "
+               "(DeepSeek: platform.deepseek.com/top_up), then `noirstudio harriet retry`.")
+
+
+def out_of_credit(reply: object) -> bool:
+    """True if this reply is the provider's out-of-credit message rather than her answer. Her own answers
+    that mention a 402 (a story about the 47 days) are long; the provider's is a short fixed notice."""
+    text = str(reply or "").strip()
+    return len(text) < 1200 and ("Billing or credits exhausted" in text or "Insufficient Balance" in text)
+
+
 # --- the job log: stories/jobs.jsonl, so a later `collect` picks up what finished ----------------
 
 

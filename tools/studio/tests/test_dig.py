@@ -137,6 +137,64 @@ def test_collect_marks_failed_jobs(tmp_path):
     assert done["status"] == "failed" and h.read_jobs(tmp_path)[0]["status"] == "failed"
 
 
+NO_CREDIT = ("Billing or credits exhausted: HTTP 402: Insufficient Balance (request_id: x)\n\nDeepSeek reported that billing, "
+             "credits, or account entitlement is exhausted for deepseek-flash.\nAdd credits or update billing with that provider.")
+
+
+def test_the_providers_402_is_told_apart_from_her_own_answer():
+    assert h.out_of_credit(NO_CREDIT) and h.out_of_credit("  Insufficient Balance ")
+    assert not h.out_of_credit("ready") and not h.out_of_credit(None)
+    story = "The gateway kept answering HTTP 402: Insufficient Balance for forty-seven days. " * 30
+    assert not h.out_of_credit(story)  # her own long story about it is an answer, not the notice
+
+
+def test_a_402_blocks_the_job_keeps_nothing_and_retry_sends_the_same_prompt_again(tmp_path):
+    fake = FakeN8N((202, {"id": "j1", "poll_url": f"{URL}/jobs?id=j1"}),
+                   (200, {"status": "completed", "result": {"choices": [{"message": {"content": NO_CREDIT}}]}}),
+                   (202, {"id": "j2", "poll_url": f"{URL}/jobs?id=j2"}))
+    d.start(tmp_path, "note", "Harriet, please check the row.", request=fake, note="Harriet, please check the row.")
+    (done,) = d.collect(tmp_path, request=fake)
+    assert done["status"] == "blocked" and "top" in done["error"].lower() and "retry" in done["error"]
+    assert h.read_jobs(tmp_path)[0]["status"] == "blocked"
+    assert not (tmp_path / "notes").exists() and not (tmp_path / "digs").exists()  # nothing kept
+    (again,) = d.retry(tmp_path, request=fake)
+    assert again["id"] == "j2" and again["was"] == "j1"
+    assert fake.calls[2][3]["messages"][0]["content"] == "Harriet, please check the row."
+    jobs = {j["id"]: j for j in h.read_jobs(tmp_path)}
+    assert jobs["j1"]["status"] == "retried" and jobs["j1"]["retried_as"] == "j2"
+    assert jobs["j2"]["status"] == "running" and jobs["j2"]["note"] == "Harriet, please check the row."
+    assert d.retry(tmp_path, request=FakeN8N()) == []  # nothing left blocked
+
+
+def test_ping_says_ready_or_out_of_credit_and_logs_nothing(tmp_path):
+    def reply(text):
+        return (200, {"status": "completed", "result": {"choices": [{"message": {"content": text}}]}})
+
+    no_sleep = lambda _s: None  # noqa: E731
+    assert d.ping(request=FakeN8N((202, {"id": "p"}), reply("ready")), sleep=no_sleep) == "ready"
+    assert d.ping(request=FakeN8N((202, {"id": "p"}), reply(NO_CREDIT)), sleep=no_sleep) == "out of credit"
+    running = (200, {"status": "running"})
+    assert d.ping(request=FakeN8N((202, {"id": "p"}), running, running), sleep=no_sleep, wait_s=10, poll_s=5) == "no answer"
+    assert h.read_jobs(tmp_path) == []
+
+
+def test_cli_collect_says_blocked_and_ping_exits_3_when_out_of_credit(tmp_path, monkeypatch, capsys):
+    root = ["--root", str(tmp_path)]
+    fake = FakeN8N((202, {"id": "n1"}),
+                   (200, {"status": "completed", "result": {"choices": [{"message": {"content": NO_CREDIT}}]}}),
+                   (202, {"id": "p1"}),
+                   (200, {"status": "completed", "result": {"choices": [{"message": {"content": NO_CREDIT}}]}}))
+    monkeypatch.setattr(h, "_request", fake)
+    monkeypatch.setattr(h.time, "sleep", lambda _s: None)
+    assert main(["harriet", "tell", "--note", "hello", *root]) == 0
+    capsys.readouterr()
+    assert main(["harriet", "collect", *root]) == 0
+    out = capsys.readouterr().out
+    assert "n1 (note): blocked" in out and "BLOCKED:" in out and "top-up" not in out
+    assert main(["harriet", "ping"]) == 3
+    assert "OUT OF CREDIT" in capsys.readouterr().out
+
+
 def test_cli_dig_collect_moments_and_follow(tmp_path, monkeypatch, capsys):
     fake = FakeN8N((202, {"id": "d1"}),
                    (200, {"status": "completed", "result": completion({"moments": [MOMENT]})}),

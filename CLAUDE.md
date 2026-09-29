@@ -18,6 +18,7 @@ This repo is Noirsys's content engine and growth plan. Read this before touching
 cd tools/studio && pip install -e . && python -m pytest -q      # 90+ tests, ~30s, no network
 noirstudio harriet dig [--focus ...|--follow ID] && noirstudio harriet collect   # she goes through her memory (N8N_API_KEY or proxy)
 noirstudio harriet moments | pitch | inbox                      # what she found; curated pitches
+noirstudio harriet ping | retry                                  # does she answer (or is her provider out of credit)?; resend the blocked jobs
 noirstudio cut diary/<ep>.cuts.yaml --master EP.mp4 [--check]    # full / <=3:00 / <=60 s versions, -14 LUFS
 noirstudio voicenote --say "his line" OUT.ogg --match REAL.ogg   # a lost voice note of his, rebuilt (ELEVENLABS_API_KEY)
 noirstudio voiceprint HIS.ogg ... --vs OURS.ogg ...              # how close our reads are to his real notes, in numbers (needs numpy)
