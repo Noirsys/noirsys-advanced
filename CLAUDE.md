@@ -19,6 +19,7 @@ cd tools/studio && pip install -e . && python -m pytest -q      # 90+ tests, ~30
 noirstudio harriet dig [--focus ...|--follow ID] && noirstudio harriet collect   # she goes through her memory (N8N_API_KEY or proxy)
 noirstudio harriet moments | pitch | inbox                      # what she found; curated pitches
 noirstudio cut diary/<ep>.cuts.yaml --master EP.mp4 [--check]    # full / <=3:00 / <=60 s versions, -14 LUFS
+noirstudio voicenote --say "his words, verbatim" OUT.ogg --match REAL.ogg   # a lost voice note of his, rebuilt (ELEVENLABS_API_KEY)
 noirstudio validate specs/<id>.yaml
 noirstudio render specs/<id>.yaml --out renders/<id>             # offline preview, no keys
 noirstudio render specs/<id>.yaml --out renders/<id> --live      # ELEVENLABS_API_KEY
@@ -54,7 +55,7 @@ If something blocks (no network, no activity, failing tests), open the PR anyway
 - Never push to the default branch directly from automation; PRs only.
 - Never commit renders, audio, or `work/` directories (see `.gitignore`).
 - Keep the persona bible's "never says" list. Every number in a spec must exist in `specs/evidence/`.
-- Voices (`eleven_v4`, both): his Professional Voice Clone `XwGJOzi38Fyoct3IvqA9` is for specs he narrates (e.g. `specs/straightshot-teaser.yaml`). Harriet (the Diary and the Agent Log) speaks with `ZSNL4hPqCnqoMPaI4jGX` — the drafter sets it on every entry, and a test fails any Agent Log spec without it or with his clone. v4 takes stability + similarity only and has no `/with-timestamps`: caption timings come from forced alignment (see `voice.py`).
+- Voices (`eleven_v4`, both): his Professional Voice Clone `XwGJOzi38Fyoct3IvqA9` is for specs he narrates (e.g. `specs/straightshot-teaser.yaml`), and for his lost Diary voice notes: it reads the transcript word for word, nothing added, and `noirstudio voicenote` makes it sound like his phone (his decision, 2026-09-29). Uncertain transcripts stay on screen as text. Harriet (the Diary and the Agent Log) speaks with `ZSNL4hPqCnqoMPaI4jGX` — the drafter sets it on every entry, and a test fails any Agent Log spec without it or with his clone. v4 takes stability + similarity only and has no `/with-timestamps`: caption timings come from forced alignment (see `voice.py`).
 - Harriet's pitches and receipts (his voice notes, her messages) never go in git until the episode is published; he approves every story first. Her off-screen list is binding: his investigation work, outreach state, contacts, other people, legal matters, locations, credentials.
 - Music beds are off by default (Content ID). Don't add them.
 - Tests must pass before a push. Add a test when you add a module.

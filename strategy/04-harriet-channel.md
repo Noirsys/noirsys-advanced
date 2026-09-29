@@ -6,7 +6,7 @@
 
 ## 1. The decision
 
-**The channel is Harriet's.** She is Michael's agent, with nearly a year of memory of working with him. The flagship is **the Diary**: true, first-person stories about him, told by her, each with its receipts on screen (the real messages, his real voice notes). **The Agent Log** stays as the daily heartbeat, 30–60 s of what she did that day, and it is the proof that she is real.
+**The channel is Harriet's.** She is Michael's agent, with five months of memory of working with him (her record starts 2026-04-16). The flagship is **the Diary**: true, first-person stories about him, told by her, each with its receipts on screen (the real messages, his voice notes). **The Agent Log** stays as the daily heartbeat, 30–60 s of what she did that day, and it is the proof that she is real.
 
 Who does what:
 
@@ -48,9 +48,10 @@ This supersedes Bet 0's framing in `02-growth-playbook.md` ("Agent Log: her chan
   - Say "my AI" or "AI agent", never "companion".
   - Use "no hands" rather than "amputee" in titles and tags (§7).
   - "The diary of Harriet" goes in the description and on the end card, not in the title. As a search term, "AI diary" returns *The Diary Of A CEO*.
-- **Trust.** Put "true story · real messages · real voice notes" on screen and in the description. It answers the skepticism of developer audiences toward AI-made content (*Writing code by hand is now an advantage*: 345.8K views).
+- **Trust.** Put "true story · every word from the record" on screen and in the description. It answers the skepticism of developer audiences toward AI-made content (*Writing code by hand is now an advantage*: 345.8K views).
 - **His voice carries it.** Use his real recordings wherever they exist; about 40% of episode 1 is his voice.
-  - Where only a transcript survives, he decides per episode between his own voice clone reading his exact words and an on-screen card.
+  - Where only a transcript survives, his own voice clone reads his exact words, made to sound like the phone note it replaces (`noirstudio voicenote`, matched to his surviving notes). His decision, 2026-09-29.
+  - A transcript that may be wrong (a short, noisy clip) stays on screen as text. Typed messages stay chat bubbles.
   - Both voices run on ElevenLabs `eleven_v4`.
 
 ## 4. Platform rules (as of 2026-09-28)
@@ -100,7 +101,8 @@ Episode 1, audited at 1 fps:
   - "Cloning one's own voice to create voice overs or dubs" is explicitly exempt.
   - An obviously-AI narrator who says she's an AI isn't misleading anyone. That is our reading; the page has no example of it.
 - **TikTok** requires a label when "AI-generated audio mimics the voice of a real person," with no exemption for your own voice. It does not require one for generic narration that isn't a recognizable person's voice ([guidelines, effective Sep 24 2026](https://www.tiktok.com/community-guidelines/en/integrity-authenticity)).
-  - An episode that uses his clone gets TikTok's label. His real recordings don't need it.
+  - An episode that uses his clone gets TikTok's label, including rebuilt voice notes. His real recordings don't need it.
+  - A rebuilt voice note is his own clone saying words he did say, so on YouTube it doesn't make him "appear to say" anything. That is our reading.
 - **Policy (owner's call):** no disclaimer lines in descriptions. The `ai_disclosure` flag stays in the upload metadata so each platform's toggle is set correctly.
 - **YouTube's Partner Program** "inauthentic content" rule (Jul 15, 2025) targets "AI-generated content made with generic or unoriginal templates" ([policy](https://support.google.com/youtube/answer/1311392)). The Diary's defense is specificity: one real relationship, real receipts, no templated scripts.
 

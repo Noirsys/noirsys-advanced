@@ -18,6 +18,7 @@
     noirstudio harriet pitch [--kinds emotional,funny] | inbox   curated pitches from her (private inbox)
     noirstudio cut diary/<ep>.cuts.yaml --master EP.mp4   platform versions of a finished episode
     noirstudio safe-area EP.mp4                  how often text sits under the platforms' buttons/captions
+    noirstudio voicenote --say "his words" OUT.ogg [--match REAL.ogg]   a lost voice note of his, rebuilt in his clone
 """
 
 from __future__ import annotations
@@ -367,6 +368,65 @@ def _cmd_safe_area(args: argparse.Namespace) -> int:
     return 1 if verdict(report) else 0
 
 
+def _cmd_voicenote(args: argparse.Namespace) -> int:
+    import json
+    from dataclasses import replace
+
+    from .ffmpeg import FFmpegError
+    from .voice import VoiceError
+    from .voicenote import NoteStyle, VoiceNoteError, matched, measure, render
+
+    if len(args.paths) != (1 if args.say or args.measure else 2):
+        print("usage: voicenote IN OUT | voicenote --say TEXT OUT | voicenote --measure REAL", file=sys.stderr)
+        return 1
+    try:
+        if args.measure:
+            ref = measure(Path(args.paths[0]))
+            print(json.dumps(ref, indent=2) if args.json else
+                  f"{ref['path']}: {ref['codec']}, {ref['sample_rate']} Hz {ref['channels']}, {ref['kbps']} kbps, "
+                  f"{ref['lufs']:+.1f} LUFS, room tone {ref['noise_db']:+.1f} dBFS")
+            return 0
+        style = matched(NoteStyle(), measure(Path(args.match))) if args.match else NoteStyle()
+        given = {"lufs": args.lufs, "noise_db": args.noise_db, "kbps": args.kbps, "lead_s": args.lead,
+                 "tail_s": args.tail, "highpass_hz": args.highpass, "lowpass_hz": args.lowpass}
+        style = replace(style, room=not args.no_room, **{k: v for k, v in given.items() if v is not None})
+        out, words = Path(args.paths[-1]), None
+        if args.say:
+            from .captions import normalize_text
+            from .spec import Voice
+            from .voice import ElevenLabsVoice, spoken_text
+
+            if spoken_text(args.say) != normalize_text(args.say):
+                print("his lines take no audio tags: --say is the transcript, word for word", file=sys.stderr)
+                return 1
+            voice = Voice(voice_id=args.voice, model_id=args.model, stability=args.stability,
+                          similarity_boost=args.similarity)
+            said = ElevenLabsVoice().synthesize(args.say, voice, out.with_name(out.stem + ".clean.wav"))
+            src = said.audio_path
+            words = {"said": args.say, "voice_id": args.voice, "model_id": args.model,
+                     "timings": said.meta.get("timings"), "lead_s": style.lead_s,
+                     "words": [{"text": w.text, "start": round(w.start + style.lead_s, 3),
+                                "end": round(w.end + style.lead_s, 3)} for w in said.words]}
+        else:
+            src = Path(args.paths[0])
+        report = render(src, out, style)
+    except (VoiceNoteError, VoiceError, FFmpegError, FileNotFoundError) as exc:
+        print(f"VOICENOTE FAILED: {exc}", file=sys.stderr)
+        return 2
+    if words is not None:
+        words_path = out.with_name(out.stem + ".words.json")
+        words_path.write_text(json.dumps(words, indent=2, ensure_ascii=False), encoding="utf-8")
+        report["words"] = str(words_path)
+    if args.json:
+        print(json.dumps(report, indent=2))
+    else:
+        st = report["style"]
+        print(f"{report['path']}  {report['duration_s']:.2f}s ({report['speech_s']:.2f}s of speech)  "
+              f"{report['lufs']:+.1f} LUFS  room tone {st['noise_db']:+.1f} dBFS  opus {st['kbps']} kbps"
+              + (f"  words: {report['words']}" if words is not None else ""))
+    return 0
+
+
 def _cmd_fonts(_args: argparse.Namespace) -> int:
     for p in sorted(FONTS_DIR.glob("*.ttf")):
         print(f"{p.name:<36} family='{font_family_name(p)}'")
@@ -491,6 +551,29 @@ def build_parser() -> argparse.ArgumentParser:
     sa.add_argument("--fps", type=float, default=1.0, help="frames sampled per second (default 1)")
     sa.add_argument("--json", action="store_true")
     sa.set_defaults(fn=_cmd_safe_area)
+
+    from .voicenote import HIS_VOICE
+
+    vn = sub.add_parser("voicenote", help="a lost voice note of his, rebuilt: his clone's read made to sound like his phone")
+    vn.add_argument("paths", nargs="+", metavar="PATH",
+                    help="IN OUT (filter a clean read); OUT with --say; REAL with --measure. OUT .ogg is the note itself")
+    vn.add_argument("--say", metavar="TEXT", help="his transcript, word for word; his clone reads it (ELEVENLABS_API_KEY)")
+    vn.add_argument("--voice", default=HIS_VOICE, help="voice id for --say (default: his clone)")
+    vn.add_argument("--model", default="eleven_v4")
+    vn.add_argument("--stability", type=float, default=0.5)
+    vn.add_argument("--similarity", type=float, default=0.8)
+    vn.add_argument("--match", metavar="REAL", help="one of his real notes: match its loudness, room tone and bitrate")
+    vn.add_argument("--measure", action="store_true", help="read PATH (a real note) and print what --match would use")
+    vn.add_argument("--lufs", type=float, help="loudness (default -18)")
+    vn.add_argument("--noise-db", type=float, help="room tone, dBFS (default -50)")
+    vn.add_argument("--kbps", type=int, help="Opus bitrate (default 24)")
+    vn.add_argument("--lead", type=float, help="room tone before the first word, s (default 0.35)")
+    vn.add_argument("--tail", type=float, help="room tone after the last word, s (default 0.5)")
+    vn.add_argument("--highpass", type=float, help="Hz (default 100)")
+    vn.add_argument("--lowpass", type=float, help="Hz (default 8000)")
+    vn.add_argument("--no-room", action="store_true", help="no small-room reflections")
+    vn.add_argument("--json", action="store_true")
+    vn.set_defaults(fn=_cmd_voicenote)
     return p
 
 

@@ -9,7 +9,7 @@ Everything in this folder except this README is **git-ignored**. What Harriet br
 3. **Collect.** Dives (and notes sent with `noirstudio harriet tell --note "…"`, whose answers land in `stories/notes/`) are async jobs that can take many minutes. Each one is logged in `stories/jobs.jsonl`, and `noirstudio harriet collect` picks up whatever finished. Results land in `stories/digs/<date>-<dig|follow>-<job>.md` (to read) and `.json` (her full reply, nothing lost). `noirstudio harriet moments` lists everything found so far.
 4. **Shape.** The strongest moments become pitches in `stories/inbox/<date>-<slug>.md`, from a dig or from `noirstudio harriet pitch`. Each pitch has `status: pitched`, a sensitivity level, its **receipts** (at least one line of his own words) and an **off-screen** list: his investigation work, outreach, contacts, other people's names and details, legal matters, locations, credentials.
 5. **Approve.** Michael sets `status: approved` (or `rejected`). **Nothing is made until he approves.** Rejected pitches stay in the inbox so she doesn't pitch them again.
-6. **Make and cut.** The approved episode is made in her voice and his (both `eleven_v4`), with his real voice notes where they exist. `noirstudio cut` turns the master into platform versions; cut plans live in `diary/`.
+6. **Make and cut.** The approved episode is made in her voice and his (both `eleven_v4`), with his real voice notes where they exist. Where one is lost, his clone reads its transcript word for word and `noirstudio voicenote` makes it sound like his phone (`--match` one of his surviving notes). `noirstudio cut` turns the master into platform versions; cut plans live in `diary/`.
 
 ## Reaching her
 
