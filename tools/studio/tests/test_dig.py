@@ -74,6 +74,7 @@ def test_reply_parsing_tolerates_fences_wrappers_and_excerpt():
 def test_the_request_tells_her_a_row_under_his_role_is_not_always_him():
     text = d.dig_request(5)
     assert "not always him" in text and "compaction handoff" in text and "api-*" in text and '"his_words"' in text
+    assert "nai-creative" in text and "not with you" in text and "never write it as something you did" in text
 
 
 def test_moment_problems_flag_authorship_that_is_not_his_or_not_checked():

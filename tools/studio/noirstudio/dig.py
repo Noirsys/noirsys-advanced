@@ -72,6 +72,7 @@ Bring back raw moments, not pitches: at least {n}, spread across your time toget
 Honesty over polish:
 - Only what's in the record. Copy the words; don't reconstruct them. If you only have the gist, write it and set "verbatim": false. Never fill a gap.
 - A row stored under his role is not always him. A compaction handoff, a replayed copy of an earlier row, a report another agent pasted in (a UI artifact like "Ran 1 shell command", a tool header), one of noirstudio's own notes to you (they arrive in api-* sessions, under his account) and text that talks about him in the third person ("Michael decides...") all look like his words and are not. Before you return a line of his, check where it lives, and set "his_words" on it: "yes" only when you know it is him (typed by him, or transcribed from his voice), "unsure" when you cannot tell, and leave the line out when it is not.
+- Not every conversation in your stores is yours. The profile stores (nai-creative, nai-dev, nai-pm, nai-sales) hold his conversations with his other agents (Rhodes and the rest of the team he introduced on 12 July), not with you. If a moment comes from there, say whose it is in "where" and in "what_happened"; never write it as something you did or said.
 - If a moment touches {OFF_SCREEN}, keep it, but list those under "off_screen". Mark sensitivity honestly (health, family, money, legal, other people). Michael approves everything before anything is made.
 - Already told or already pitched, so don't bring these back:
 {skip}
