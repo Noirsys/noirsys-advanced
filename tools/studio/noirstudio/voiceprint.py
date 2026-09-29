@@ -374,6 +374,141 @@ def timeline_text(t: dict) -> str:
     return "\n".join(lines)
 
 
+# --- where the two pitch readers part --------------------------------------------------------------
+
+DIFF_BINS = (("lt0.5", 0.0, 0.5), ("0.5-1", 0.5, 1.0), ("1-2", 1.0, 2.0), ("2-4", 2.0, 4.0), ("4-8", 4.0, 8.0),
+             ("8-11", 8.0, 11.0), ("11-13", 11.0, 13.0), ("gt13", 13.0, math.inf))  # |difference| in semitones; 11-13 is an octave
+
+
+def readers_apart(path: Path) -> dict:
+    """Praat's tracker and the numpy autocorrelation on one clip, frame by frame on the same frames, and where
+    they part: the frames each reads that the other does not, how far apart they are where both read (in bins,
+    an octave being 11-13 semitones), the swing on the frames they share, and the numpy swing on the plainly
+    periodic thirds of the shared frames against the least periodic (by the numpy autocorrelation at the pitch
+    lag). On a synthetic voice they agree to a tenth of a semitone; on a real note they can differ by a semitone,
+    and this says whether that is frames one of them invents or drops, or a different value on the same frames."""
+    np = _np()
+    try:
+        import parselmouth
+    except ImportError as exc:
+        raise VoiceNoteError('comparing the readers needs praat-parselmouth: pip install "noirstudio[voice]"') from exc
+    path = Path(path)
+    x = _decode(path)
+    a = _analyse(x, pitch=False)
+    on, _gate = _speech(a["rms"])
+    if not on.any():
+        raise VoiceNoteError(f"no speech in {path}")
+    window = on & (a["rms"] > float(np.percentile(a["rms"][on], 95)) - PITCH_WINDOW_DB)
+    try:
+        st_p = _praat_pitch(x, len(on), window)
+    except parselmouth.PraatError as exc:
+        raise VoiceNoteError(f"Praat refused {path}: {' '.join(str(exc).split())[:100]}") from exc
+    band = _analyse(_decode(path, AUTOCORR_BAND))
+    st_a = _pitch(band["lag"], band["val"], window)
+    has_p, has_a = ~np.isnan(st_p), ~np.isnan(st_a)
+    both = has_p & has_a
+    if int(both.sum()) < 10:
+        raise VoiceNoteError(f"too little pitch in {path} to compare the readers")
+    d = st_a[both] - st_p[both]
+    ref = float(np.median(st_p[both]))
+    val = band["val"][both]
+    low_cut, high_cut = (float(c) for c in np.percentile(val, [100 / 3, 200 / 3]))
+    top, bottom = both & (band["val"] >= high_cut), both & (band["val"] <= low_cut)  # the most and the least periodic third
+
+    def sd(v):
+        return round(float(v.std()), 2) if len(v) >= 10 else None
+
+    def off(v):
+        return round(float(np.median(np.abs(v - ref))), 2) if len(v) else None
+
+    def hz(v):
+        return round(100 * 2 ** (float(np.median(v)) / 12), 1)
+
+    mag = np.abs(d)
+    return {"path": str(path), "speech_s": round(float(on.sum()) * HOP / RATE, 2), "frames": int(window.sum()),
+            "praat": int(has_p.sum()), "autocorr": int(has_a.sum()), "both": int(both.sum()),
+            "only_praat": int((has_p & ~has_a).sum()), "only_autocorr": int((has_a & ~has_p).sum()),
+            "f0_median_hz_praat": hz(st_p[has_p]), "f0_median_hz_autocorr": hz(st_a[has_a]),
+            "f0_sd_praat": sd(st_p[has_p]), "f0_sd_autocorr": sd(st_a[has_a]),
+            "f0_sd_praat_both": sd(st_p[both]), "f0_sd_autocorr_both": sd(st_a[both]),
+            "f0_sd_praat_top": sd(st_p[top]), "f0_sd_autocorr_top": sd(st_a[top]),
+            "f0_sd_praat_bottom": sd(st_p[bottom]), "f0_sd_autocorr_bottom": sd(st_a[bottom]),
+            "periodicity_top": round(high_cut, 2), "periodicity_bottom": round(low_cut, 2),
+            "bias_st": round(float(np.median(d)), 2),
+            "apart": {name: int(((mag >= lo) & (mag < hi)).sum()) for name, lo, hi in DIFF_BINS},
+            "high": int((d > 2).sum()), "low": int((d < -2).sum()),
+            "off_both_st": off(st_p[both]), "off_only_praat_st": off(st_p[has_p & ~has_a]),
+            "off_only_autocorr_st": off(st_a[has_a & ~has_p])}
+
+
+def readers_apart_summary(rows: Sequence[dict]) -> dict:
+    """The clips together: frames pooled, the medians of the per-clip numbers."""
+    np = _np()
+
+    def total(key):
+        return sum(r[key] for r in rows)
+
+    def median(key):
+        vals = [r[key] for r in rows if r.get(key) is not None]
+        return round(float(np.median(vals)), 2) if vals else None
+
+    both = max(1, total("both"))
+    return {"n": len(rows), "frames": total("frames"), "praat": total("praat"), "autocorr": total("autocorr"),
+            "both": total("both"), "only_praat": total("only_praat"), "only_autocorr": total("only_autocorr"),
+            "apart_share": {name: round(sum(r["apart"][name] for r in rows) / both, 3) for name, _lo, _hi in DIFF_BINS},
+            "high_share": round(total("high") / both, 3), "low_share": round(total("low") / both, 3),
+            "median": {k: median(k) for k in (
+                "f0_sd_praat", "f0_sd_autocorr", "f0_sd_praat_both", "f0_sd_autocorr_both", "f0_sd_praat_top",
+                "f0_sd_autocorr_top", "f0_sd_praat_bottom", "f0_sd_autocorr_bottom", "periodicity_top",
+                "periodicity_bottom", "bias_st", "f0_median_hz_praat", "f0_median_hz_autocorr",
+                "off_both_st", "off_only_praat_st", "off_only_autocorr_st")}}
+
+
+def readers_apart_text(rows: Sequence[dict], summary: dict) -> str:
+    """One line per clip, then the clips together. `sd` is the pitch swing (standard deviation, semitones)."""
+    def cell(v, width, fmt="{:g}"):
+        return f"{'-' if v is None else fmt.format(v):>{width}}"
+
+    lines = ["pitch swing (sd, st) by Praat and by numpy autocorrelation, on their own frames and on the frames both read, and on "
+             "the most and the least periodic third of those (by the numpy autocorrelation at the pitch lag);",
+             "frames only one of them reads (% of the frames either reads); how far apart they are where both read; "
+             "high/low = numpy more than 2 st above/below Praat; bias = numpy minus Praat, median.", "",
+             "file                        speech_s | sd_praat sd_numpy | both: praat numpy | top third: praat numpy | "
+             "bottom third: praat numpy | only_p% only_n% | <1st% 1-2% 2-4% >4% oct% | high% low% | bias"]
+    for r in rows:
+        either = max(1, r["praat"] + r["only_autocorr"])
+        apart = r["apart"]
+        n = max(1, r["both"])
+        lt1 = apart["lt0.5"] + apart["0.5-1"]
+        far = apart["4-8"] + apart["8-11"] + apart["gt13"] + apart["11-13"]
+        lines.append(
+            f"{Path(r['path']).name[:26]:<26} {r['speech_s']:9.2f} | {cell(r['f0_sd_praat'], 8)} {cell(r['f0_sd_autocorr'], 8)} | "
+            f"{cell(r['f0_sd_praat_both'], 14)} {cell(r['f0_sd_autocorr_both'], 5)} | "
+            f"{cell(r['f0_sd_praat_top'], 20)} {cell(r['f0_sd_autocorr_top'], 5)} | "
+            f"{cell(r['f0_sd_praat_bottom'], 23)} {cell(r['f0_sd_autocorr_bottom'], 5)} | "
+            f"{100 * r['only_praat'] / either:7.0f} {100 * r['only_autocorr'] / either:7.0f} | "
+            f"{100 * lt1 / n:5.0f} {100 * apart['1-2'] / n:4.0f} {100 * apart['2-4'] / n:4.0f} {100 * far / n:3.0f} "
+            f"{100 * apart['11-13'] / n:4.0f} | {100 * r['high'] / n:5.0f} {100 * r['low'] / n:4.0f} | {r['bias_st']:+.2f}")
+    m, ap = summary["median"], summary["apart_share"]
+    either = max(1, summary["praat"] + summary["only_autocorr"])
+    lines += ["", f"{summary['n']} clips, {summary['frames']} frames in the pitch window; Praat reads {summary['praat']}, numpy "
+              f"{summary['autocorr']}, both {summary['both']}; only Praat {summary['only_praat']} "
+              f"({100 * summary['only_praat'] / either:.0f}%), only numpy {summary['only_autocorr']} "
+              f"({100 * summary['only_autocorr'] / either:.0f}%).",
+              "where both read, |numpy - Praat| in semitones (share of those frames): "
+              + ", ".join(f"{name} {100 * ap[name]:.1f}%" for name, _lo, _hi in DIFF_BINS)
+              + f"; numpy more than 2 st above Praat {100 * summary['high_share']:.1f}%, more than 2 st below {100 * summary['low_share']:.1f}%.",
+              "medians over clips: swing " + ", ".join(f"{k.replace('f0_sd_', '')} {m[k]}" for k in (
+                  "f0_sd_praat", "f0_sd_autocorr", "f0_sd_praat_both", "f0_sd_autocorr_both", "f0_sd_praat_top",
+                  "f0_sd_autocorr_top", "f0_sd_praat_bottom", "f0_sd_autocorr_bottom") if m.get(k) is not None)
+              + f"; periodicity cut-offs (autocorrelation at the pitch lag) top {m['periodicity_top']}, bottom "
+              f"{m['periodicity_bottom']}; bias {m['bias_st']} st; median f0 Praat {m['f0_median_hz_praat']} Hz, "
+              f"numpy {m['f0_median_hz_autocorr']} Hz.",
+              f"how far from the shared median the frames only one reads sit (median |st|): both {m['off_both_st']}, "
+              f"only Praat {m['off_only_praat_st']}, only numpy {m['off_only_autocorr_st']}."]
+    return "\n".join(lines)
+
+
 def summarize(rows: Sequence[dict], min_speech_s: float = 2.0, max_speech_s: Optional[float] = None) -> dict:
     """Median and quartiles of every metric over the files with enough speech to read.
 

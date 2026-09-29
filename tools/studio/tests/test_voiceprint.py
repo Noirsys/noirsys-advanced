@@ -326,6 +326,66 @@ def test_cli_timeline_of_a_silent_clip_is_skipped_not_a_crash(tmp_path, capsys):
     assert code == 1 and "quiet.wav" in captured.err
 
 
+# --- where the two pitch readers part ------------------------------------------------------------
+
+def _two_voices(tmp_path):
+    paths = []
+    for seed, sd in ((1, 1.5), (2, 3.0)):
+        x, _ = formant_voice(4.0, sd, seed)
+        paths.append(write(tmp_path / f"v{seed}.wav", np.concatenate([hush(0.3), x, hush(0.3, seed=9)])))
+    return paths
+
+
+def test_the_readers_agree_on_a_clean_voice_and_the_frames_add_up(tmp_path):
+    pytest.importorskip("parselmouth")
+    (path, _) = _two_voices(tmp_path)
+    r = vp.readers_apart(path)
+    assert r["praat"] == r["both"] + r["only_praat"] and r["autocorr"] == r["both"] + r["only_autocorr"]
+    assert sum(r["apart"].values()) == r["both"] and r["frames"] >= r["both"] > 100
+    assert r["apart"]["lt0.5"] > 0.9 * r["both"] and r["high"] == 0 and r["low"] == 0
+    assert abs(r["f0_sd_praat"] - r["f0_sd_autocorr"]) < 0.4 and abs(r["bias_st"]) < 0.3
+    assert r["f0_sd_praat_top"] is not None and r["f0_sd_autocorr_bottom"] is not None
+    assert r["periodicity_top"] >= r["periodicity_bottom"]
+
+
+def test_the_clips_together_pool_their_frames_and_take_the_median_of_the_rest(tmp_path):
+    pytest.importorskip("parselmouth")
+    rows = [vp.readers_apart(p) for p in _two_voices(tmp_path)]
+    s = vp.readers_apart_summary(rows)
+    assert s["n"] == 2 and s["both"] == sum(r["both"] for r in rows) and s["frames"] == sum(r["frames"] for r in rows)
+    assert sum(s["apart_share"].values()) == pytest.approx(1.0, abs=0.01)
+    lo, hi = sorted(r["f0_sd_praat"] for r in rows)
+    assert lo <= s["median"]["f0_sd_praat"] <= hi
+    text = vp.readers_apart_text(rows, s)
+    assert "v1.wav" in text and "v2.wav" in text and "2 clips" in text and "only Praat" in text and "oct%" in text
+
+
+def test_comparing_the_readers_needs_praat_and_speech(tmp_path, monkeypatch):
+    import sys
+
+    pytest.importorskip("parselmouth")
+    (path, _) = _two_voices(tmp_path)
+    with pytest.raises(vp.VoiceNoteError, match="no speech"):
+        vp.readers_apart(write(tmp_path / "quiet.wav", hush(2.0)))
+    monkeypatch.setitem(sys.modules, "parselmouth", None)
+    with pytest.raises(vp.VoiceNoteError, match="praat-parselmouth"):
+        vp.readers_apart(path)
+
+
+def test_cli_readers_apart_prints_the_table_and_json_and_keeps_going_past_a_bad_file(tmp_path, capsys):
+    pytest.importorskip("parselmouth")
+    a, b = _two_voices(tmp_path)
+    quiet = write(tmp_path / "quiet.wav", hush(2.0))
+    assert cli.main(["voiceprint", str(a), str(quiet), str(b), "--readers-apart"]) == 0
+    captured = capsys.readouterr()
+    assert "v1.wav" in captured.out and "v2.wav" in captured.out and "2 clips" in captured.out and "quiet.wav" in captured.err
+    assert cli.main(["voiceprint", str(a), str(b), "--readers-apart", "--json"]) == 0
+    out = json.loads(capsys.readouterr().out)
+    assert len(out["clips"]) == 2 and out["summary"]["n"] == 2 and out["outside"] == 0
+    assert cli.main(["voiceprint", str(a), str(b), "--readers-apart", "--min-speech", "60"]) == 1
+    assert "no clip to compare" in capsys.readouterr().err
+
+
 # --- voicenote --swing: flatten a read's pitch to his level ------------------------------------
 
 def _expressive_read(tmp_path, name="read.wav"):
