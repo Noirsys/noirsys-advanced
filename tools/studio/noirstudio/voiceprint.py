@@ -16,8 +16,9 @@ and sets the two side by side, in numbers, before anyone has to trust their ears
 
 Nothing here judges the words. It reads the audio at 16 kHz mono: a 40 ms frame every 10 ms,
 a speech gate 8 dB over the room (or 35 dB under the loudest frames, for a clean read with
-digital silence), and, per frame, its level, its top end, its pitch (autocorrelation, octave
-jumps repaired against the neighbouring frames) and its syllable-band energy. It needs numpy
+digital silence), and, per frame, its level and its top end (the whole band), and its pitch
+(autocorrelation, octave jumps repaired against the neighbouring frames) and syllable-band energy
+(read through a fixed 200-3500 Hz band, so the phone chain's high-pass doesn't change what is read). It needs numpy
 (`pip install "noirstudio[voice]"`); nothing else in noirstudio does.
 """
 
@@ -39,6 +40,12 @@ MAX_S = 180.0  # a long dictation is measured on its first three minutes
 MIN_PAUSE_S = 0.20  # a shorter gap is a breath or a consonant, not a pause
 VOICED = 0.45  # normalised autocorrelation at the pitch lag, above which a frame counts as voiced
 _BLOCK = 4096  # frames per numpy block
+# Pitch and syllables are read through the same fixed band for every file: 200-3500 Hz. The phone chain (a 4-pole
+# 100 Hz high-pass, a low-pass, EQ) takes the fundamental of a 100 Hz voice out of a processed read but not out of his
+# raw note, and that alone added about a semitone to the pitch swing of his own notes when they were put through it.
+# The harmonics carry the period in both, so reading from 200 Hz up compares like with like.
+PITCH_BAND = "highpass=f=200:poles=2,highpass=f=200:poles=2,lowpass=f=3500:poles=2"
+PITCH_WINDOW_DB = 25.0  # pitch is read only on frames within this many dB of the loud ones: the quiet tails are all noise
 
 # For each metric: +1 if a bigger number sounds more performed, -1 if a smaller one does.
 DIRECTION: Dict[str, int] = {
@@ -65,10 +72,10 @@ def _np():
     return numpy
 
 
-def _decode(path: Path):
+def _decode(path: Path, af: str = ""):
     np = _np()
     cmd = [ffmpeg.ffmpeg_path(), "-hide_banner", "-nostdin", "-i", str(path), "-t", f"{MAX_S:g}", "-vn",
-           "-ac", "1", "-ar", str(RATE), "-f", "s16le", "-"]
+           "-ac", "1", *(["-af", af] if af else []), "-ar", str(RATE), "-f", "s16le", "-"]
     proc = subprocess.run(cmd, capture_output=True)
     if proc.returncode != 0 or len(proc.stdout) < 4 * FRAME:
         raise VoiceNoteError(f"cannot read speech from {path}")
@@ -100,9 +107,9 @@ def _speech(rms):
     return on, gate
 
 
-def _analyse(x):
-    """Per-frame level (dB), top-end share (dB), spectral centroid (Hz), syllable-band level (dB),
-    pitch lag (samples) and its autocorrelation."""
+def _analyse(x, pitch: bool = True):
+    """Per-frame level (dB), top-end share (dB), spectral centroid (Hz), syllable-band level (dB) and,
+    with `pitch`, the pitch lag (samples) and its autocorrelation."""
     np = _np()
     n = 1 + (len(x) - FRAME) // HOP
     win = np.hanning(FRAME).astype("float32")
@@ -119,6 +126,8 @@ def _analyse(x):
         cols["hf"].append(10 * np.log10(power[:, top].sum(axis=1) / total + 1e-9))
         cols["cen"].append((power[:, band] * freqs[band]).sum(axis=1) / total)
         cols["mid"].append(10 * np.log10(power[:, mid].sum(axis=1) + 1e-12))
+        if not pitch:
+            continue
         ac = np.fft.irfft(np.abs(np.fft.rfft(fr, 2 * FRAME, axis=1)) ** 2, axis=1)[:, :FRAME]
         seg = ac[:, lo:hi + 1] / (ac[:, :1] + 1e-12)
         rows = np.arange(len(seg))
@@ -130,7 +139,7 @@ def _analyse(x):
         delta = np.where(np.abs(den) > 1e-9, 0.5 * (y0 - y2) / np.where(np.abs(den) > 1e-9, den, 1.0), 0.0)
         cols["lag"].append(lo + idx + np.clip(delta, -1, 1))
         cols["val"].append(y1)
-    return {k: np.concatenate(v) for k, v in cols.items()}
+    return {k: np.concatenate(v) for k, v in cols.items() if v}
 
 
 def _pitch(lag, val, on):
@@ -169,7 +178,8 @@ def voiceprint(path: Path, words: Optional[int] = None, levels: bool = True) -> 
     np = _np()
     path = Path(path)
     x = _decode(path)
-    a = _analyse(x)
+    a = _analyse(x, pitch=False)
+    p = _analyse(_decode(path, PITCH_BAND))
     on, gate = _speech(a["rms"])
     runs = [(s, e) for s, e, v in _runs(on) if v]
     if not runs:
@@ -180,9 +190,10 @@ def voiceprint(path: Path, words: Optional[int] = None, levels: bool = True) -> 
     pauses = [g for g in gaps if g >= MIN_PAUSE_S]
     cuts = [runs[k][1] for k in range(len(runs) - 1) if gaps[k] >= MIN_PAUSE_S]
     lvl = a["rms"][on]
-    st = _pitch(a["lag"], a["val"], on)
+    loud = p["rms"][on] if on.any() else p["rms"]
+    st = _pitch(p["lag"], p["val"], on & (p["rms"] > float(np.percentile(loud, 95)) - PITCH_WINDOW_DB))
     v = st[~np.isnan(st)]
-    n_syll, beats = _syllables(a["mid"], on, cuts)
+    n_syll, beats = _syllables(p["mid"], on, cuts)
     out: dict = {"path": str(path), "duration_s": round(len(x) / RATE, 2), "utterance_s": round(utter_s, 2),
                  "speech_s": round(speech_s, 2), "gate_db": round(gate, 1),
                  "pause_count": len(pauses),

@@ -331,3 +331,35 @@ def test_say_with_pitch_and_pace_scales_the_captions_with_the_speech(tmp_path, m
     assert b["words"][-1]["end"] == pytest.approx(0.35 + (last["end"] - 0.35) * k, abs=0.03)
     assert b["words"][0]["start"] == pytest.approx(0.35 + (first["start"] - 0.35) * k, abs=0.03)
     assert ffmpeg.probe_duration(slow) > ffmpeg.probe_duration(plain) + 0.8
+
+
+def test_prosody_gives_the_same_bytes_every_time(tmp_path):
+    pytest.importorskip("parselmouth")
+    from noirstudio import voicenote as vn
+
+    src = _expressive_read(tmp_path)
+    a = vn.prosody(src, tmp_path / "a.wav", swing_st=2.5, median_hz=105, pace=1.2)
+    b = vn.prosody(src, tmp_path / "b.wav", swing_st=2.5, median_hz=105, pace=1.2)
+    assert (tmp_path / "a.wav").read_bytes() == (tmp_path / "b.wav").read_bytes()  # Praat's random draws are seeded
+    assert a == b
+    c = vn.prosody(src, tmp_path / "c.wav", swing_st=2.5, median_hz=105, pace=1.2, seed=8)
+    assert (tmp_path / "c.wav").read_bytes() != (tmp_path / "a.wav").read_bytes()  # a different seed, a different draw
+
+
+def test_pitch_is_read_the_same_before_and_after_the_phone_chain(tmp_path):
+    """The chain's 100 Hz high-pass takes the fundamental out of a processed read but not out of his raw note."""
+    from noirstudio import voicenote as vn
+
+    f0 = lambda tt: 100 * 2 ** ((3.0 * np.sin(2 * np.pi * 0.8 * tt) + 1.0 * np.sin(2 * np.pi * 3.2 * tt)) / 12)
+    n = int(1.1 * RATE)
+    tt = np.arange(n) / RATE
+    phase = 2 * np.pi * np.cumsum(f0(tt)) / RATE
+    # a voice whose first two harmonics are weak next to the formant region, as a phone-band male voice is
+    vowel = sum((0.05 if k == 1 else 0.3 if k == 2 else 1.0 / k ** 0.5) * np.sin(k * phase) for k in range(1, 40))
+    vowel = 0.2 * vowel * np.hanning(n) ** 0.4 / np.abs(vowel).max()
+    read = write(tmp_path / "raw.wav", np.concatenate([hush(0.3)] + [np.concatenate([vowel, hush(0.35, seed=i)]) for i in range(4)]))
+    processed = tmp_path / "chain.ogg"
+    vn.render(read, processed, vn.NoteStyle(rough=3, noise_db=-95))
+    a, b = vp.voiceprint(read, levels=False), vp.voiceprint(processed, levels=False)
+    assert b["f0_sd_st"] == pytest.approx(a["f0_sd_st"], abs=0.35)
+    assert b["f0_median_hz"] == pytest.approx(a["f0_median_hz"], rel=0.04)

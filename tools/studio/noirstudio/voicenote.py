@@ -379,7 +379,7 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
 # --- pitch and pace -----------------------------------------------------------------------
 
 def prosody(src: Path, out: Path, swing_st: Optional[float] = None, median_hz: Optional[float] = None,
-            pace: float = 1.0, floor_hz: float = 70.0, ceiling_hz: float = 300.0) -> dict:
+            pace: float = 1.0, floor_hz: float = 70.0, ceiling_hz: float = 300.0, seed: int = 7) -> dict:
     """Bring a read's pitch level, pitch swing and speaking rate down to his, as `voiceprint` measures them.
 
     On the same words as two of his real notes, the clone sat 3 to 5 semitones higher (126-144 Hz
@@ -390,7 +390,9 @@ def prosody(src: Path, out: Path, swing_st: Optional[float] = None, median_hz: O
     lengthens the speech (`pace` 1.2 is 20% slower), while the voice, the formants and the level
     stay. Praat scales the excursions it tracks and the estimator also sees jitter it doesn't, so the
     factor is found by measuring the result and correcting, not assumed. A read already flatter than
-    `swing_st` keeps its swing: this only ever flattens.
+    `swing_st` keeps its swing: this only ever flattens. Praat's resynthesis is not deterministic on its
+    own (two identical calls differ at the sample level and by 0.2-0.5 semitones of measured swing), so
+    its random generator is seeded and the same read gives the same bytes every time.
 
     Returns the before and after numbers, and `pace_effective`: what to multiply the aligned word
     timings by. Needs praat-parselmouth (`pip install "noirstudio[voice]"`).
@@ -423,6 +425,10 @@ def prosody(src: Path, out: Path, swing_st: Optional[float] = None, median_hz: O
         sound = sound.convert_to_mono()
 
     def run(factor: float) -> dict:
+        try:  # Praat's resynthesis draws random numbers; the same read must come out the same every time
+            parselmouth.praat.run(f"random_initializeWithSeedUnsafelyButPredictably({int(seed)})")
+        except Exception:  # pragma: no cover - an older Praat without the command
+            pass
         result = call(sound, "Change gender", floor_hz, ceiling_hz, 1.0, float(median_hz or 0), factor, float(pace))
         out.parent.mkdir(parents=True, exist_ok=True)
         result.save(str(out), "WAV")
