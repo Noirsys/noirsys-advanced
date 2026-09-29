@@ -374,7 +374,8 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
 
     from .ffmpeg import FFmpegError
     from .voice import VoiceError
-    from .voicenote import NoteStyle, VoiceNoteError, insert_pauses, matched, measure, render, room_tone, split_pauses
+    from .voicenote import (NoteStyle, VoiceNoteError, insert_pauses, matched, measure, render, roughen, room_tone,
+                            split_pauses)
 
     if len(args.paths) != (1 if args.say or args.measure else 2):
         print("usage: voicenote IN OUT | voicenote --say TEXT OUT | voicenote --measure REAL", file=sys.stderr)
@@ -388,7 +389,7 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
             return 0
         style = matched(NoteStyle(), measure(Path(args.match))) if args.match else NoteStyle()
         given = {"lufs": args.lufs, "noise_db": args.noise_db, "kbps": args.kbps, "lead_s": args.lead,
-                 "tail_s": args.tail, "highpass_hz": args.highpass, "lowpass_hz": args.lowpass}
+                 "tail_s": args.tail, "highpass_hz": args.highpass, "lowpass_hz": args.lowpass, "rough": args.rough}
         style = replace(style, room=not args.no_room, **{k: v for k, v in given.items() if v is not None})
         out, words = Path(args.paths[-1]), None
         if args.room:
@@ -404,11 +405,12 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
 
             voice = Voice(voice_id=args.voice, model_id=args.model, stability=args.stability,
                           similarity_boost=args.similarity)
-            line, pauses = split_pauses(args.say)
+            line, pauses = split_pauses(roughen(args.say, style.rough), trail="," if style.rough else "…")
             said = ElevenLabsVoice().synthesize(line, voice, out.with_name(out.stem + ".clean.wav"))
             timed = insert_pauses(said.audio_path, said.words, pauses)
             src = said.audio_path
             words = {"said": args.say, "read": line, "voice_id": args.voice, "model_id": args.model,
+                     "stability": args.stability, "rough": style.rough,
                      "timings": said.meta.get("timings"), "lead_s": style.lead_s,
                      "pauses": [{"after_words": k, "s": s} for k, s in pauses],
                      "words": [{"text": w.text, "start": round(w.start + style.lead_s, 3),
@@ -567,11 +569,15 @@ def build_parser() -> argparse.ArgumentParser:
                     "stops to think (default 0.8 s). His clone reads it (ELEVENLABS_API_KEY)")
     vn.add_argument("--voice", default=HIS_VOICE, help="voice id for --say (default: his clone)")
     vn.add_argument("--model", default="eleven_v4")
-    vn.add_argument("--stability", type=float, default=0.5)
+    vn.add_argument("--stability", type=float, default=0.85,
+                    help="the clone's steadiness: higher is flatter and less performed (default 0.85; 0.5 is the v3 read)")
     vn.add_argument("--similarity", type=float, default=0.8)
     vn.add_argument("--match", metavar="REAL", help="one of his real notes: match its loudness, room tone and bitrate")
     vn.add_argument("--room", metavar="REAL", help="one of his real notes: loop its quiet stretches (his room) under the note")
     vn.add_argument("--measure", action="store_true", help="read PATH (a real note) and print what --match would use")
+    vn.add_argument("--rough", type=int, choices=[0, 1, 2, 3], default=2,
+                    help="how lazy he sounds, in the text and the filter: 0 = the clean phone note (v3), 1-3 = quieter, "
+                    "less crisp, flatter (default 2)")
     vn.add_argument("--lufs", type=float, help="loudness (default -22: he talks quietly)")
     vn.add_argument("--noise-db", type=float, help="room tone, dBFS (default -54)")
     vn.add_argument("--kbps", type=int, help="Opus bitrate (default 24)")

@@ -12,6 +12,20 @@ them. Then the read goes through his phone:
     colour    -2 dB at 250 Hz, +1.5 dB at 2.8 kHz, -2 dB above 6 kHz   a quiet voice, not projected
     room      reflections at 11 and 23 ms                     a small room, close to the mouth
     AGC       3:1 above -24 dBFS, fast attack                 the phone's level control
+
+That is `rough` 0, the clean phone note. His note (2026-09-29): the clone still sounds too
+perfect, dynamic and articulate. A studio-trained clone talks like a performance, and he
+talks like a tired man at home. So `rough` 1-3 make it lazier, each step:
+
+    top end   lowpass 6.5 / 5.5 / 4.8 kHz, a shelf from 4.5 / 4 / 3.5 kHz         consonants stop being crisp
+    presence  0 / -1.5 / -2.5 dB at 2.8 kHz, a de-esser 0.3 / 0.5 / 0.7            "s" and "t" stop cutting
+    body      +1 / +2 / +3 dB at 180 Hz                                             closer to the mouth, less studio
+    AGC       ratio 3.5 / 4.5 / 6 from -26 / -28 / -32 dBFS, slower release          the swings in level get squashed
+
+and `roughen` does the same to the text before the clone reads it: ellipses, dashes,
+exclamation marks and mid-line question marks each cue a performed rise or drop, so they
+become commas, and (rough 2+) "going to" becomes "gonna". The clone's stability (higher =
+steadier, less expressive) is the other half, and lives in the `--say` call.
     level     linear gain to -22 LUFS, peaks held at -1.5 dBFS
     tone      his room: a dark room tone at -54 dBFS, or the real one (`--room`), from
               0.35 s before the first word to 0.5 s after the last, and under every pause
@@ -63,6 +77,7 @@ class NoteStyle:
     kbps: int = 24
     seed: int = 7
     room_tone: Optional[str] = None  # a WAV of his real room (room_tone()); None = the synthetic one
+    rough: int = 2  # 0 = the clean phone note; 1-3 = a quieter, lazier, less crisp voice (see the top of this file)
 
     def problems(self) -> List[str]:
         out = []
@@ -80,18 +95,38 @@ class NoteStyle:
             out.append(f"{self.kbps} kbps: Opus takes 6 to 256")
         if self.room_tone and not Path(self.room_tone).exists():
             out.append(f"room tone file {self.room_tone} is missing")
+        if self.rough not in (0, 1, 2, 3):
+            out.append(f"rough {self.rough}: expected 0 to 3")
         return out
+
+
+# One row per `rough` step. Step 0 is the clean phone note exactly as v3 shipped it.
+_ROUGH = (
+    dict(lowpass=8000, presence=1.5, shelf=(6000, -2), deess=0.0, body=0.0, comp=(-24, 3, 5, 90, 2)),
+    dict(lowpass=6500, presence=0.0, shelf=(4500, -3), deess=0.3, body=1.0, comp=(-26, 3.5, 5, 120, 2)),
+    dict(lowpass=5500, presence=-1.5, shelf=(4000, -4), deess=0.5, body=2.0, comp=(-28, 4.5, 4, 150, 3)),
+    dict(lowpass=4800, presence=-2.5, shelf=(3500, -5), deess=0.7, body=3.0, comp=(-32, 6, 3, 180, 4)),
+)
 
 
 def voice_chain(style: NoteStyle) -> str:
     """The speech path before its level is set: band-limit, a quiet voice's colour, room, AGC."""
+    step = _ROUGH[style.rough if style.rough in (0, 1, 2, 3) else 0]
+    lowpass = min(style.lowpass_hz, step["lowpass"])
     band = (f"highpass=f={style.highpass_hz:g}:poles=2,highpass=f={style.highpass_hz:g}:poles=2,"
-            f"lowpass=f={style.lowpass_hz:g}:poles=2,lowpass=f={style.lowpass_hz:g}:poles=2")
+            f"lowpass=f={lowpass:g}:poles=2,lowpass=f={lowpass:g}:poles=2")
     parts = ["aresample=48000", "aformat=sample_fmts=fltp:channel_layouts=mono", band,
-             "equalizer=f=250:t=q:w=1:g=-2", "equalizer=f=2800:t=q:w=1.2:g=1.5", "highshelf=f=6000:g=-2"]
+             "equalizer=f=250:t=q:w=1:g=-2"]
+    if step["body"]:
+        parts.append(f"equalizer=f=180:t=q:w=0.8:g={step['body']:g}")
+    parts += [f"equalizer=f=2800:t=q:w=1.2:g={step['presence']:g}",
+              f"highshelf=f={step['shelf'][0]}:g={step['shelf'][1]}"]
+    if step["deess"]:
+        parts.append(f"deesser=i={step['deess']:g}:m=0.6")
     if style.room:
         parts.append("aecho=0.9:0.9:11|23:0.22|0.12")
-    parts.append("acompressor=threshold=-24dB:ratio=3:attack=5:release=90:makeup=2")
+    threshold, ratio, attack, release, makeup = step["comp"]
+    parts.append(f"acompressor=threshold={threshold}dB:ratio={ratio:g}:attack={attack}:release={release}:makeup={makeup}")
     return ",".join(parts)
 
 
@@ -166,17 +201,55 @@ _PAUSE = re.compile(r"\s*\[pause(?:\s+(\d+(?:\.\d+)?)\s*s?)?\]", re.I)
 _TAG = re.compile(r"\[[^\[\]\n]{1,48}\]")
 
 
-def split_pauses(text: str) -> Tuple[str, List[Tuple[int, float]]]:
+_CASUAL = ((r"\bgoing to\b", "gonna"), (r"\bwant to\b", "wanna"), (r"\bkind of\b", "kinda"),
+           (r"\bsort of\b", "sorta"), (r"\bgot to\b", "gotta"), (r"\bdon't know\b", "dunno"),
+           (r"\byou know\b", "y'know"))
+
+
+def roughen(text: str, level: int) -> str:
+    """Write a line the way he says it, not the way it's punctuated.
+
+    Ellipses, dashes and "!" each cue the clone to perform (a drawn-out fall, a sharp cut, a lift),
+    and a "?" mid-line lifts the pitch, so they become commas. Level 2 adds the casual contractions
+    ("gonna", "wanna", "kinda", "dunno"); level 3 runs the sentences together so nothing falls
+    at a full stop. `[tags]` and `[pause N]` markers pass through untouched.
+    """
+    if level <= 0:
+        return text
+    kept: List[str] = []
+
+    def stash(m: "re.Match[str]") -> str:
+        kept.append(m.group(0))
+        return f"\x00{len(kept) - 1}\x00"
+
+    s = _TAG.sub(stash, text)
+    s = re.sub(r"\s*(?:…|\.{3,}|—|–|\s-\s)\s*", ", ", s)
+    s = re.sub(r"!+", ".", s)
+    s = re.sub(r"\?(?=\s*\S)", ",", s)
+    if level >= 2:
+        for pattern, repl in _CASUAL:
+            s = re.sub(pattern, lambda m, r=repl: r.capitalize() if m.group(0)[0].isupper() else r, s, flags=re.I)
+    if level >= 3:
+        s = re.sub(r"\.\s+(?=[A-Za-z\x00])", ", ", s)
+    s = re.sub(r"\s+,", ",", s)
+    s = re.sub(r"([.?!]),", r"\1", s)
+    s = re.sub(r",(\s*,)+", ",", s)
+    s = re.sub(r"[,\s]+$", "", s) if not re.search(r"[.?!]\s*$", s) else s
+    s = re.sub(r"\x00(\d+)\x00", lambda m: kept[int(m.group(1))], s)
+    return normalize_text(s)
+
+
+def split_pauses(text: str, trail: str = "…") -> Tuple[str, List[Tuple[int, float]]]:
     """Take `[pause]` / `[pause 1.2]` out of a line: (line for the clone, [(words before it, seconds)]).
 
-    Where the text runs straight into a pause, an ellipsis is left so the clone trails off
-    there instead of reading through it.
+    Where the text runs straight into a pause, `trail` (an ellipsis by default; a comma for a flat
+    read) is left so the clone trails off there instead of reading through it.
     """
     pieces, pauses, pos = [], [], 0
     for m in _PAUSE.finditer(text):
         before = "".join(pieces) + text[pos:m.start()]
         if before.strip() and not before.rstrip()[-1] in ".,!?…—-":
-            before = before.rstrip() + "…"
+            before = before.rstrip() + trail
         pieces, pos = [before], m.end()
         pauses.append((len(_TAG.sub(" ", before).split()), float(m.group(1)) if m.group(1) else DEFAULT_PAUSE_S))
     return normalize_text("".join(pieces) + text[pos:]), pauses

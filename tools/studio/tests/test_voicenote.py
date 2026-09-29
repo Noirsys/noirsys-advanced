@@ -11,7 +11,7 @@ from noirstudio.cli import main
 from noirstudio.captions import Word
 from noirstudio.voice import ElevenLabsVoice
 from noirstudio.voicenote import (HIS_VOICE, NoteStyle, VoiceNoteError, insert_pauses, loudness, matched, measure,
-                                  render, room_tone, split_pauses)
+                                  render, room_tone, roughen, split_pauses, voice_chain)
 
 # voiced at 140 Hz with harmonics, syllable-paced, plus air at 10 kHz: a stand-in for a studio read
 SPEECHY = ("(0.3*sin(2*PI*140*t)+0.2*sin(2*PI*280*t)+0.1*sin(2*PI*420*t)+0.06*sin(2*PI*2800*t)"
@@ -100,6 +100,7 @@ def test_cli_say_has_his_clone_read_his_words(clean, tmp_path, monkeypatch, caps
     assert tts_path == f"/v1/text-to-speech/{HIS_VOICE}"
     sent = json.loads(body)
     assert sent["text"] == "Say it for me." and sent["model_id"] == "eleven_v4"
+    assert sent["voice_settings"]["stability"] == 0.85  # steadier than the v3 read: he sounds tired, not performed
     assert "Audio: opus" in _header(out)
     words = json.loads((tmp_path / "say-it-for-me.words.json").read_text(encoding="utf-8"))
     assert words["said"] == "Say it for me." and words["voice_id"] == HIS_VOICE
@@ -181,8 +182,86 @@ def test_cli_say_puts_his_pauses_in(clean, tmp_path, monkeypatch):
     monkeypatch.setattr(ElevenLabsVoice, "_send", fake_send)
     out = tmp_path / "note.ogg"
     assert main(["voicenote", "--say", "Say it [pause 1] for me.", str(out)]) == 0
-    assert json.loads(calls[0][1])["text"] == "Say it… for me."  # the clone never sees the marker
+    assert json.loads(calls[0][1])["text"] == "Say it, for me."  # the clone never sees the marker; rough 2 trails off in a comma
+    assert main(["voicenote", "--say", "Say it [pause 1] for me.", str(out), "--rough", "0"]) == 0
+    assert json.loads(calls[2][1])["text"] == "Say it… for me."  # the clean read trails off in an ellipsis
     words = json.loads((tmp_path / "note.words.json").read_text(encoding="utf-8"))
     assert words["pauses"] == [{"after_words": 2, "s": 1.0}]
     assert words["words"][2] == {"text": "for", "start": 1.75, "end": 1.95}  # 0.4 + 1.0 pause + 0.35 lead
     assert abs(ffmpeg.probe_duration(out) - (0.35 + 3.0 + 0.5)) < 0.1
+
+
+# --- "too perfect, too dynamic, too articulate" -----------------------------------------------
+
+V3_CHAIN = ("aresample=48000,aformat=sample_fmts=fltp:channel_layouts=mono,highpass=f=100:poles=2,highpass=f=100:poles=2,"
+            "lowpass=f=8000:poles=2,lowpass=f=8000:poles=2,equalizer=f=250:t=q:w=1:g=-2,equalizer=f=2800:t=q:w=1.2:g=1.5,"
+            "highshelf=f=6000:g=-2,aecho=0.9:0.9:11|23:0.22|0.12,acompressor=threshold=-24dB:ratio=3:attack=5:release=90:makeup=2")
+
+
+def test_rough_zero_is_the_note_v3_shipped():
+    assert voice_chain(NoteStyle(rough=0)) == V3_CHAIN  # the baseline to compare every other level against
+    assert NoteStyle(rough=4).problems() and not NoteStyle(rough=3).problems()
+
+
+def test_roughen_writes_a_line_the_way_he_says_it():
+    line = "I mean— we wrote a whole paper on this… but, you know what? I want to keep it! [pause 0.6] I'm going to. [laughs]"
+    assert roughen(line, 0) == line
+    one = roughen(line, 1)
+    assert "—" not in one and "…" not in one and "!" not in one and "what?" not in one
+    assert "I mean, we wrote" in one and "on this, but" in one and "what, I want to keep it." in one
+    assert "[pause 0.6]" in one and "[laughs]" in one  # markers and delivery tags pass through
+    two = roughen(line, 2)
+    assert "y'know" in two and "I wanna keep it" in two and "I'm gonna" in two
+    three = roughen("First thing. Second thing. Third?", 3)
+    assert three == "First thing, Second thing, Third?"  # nothing falls at a full stop; a final question stays
+    assert roughen("Wait…", 2) == "Wait"  # trailing off stays unpunctuated
+    assert roughen("Going to be fine. Kind of.", 2) == "Gonna be fine. Kinda."
+
+
+@pytest.fixture(scope="module")
+def sibilant(tmp_path_factory) -> Path:
+    """A voice with a level swing and 'ess' hiss bursts at 5-9.5 kHz: what a crisp read has and a lazy one doesn't."""
+    path = tmp_path_factory.mktemp("sib") / "sib.wav"
+    voiced = ("(0.3*sin(2*PI*140*t)+0.2*sin(2*PI*280*t)+0.1*sin(2*PI*420*t)+0.06*sin(2*PI*2800*t))"
+              "*(0.30+0.70*abs(sin(2*PI*1.7*t)))")
+    ffmpeg.run(["-y", "-f", "lavfi", "-i", f"aevalsrc='{voiced}':s=44100:d=4:c=mono",
+                "-f", "lavfi", "-i", "anoisesrc=d=4:c=white:r=44100:a=0.35",
+                "-filter_complex", "[1:a]highpass=f=5000,lowpass=f=9500,volume='if(lt(mod(t,0.6),0.12),1,0)':eval=frame[h];"
+                "[0:a][h]amix=inputs=2:normalize=0,aformat=channel_layouts=stereo[o]",
+                "-map", "[o]", "-c:a", "pcm_s16le", str(path)])
+    return path
+
+
+def test_each_rough_step_softens_the_top_end_and_holds_his_level(sibilant, tmp_path):
+    top_end = []
+    for rough in range(4):
+        out = tmp_path / f"r{rough}.wav"
+        report = render(sibilant, out, NoteStyle(rough=rough))
+        assert abs(report["lufs"] + 22) < 0.6  # softer, not louder or quieter
+        air = "highpass=f=5000,highpass=f=5000"
+        top_end.append(_rms(out, air) - _rms(out))
+    assert top_end == sorted(top_end, reverse=True)  # every step is less crisp than the one before
+    assert top_end[2] < top_end[0] - 6  # the default is at least 6 dB softer above 5 kHz than the v3 note
+
+
+def test_cli_rough_and_stability_reach_the_clone(clean, tmp_path, monkeypatch):
+    calls = []
+
+    def fake_send(self, method, path, data, content_type, accept, query=""):
+        calls.append((path, data))
+        if path == "/v1/forced-alignment":
+            return json.dumps({"words": [{"text": "w", "start": 0.1, "end": 0.9}]}).encode()
+        return clean.read_bytes()
+
+    monkeypatch.setenv("ELEVENLABS_API_KEY", "test-key")
+    monkeypatch.setattr(ElevenLabsVoice, "_send", fake_send)
+    out = tmp_path / "n.ogg"
+    said = "I want to go… you know? It's going to be fine!"
+    assert main(["voicenote", "--say", said, str(out), "--rough", "3", "--stability", "0.95"]) == 0
+    sent = json.loads(calls[0][1])
+    assert sent["voice_settings"]["stability"] == 0.95
+    assert sent["text"] == "I wanna go, y'know, It's gonna be fine."
+    words = json.loads((tmp_path / "n.words.json").read_text(encoding="utf-8"))
+    assert (words["said"], words["rough"], words["stability"]) == (said, 3, 0.95)  # the record of what was read, and how
+    assert main(["voicenote", "--say", said, str(out), "--rough", "0", "--stability", "0.5"]) == 0
+    assert json.loads(calls[2][1])["text"] == said  # rough 0 sends the line exactly as written
