@@ -102,8 +102,10 @@ def test_cli_say_has_his_clone_read_his_words(clean, tmp_path, monkeypatch, caps
     assert words["said"] == "Say it for me." and words["voice_id"] == HIS_VOICE
     assert words["words"][0] == {"text": "Say", "start": 0.45, "end": 0.65}  # shifted by the 0.35 s lead
     assert "room tone -50.0 dBFS" in capsys.readouterr().out
-    assert main(["voicenote", "--say", "[laughing] Say it for me.", str(out)]) == 1  # no tags on his lines
-    assert len(calls) == 2  # refused before anything was sent
+    # a delivery tag directs his clone and is not said: sent to TTS, kept out of alignment
+    assert main(["voicenote", "--say", "[laughing] Say it for me.", str(out)]) == 0
+    assert json.loads(calls[2][1])["text"] == "[laughing] Say it for me."
+    assert b"[laughing]" not in calls[3][1] and b"Say it for me." in calls[3][1]
 
 
 def test_cli_filter_and_measure(clean, tmp_path, capsys):

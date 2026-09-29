@@ -392,13 +392,9 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
         style = replace(style, room=not args.no_room, **{k: v for k, v in given.items() if v is not None})
         out, words = Path(args.paths[-1]), None
         if args.say:
-            from .captions import normalize_text
             from .spec import Voice
-            from .voice import ElevenLabsVoice, spoken_text
+            from .voice import ElevenLabsVoice
 
-            if spoken_text(args.say) != normalize_text(args.say):
-                print("his lines take no audio tags: --say is the transcript, word for word", file=sys.stderr)
-                return 1
             voice = Voice(voice_id=args.voice, model_id=args.model, stability=args.stability,
                           similarity_boost=args.similarity)
             said = ElevenLabsVoice().synthesize(args.say, voice, out.with_name(out.stem + ".clean.wav"))
@@ -557,7 +553,7 @@ def build_parser() -> argparse.ArgumentParser:
     vn = sub.add_parser("voicenote", help="a lost voice note of his, rebuilt: his clone's read made to sound like his phone")
     vn.add_argument("paths", nargs="+", metavar="PATH",
                     help="IN OUT (filter a clean read); OUT with --say; REAL with --measure. OUT .ogg is the note itself")
-    vn.add_argument("--say", metavar="TEXT", help="his transcript, word for word; his clone reads it (ELEVENLABS_API_KEY)")
+    vn.add_argument("--say", metavar="TEXT", help="his line as the script has it; his clone reads it (ELEVENLABS_API_KEY)")
     vn.add_argument("--voice", default=HIS_VOICE, help="voice id for --say (default: his clone)")
     vn.add_argument("--model", default="eleven_v4")
     vn.add_argument("--stability", type=float, default=0.5)

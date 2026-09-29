@@ -161,7 +161,7 @@ noirstudio cut diary/ep01-2026-09-27.cuts.yaml --master ep01.mp4 --check   # cap
 noirstudio cut diary/ep01-2026-09-27.cuts.yaml --master ep01.mp4           # <=3:00 / <=60 s at -14 LUFS
 noirstudio safe-area ep01.mp4                     # how often text sits under the Shorts/Reels/TikTok UI
 noirstudio voicenote --measure his-real-note.ogg  # a surviving note: codec, bitrate, loudness, room tone
-noirstudio voicenote --say "his words, verbatim" note.ogg --match his-real-note.ogg   # a lost note, rebuilt
+noirstudio voicenote --say "his line" note.ogg --match his-real-note.ogg   # a lost note, rebuilt
 noirstudio voicenote clean-read.wav note.wav      # or filter a read you already have
 ```
 
@@ -169,7 +169,7 @@ A **dig** asks for raw moments, not pitches. She is told to put away anything sh
 
 She runs on Hermes behind Michael's n8n, which is OpenAI-compatible: `POST …/jobs` starts an async job, and `GET …/jobs?id=` returns it when done. Every job is logged in `stories/jobs.jsonl`, so `collect` (or the hourly heartbeat) picks up whatever finished. The contract, configuration and privacy rules are in [`stories/README.md`](../../stories/README.md). Everything she returns stays in `stories/` (git-ignored). Nothing is made until he approves.
 
-`voicenote` is for his voice notes whose recordings are lost (his decision, 2026-09-29). His own clone (`XwGJOzi38Fyoct3IvqA9`, `eleven_v4`) reads the transcript word for word. The clean read is then made to sound like the phone note it replaces: band-limited to a phone mic (100 Hz–8 kHz), a small capsule's presence, two small-room reflections, phone-style compression, room tone from 0.35 s before the first word to 0.5 s after the last, and Opus at 24 kbps mono (Telegram's format). Loudness is set by linear gain (-18 LUFS, checked after encoding). `--match` measures one of his surviving notes (loudness, the quietest tenth of its 100 ms windows as room tone, bitrate) and lands the rebuilt one on the same numbers. The speech itself is never edited. `--say` also writes the word timings, shifted by the lead-in, for his captions.
+`voicenote` is for his voice notes whose recordings are lost (his decision, 2026-09-29). His own clone (`XwGJOzi38Fyoct3IvqA9`, `eleven_v4`) reads his line. The clean read is then made to sound like the phone note it replaces: band-limited to a phone mic (100 Hz–8 kHz), a small capsule's presence, two small-room reflections, phone-style compression, room tone from 0.35 s before the first word to 0.5 s after the last, and Opus at 24 kbps mono (Telegram's format). Loudness is set by linear gain (-18 LUFS, checked after encoding). `--match` measures one of his surviving notes (loudness, the quietest tenth of its 100 ms windows as room tone, bitrate) and lands the rebuilt one on the same numbers. The filter never edits the speech itself (no time-stretch, no cuts). `--say` also writes the word timings, shifted by the lead-in, for his captions.
 
 `cut` reads each segment with its own seek (frame-accurate), fades 20 ms at every seam, normalizes loudness in two passes (-14 LUFS, -1 dBTP), and writes a report. A version over its cap fails before rendering. A seam that lands mid-speech instead of in a pause is flagged; the pause threshold defaults to -30 dB, which finds the room-tone pauses in his voice notes as well as her digital silence.
 

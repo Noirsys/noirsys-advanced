@@ -1,8 +1,8 @@
 """His voice notes, rebuilt: a clean read made to sound like a note he recorded on his phone.
 
 Where his recording of a voice note is lost and only the transcript survives, his own
-voice clone reads the transcript word for word (his decision, 2026-09-29), and this
-makes the clean studio read sound like what it stands in for: a phone held close in a
+voice clone reads the line (his decision, 2026-09-29), and this makes the clean studio
+read sound like what it stands in for: a phone held close in a
 small room, sent over Telegram.
 
     band      highpass 100 Hz, lowpass 8 kHz (24 dB/oct)     a phone mic's voice input
@@ -14,8 +14,8 @@ small room, sent over Telegram.
     codec     Opus, mono, 48 kHz, 24 kbps, VoIP mode           Telegram's voice-note format
 
 `measure` reads one of his surviving notes (loudness, room tone, bitrate) so a rebuilt
-note can be matched to the real ones next to it. The speech itself is never edited: no
-time-stretch, no cuts, nothing said that the transcript doesn't have.
+note can be matched to the real ones next to it. The filter never edits the speech
+itself: no time-stretch, no cuts.
 """
 
 from __future__ import annotations
