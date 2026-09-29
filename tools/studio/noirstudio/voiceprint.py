@@ -260,7 +260,7 @@ def timeline(path: Path, step_s: float = 0.1) -> dict:
         sl = slice(i, min(len(on), i + step))
         f = hz[sl][~np.isnan(hz[sl])]
         rows.append({"t_s": round(i * HOP / RATE, 2), "level_db": round(float(a["rms"][sl].max()), 1),
-                     "hf_db": round(float(a["hf"][sl].mean()), 1) if on[sl].any() else None,
+                     "hf_db": round(float(a["hf"][sl][on[sl]].mean()), 1) if on[sl].any() else None,
                      "f0_hz": round(float(np.median(f)), 1) if len(f) else None,
                      "on": round(float(on[sl].mean()), 2)})
 
