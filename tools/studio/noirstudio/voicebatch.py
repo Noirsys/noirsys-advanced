@@ -54,8 +54,13 @@ def _stem(out_dir: Path, row_id: str, suffix: str) -> Path:
     return out_dir / (row_id + suffix)
 
 
+def _file(stem: Path, ext: str) -> Path:
+    """A file of one line (`.ogg`, `.words.json`, `.rc`, `.out`). Not `with_suffix`: an id may have a dot in it (e02.1)."""
+    return stem.with_name(stem.name + ext)
+
+
 def _done(stem: Path) -> bool:
-    return stem.with_suffix(".ogg").exists() and stem.with_suffix(".words.json").exists()
+    return _file(stem, ".ogg").exists() and _file(stem, ".words.json").exists()
 
 
 def summarize(stem: Path) -> Optional[dict]:
@@ -63,13 +68,13 @@ def summarize(stem: Path) -> Optional[dict]:
     left out, in numbers. None when the line is not built."""
     if not _done(stem):
         return None
-    meta = json.loads(stem.with_suffix(".words.json").read_text(encoding="utf-8"))
+    meta = json.loads(_file(stem, ".words.json").read_text(encoding="utf-8"))
     fill = meta.get("fill") or {}
     kept, dropped = fill.get("kept", []), fill.get("dropped", [])
     try:
         from . import ffmpeg
 
-        seconds = ffmpeg.probe_duration(stem.with_suffix(".ogg"))
+        seconds = ffmpeg.probe_duration(_file(stem, ".ogg"))
     except Exception:  # noqa: BLE001 - a table with a blank is better than none
         seconds = None
     return {"id": stem.name, "seconds": seconds, "words": len(meta.get("words", [])), "asked": len(kept) + len(dropped),
@@ -100,14 +105,14 @@ def report(rows: Sequence[dict], out_dir: Path, suffix: str = "", write=print) -
     notes, built, asked, kept = [], 0, 0, 0
     for row in rows:
         stem = _stem(out_dir, row["id"], suffix)
-        rc_file = stem.with_suffix(".rc")
+        rc_file = _file(stem, ".rc")
         rc = rc_file.read_text(encoding="utf-8").strip() if rc_file.exists() else "-"
         got = summarize(stem)
         if got is None:
             write(f"{stem.name:>9}  {rc:>9}  not built")
             continue
         built, asked, kept = built + 1, asked + got["asked"], kept + got["kept"]
-        seam = _seam_cells(stem.with_suffix(".ogg"))
+        seam = _seam_cells(_file(stem, ".ogg"))
         cells = (stem.name, rc, None if got["seconds"] is None else f"{got['seconds']:.1f}", got["words"], got["asked"], got["kept"],
                  got["dropped"], f"{got['kept_s']:.2f}", got["per_min"], f"{got['longest_s']:.2f}", seam.get("dips_per_s"),
                  seam.get("dips_max"), seam.get("floor_step_db"), seam.get("short_gap_floor_db"))
@@ -155,7 +160,7 @@ def run_batch(args, build_one: Callable, write=print) -> int:
             write(f"{stem.name}: already built, skipped")
             continue
         one = copy.copy(args)
-        one.batch, one.say, one.paths = None, row["say"], [str(stem.with_suffix(".ogg"))]
+        one.batch, one.say, one.paths = None, row["say"], [str(_file(stem, ".ogg"))]
         one.only, one.suffix, one.force, one.report = None, "", False, False  # options of the batch, not of a line
         out, err, began = io.StringIO(), io.StringIO(), time.time()
         try:
@@ -164,8 +169,8 @@ def run_batch(args, build_one: Callable, write=print) -> int:
         except Exception as exc:  # noqa: BLE001 - one bad line must not end the batch
             code = 2
             err.write(f"{type(exc).__name__}: {exc}\n")
-        stem.with_suffix(".out").write_text(f"{out.getvalue()}\n--- stderr\n{err.getvalue()}", encoding="utf-8")
-        stem.with_suffix(".rc").write_text(str(code), encoding="utf-8")
+        _file(stem, ".out").write_text(f"{out.getvalue()}\n--- stderr\n{err.getvalue()}", encoding="utf-8")
+        _file(stem, ".rc").write_text(str(code), encoding="utf-8")
         got = summarize(stem) if code == 0 else None
         if code == 0 and got:
             built += 1

@@ -174,3 +174,14 @@ def test_a_tilde_in_a_path_is_the_home_directory(clean, tmp_path, monkeypatch):
     (tmp_path / "lines.json").write_text(json.dumps({"lines": [{"id": "a", "say": "Say it for me."}]}), encoding="utf-8")
     assert main(["voicenote", "--batch", "~/lines.json", "~/v4", "--match", "~/real.ogg", "--lufs", "-18.2", "--no-room"]) == 0
     assert (tmp_path / "v4" / "a.ogg").exists() and not Path("~").exists()
+
+
+def test_ids_with_a_dot_are_distinct_files(clean, tmp_path, monkeypatch):
+    """`e02.1` and `e02.2` must not both become `e02.ogg`."""
+    _clone(monkeypatch, clean)
+    lines = [{"id": "e02.1", "say": "Say it for me."}, {"id": "e02.2", "say": "Tell it to me."}]
+    out = tmp_path / "v4"
+    assert main(["voicenote", "--batch", str(_manifest(tmp_path, lines)), str(out), "--no-room"]) == 0
+    assert sorted(p.name for p in out.glob("*.ogg")) == ["e02.1.ogg", "e02.2.ogg"]
+    assert (out / "e02.1.words.json").exists() and (out / "e02.2.rc").read_text(encoding="utf-8") == "0"
+    assert json.loads((out / "e02.2.words.json").read_text(encoding="utf-8"))["said"] == "Tell it to me."
