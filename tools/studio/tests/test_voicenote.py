@@ -339,9 +339,15 @@ def test_a_long_pause_is_at_the_level_of_the_short_gaps_around_it(tmp_path):
         wf.setsampwidth(2)
         wf.setframerate(rate)
         wf.writeframes(x.tobytes())
-    shifted = insert_pauses(wav, words, [(5, 0.8)])  # after w4, in its 160 ms gap
+    report: dict = {}
+    shifted = insert_pauses(wav, words, [(5, 0.8)], report=report)  # after w4, in its 160 ms gap
     with wave.open(str(wav), "rb") as wf:
         after = np.frombuffer(wf.readframes(wf.getnframes()), dtype="<i2").astype("float64") / 32768
+    # and the build says what it did: nine gaps, a target at the gaps' floor, a fill 2 dB short of it (its own windows sit at
+    # -64 and it may lift them by 12), the level it ended at
+    assert report["gaps_used"] == 9 and report["target_dbfs"] == pytest.approx(-50, abs=1.5)
+    assert report["own_dbfs"] == pytest.approx(-64, abs=2) and report["short_db"] == pytest.approx(2, abs=1.5)
+    assert report["fill_dbfs"] == report["level_dbfs"] == pytest.approx(-52, abs=1.5)
     w4 = shifted[4]
     inside = _window_db(after, rate, w4.end + 0.25, w4.end + 0.65)  # the middle of the inserted pause
     gap = _window_db(after, rate, words[1].end + 0.09, words[1].end + 0.15)  # an untouched gap, after the tail has died away
@@ -542,6 +548,7 @@ def test_cli_say_puts_his_pauses_in(clean, tmp_path, monkeypatch):
     assert json.loads(calls[2][1])["text"] == "Say it… for me."  # the clean read trails off in an ellipsis
     words = json.loads((tmp_path / "note.words.json").read_text(encoding="utf-8"))
     assert words["pauses"] == [{"after_words": 2, "s": 1.0}]
+    assert "fill_dbfs" in words["fill"]  # what the pause was filled with, for the build's own record
     assert words["words"][2] == {"text": "for", "start": 1.75, "end": 1.95}  # 0.4 + 1.0 pause + 0.35 lead
     assert abs(ffmpeg.probe_duration(out) - (0.35 + 3.0 + 0.5)) < 0.1
 

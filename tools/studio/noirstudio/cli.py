@@ -471,7 +471,8 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
                         break
             auto = hesitations(" ".join(shown) if shown else line, aligned, pauses, args.hesitate, style.seed)
             pauses = sorted(pauses + auto)
-            timed = insert_pauses(src, aligned, pauses)
+            fill: dict = {}
+            timed = insert_pauses(src, aligned, pauses, report=fill)
             if shown:
                 timed = [Word(t, w.start, w.end) for t, w in zip(shown, timed)]
             words = {"said": say, "read": line, **({"spelled": spoken} if spoken != line else {}),
@@ -480,6 +481,7 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
                      "timings": said.meta.get("timings"), "lead_s": style.lead_s,
                      "pauses": [{"after_words": k, "s": s, **({"auto": True} if (k, s) in auto else {})}
                                 for k, s in pauses],
+                     **({"fill": fill} if fill else {}),
                      "words": [{"text": w.text, "start": round(w.start + style.lead_s, 3),
                                 "end": round(w.end + style.lead_s, 3)} for w in timed]}
         else:

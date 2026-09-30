@@ -452,10 +452,13 @@ def stumbles(text: str, scale: float = 1.0, seed: int = 7, habits: Optional[dict
     return " ".join(out)
 
 
-def _gap_floor_db(x, words, rate: int) -> Optional[float]:
+_FULL_SCALE_DB = 20 * math.log10(32768.0)  # `_quiet_bank` counts 20 log10 of the rms of int16 samples; dBFS is that less this
+
+
+def _gap_floor_db(x, words, rate: int, info: Optional[dict] = None) -> Optional[float]:
     """The level of the floor between the words, in the units of `_quiet_bank` (20 log10 of the rms of int16 samples): for every
     aligned gap of 60 to 300 ms, the quieter quarter of its 10 ms windows (off the words' edges), and the middle of those over
-    the read. None with fewer than three such gaps."""
+    the read. None with fewer than three such gaps. `info`, if given, gets the number of gaps looked at."""
     import numpy as np
 
     win = int(0.01 * rate)
@@ -471,10 +474,12 @@ def _gap_floor_db(x, words, rate: int) -> Optional[float]:
         e = e[e > 0]
         if len(e) >= 3:
             levels.append(10 * np.log10(np.percentile(e, 25)))
+    if info is not None:
+        info["gaps_used"] = len(levels)
     return float(np.median(levels)) if len(levels) >= 3 else None
 
 
-def _quiet_bank(x, rate: int, win_s: float = 0.05, target_db: Optional[float] = None):
+def _quiet_bank(x, rate: int, win_s: float = 0.05, target_db: Optional[float] = None, info: Optional[dict] = None):
     """The read's own floor, as float windows all at one level.
 
     The candidates are the windows more than 30 dB under its loud ones. That is a wide band (a word's tail at -48 dBFS, a
@@ -485,7 +490,10 @@ def _quiet_bank(x, rate: int, win_s: float = 0.05, target_db: Optional[float] = 
     between the words, from `_gap_floor_db`) moves that level: in his notes with a room the long pauses and the short gaps are
     one floor, and the first fill sat 5 to 7 dB under the gaps, so the level is the gaps' when it is within 6 dB under and
     12 dB over the quiet windows' own. Empty when the read's floor is digital silence (then the fill is silence too) or when
-    it has no quiet stretch."""
+    it has no quiet stretch. `info`, if given, gets what it did (dBFS): the level the quiet windows have of their own
+    (`own_dbfs`), the floor between the words it was asked for (`target_dbfs`), the level it used (`level_dbfs`), how far under
+    that floor the fill stays because its own windows are too far below it (`short_db`; 0 when it got there), and how many
+    windows were quiet, steady and kept."""
     import numpy as np
 
     win = int(win_s * rate)
@@ -515,6 +523,11 @@ def _quiet_bank(x, rate: int, win_s: float = 0.05, target_db: Optional[float] = 
     near = order[np.abs(db[order] - ref) <= 3.0]
     keep = near if len(near) >= 3 else order[: min(5, len(order))]
     level = ref if target_db is None else float(np.clip(target_db, ref - 6.0, ref + 12.0))
+    if info is not None:
+        info.update(own_dbfs=round(ref - _FULL_SCALE_DB, 1), level_dbfs=round(level - _FULL_SCALE_DB, 1),
+                    target_dbfs=None if target_db is None else round(target_db - _FULL_SCALE_DB, 1),
+                    short_db=None if target_db is None else round(max(0.0, target_db - level), 1),
+                    quiet_windows=int(len(quiet)), steady_windows=int(len(steady)), kept_windows=int(len(keep)))
     return [frames[pool[j]] * np.float32(10 ** (float(np.clip(level - db[j], -12.0, 15.0)) / 20)) for j in keep]
 
 
@@ -572,8 +585,10 @@ def _bank_db(bank) -> float:
     return float(10 * np.log10((bank[0].astype("float64") ** 2).mean() / 32768.0 ** 2 + 1e-12)) if bank else -120.0
 
 
-def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[int, float]]) -> List[Word]:
-    """Put the pauses back into the clean read, between the aligned words; returns shifted words.
+def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[int, float]],
+                  report: Optional[dict] = None) -> List[Word]:
+    """Put the pauses back into the clean read, between the aligned words; returns shifted words. `report`, if given, gets what
+    the fill was made of (see `_quiet_bank`, and `gaps_used`, `fill_dbfs`), so that a build says what it did.
 
     A pause is not digital silence. His notes have a floor under every word, and a step from the clone's own floor (which
     the AGC lifts) down to nothing is an audible cliff, which is what he heard in the first takes ("weird dropoffs ... a
@@ -615,8 +630,11 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
         data = b"".join(chunks)
     else:
         x = np.frombuffer(audio, dtype="<i2").reshape(-1, channels).astype("float32")
-        bank = _quiet_bank(x, rate, target_db=_gap_floor_db(x, words, rate))
+        bank = _quiet_bank(x, rate, target_db=_gap_floor_db(x, words, rate, report), info=report)
         floor_db = _bank_db(bank)
+        if report is not None:
+            report["fill_dbfs"] = round(floor_db, 1)
+            report["fill"] = "the read's own floor" if bank else "silence: the read's floor is digital silence or it has no quiet stretch"
         rng = random.Random(f"{len(x)}:{len(at)}:{round(sum(t for t, _, _ in at), 3)}")
         parts, last = [], 0
         for t, seconds, gap in at:
