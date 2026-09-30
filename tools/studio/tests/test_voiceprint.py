@@ -589,6 +589,12 @@ def test_reuse_runs_a_build_again_from_the_read_it_kept_without_asking_for_a_new
         assert a["start"] == pytest.approx(b["start"], abs=0.02) and a["end"] == pytest.approx(b["end"], abs=0.02)
     assert ffmpeg.probe_duration(again) == pytest.approx(ffmpeg.probe_duration(first), abs=0.02)
 
+    # the same read with its pauses drawn again, at a higher rate: different pauses, still no key
+    assert cli.main(["voicenote", "--say", text, str(tmp_path / "more.ogg"), "--preset", "home", "--reuse", str(tmp_path / "first"),
+                     "--new-pauses", "--hesitate", "4", "--anywhere"]) == 0
+    more = json.loads((tmp_path / "more.words.json").read_text(encoding="utf-8"))
+    assert len(more["pauses"]) > len(was["pauses"]) and more["pauses"] != was["pauses"] and len(sent) == calls
+    assert cli.main(["voicenote", "--say", text, str(tmp_path / "bad.ogg"), "--new-pauses"]) == 1  # it goes with --reuse
     # the `said` of a build's own words.json is the line after its stumbles: passing it back must not stumble it a second time
     assert was["said"] != text
     assert cli.main(["voicenote", "--say", was["said"], str(tmp_path / "again3.ogg"), "--preset", "home", "--reuse", str(tmp_path / "first"),
