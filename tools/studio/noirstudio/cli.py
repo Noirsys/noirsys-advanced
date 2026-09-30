@@ -116,7 +116,8 @@ def _cmd_activity(args: argparse.Namespace) -> int:
 
     from .activity import collect
 
-    record = collect([Path(r) for r in args.repo], since=args.since, render_roots=[Path(r) for r in args.renders])
+    record = collect([Path(r) for r in args.repo], since=args.since, render_roots=[Path(r) for r in args.renders],
+                     all_branches=not args.head_only)
     print(json.dumps(record, indent=2))
     return 0
 
@@ -660,6 +661,8 @@ def build_parser() -> argparse.ArgumentParser:
     ac.add_argument("--repo", action="append", default=[], help="git repo path (repeatable)")
     ac.add_argument("--renders", action="append", default=[], help="directory to scan for *.report.json (repeatable)")
     ac.add_argument("--since", default="1.day")
+    ac.add_argument("--head-only", action="store_true",
+                    help="count only what HEAD reaches (default: every local and remote branch, since work waiting in a pull request is still work)")
     ac.set_defaults(fn=_cmd_activity)
 
     llm = sub.add_parser("llm", help="LLM provider setup check (OpenRouter / DeepSeek / OpenAI-compatible)")

@@ -68,6 +68,23 @@ def test_v4_speaks_then_aligns(monkeypatch, tmp_path, audio):
     assert 1.9 <= r.duration <= 2.1 and (tmp_path / "s.mp3").exists()
 
 
+def test_v4_gives_the_word_the_aligner_dropped_at_the_end_an_estimated_time(monkeypatch, tmp_path, audio):
+    """Round 5: "machine" had no time in either L3 take, so a caption would have lost the end of the line."""
+    fake = Fake(audio, align={"words": [{"text": "He", "start": 0.1, "end": 0.3}, {"text": "said,", "start": 0.3, "end": 0.7}],
+                              "loss": 0.1})
+    r = engine(monkeypatch, fake).synthesize("He said, no.", Voice(voice_id="ZS", model_id="eleven_v4"), tmp_path / "s.wav")
+    assert [w.text for w in r.words] == ["He", "said,", "no."] and r.meta["timings"] == "forced-alignment"
+    assert r.meta["tail_estimated"] == 1
+    assert r.words[2].start == pytest.approx(0.7) and 0.7 < r.words[2].end <= r.duration  # after the last aligned word, inside the audio
+
+
+def test_a_word_missing_from_the_middle_is_not_guessed_at(monkeypatch, tmp_path, audio):
+    fake = Fake(audio, align={"words": [{"text": "He", "start": 0.1, "end": 0.3}, {"text": "no.", "start": 0.9, "end": 1.4}],
+                              "loss": 0.1})
+    r = engine(monkeypatch, fake).synthesize("He said, no.", Voice(voice_id="ZS", model_id="eleven_v4"), tmp_path / "s.wav")
+    assert [w.text for w in r.words] == ["He", "no."] and "tail_estimated" not in r.meta  # something else is wrong: leave it
+
+
 def test_v4_estimates_over_the_real_duration_when_alignment_fails(monkeypatch, tmp_path, audio):
     r = engine(monkeypatch, Fake(audio, fail_align=True)).synthesize(
         "One two three four.", Voice(voice_id="ZS", model_id="eleven_v4"), tmp_path / "s.wav")

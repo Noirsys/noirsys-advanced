@@ -431,8 +431,14 @@ def stumbles(text: str, scale: float = 1.0, seed: int = 7, habits: Optional[dict
 
 
 def _quiet_bank(x, rate: int, win_s: float = 0.05):
-    """The read's own floor: the windows more than 30 dB under its loud ones, as float arrays. Empty when the read's floor is
-    digital silence (then the fill is silence too) or when it has no quiet stretch at all."""
+    """The read's own floor, as float windows all at one level.
+
+    The candidates are the windows more than 30 dB under its loud ones. That is a wide band (a word's tail at -48 dBFS, a
+    dead stretch at -75), and a fill drawn at random from all of it wobbles by ten dB or more from one window to the next
+    (round 5: -31, -42, -54, -47, -42 across 200 ms of one pause). So the bank keeps steady windows (no 10 ms stretch of
+    one more than 4 dB from another: not a tail on its way down), of those the ones within 3 dB of the 40th percentile
+    (the five nearest, if fewer), and brings each to exactly that level, at most 6 dB either way. Empty when the read's
+    floor is digital silence (then the fill is silence too) or when it has no quiet stretch."""
     import numpy as np
 
     win = int(win_s * rate)
@@ -447,7 +453,21 @@ def _quiet_bank(x, rate: int, win_s: float = 0.05):
     quiet = np.flatnonzero(rms < loud * 10 ** (-30 / 20))
     if len(quiet) == 0 or (rms[quiet] == 0).mean() >= 0.5:
         return []
-    return [frames[i] for i in quiet if rms[i] > 0]
+    live = quiet[rms[quiet] > 0]
+    if len(live) == 0:
+        return []
+    sub = win // 5  # five 10 ms stretches to a window: how much the level moves inside it
+    stretch = np.sqrt((frames[:, : sub * 5].reshape(n, 5, sub, -1) ** 2).mean(axis=(2, 3)))
+    inside = 20 * np.log10(stretch + 1e-9)
+    moves = inside.max(axis=1) - inside.min(axis=1)
+    steady = live[moves[live] <= 4.0]
+    pool = steady if len(steady) >= 3 else live[np.argsort(moves[live])[:5]]
+    db = 20 * np.log10(rms[pool])
+    ref = float(np.percentile(db, 40))
+    order = np.argsort(np.abs(db - ref))
+    near = order[np.abs(db[order] - ref) <= 3.0]
+    keep = near if len(near) >= 3 else order[: min(5, len(order))]
+    return [frames[pool[j]] * np.float32(10 ** (float(np.clip(ref - db[j], -6.0, 6.0)) / 20)) for j in keep]
 
 
 def _fill(bank, m: int, channels: int, rate: int, rng: random.Random):
@@ -484,9 +504,10 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
 
     A pause is not digital silence. His notes have a floor under every word, and a step from the clone's own floor (which
     the AGC lifts) down to nothing is an audible cliff, which is what he heard in the first takes ("weird dropoffs ... a
-    small crossfade for artificial silences is necessary"). So each pause is filled with the read's own floor, taken from
-    its quietest windows, and joined to the audio on both sides with a 20 ms equal-power crossfade that stays inside the
-    gap between the words. A read whose floor is digital silence, or that has no quiet stretch, gets silence, still faded.
+    small crossfade for artificial silences is necessary"). So each pause is filled with the read's own floor (windows from
+    a narrow band around it, all at one level, so that the fill itself does not step), and joined to the audio on both sides
+    with a 20 ms equal-power crossfade that stays inside the gap between the words. A read whose floor is digital silence,
+    or that has no quiet stretch, gets silence, still faded.
     """
     if not pauses:
         return list(words)

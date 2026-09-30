@@ -185,6 +185,31 @@ def test_a_pause_is_filled_with_the_reads_own_floor_and_joined_without_a_cliff(t
     assert np.allclose(after[int(2.9 * rate): int(3.7 * rate)], before[int(1.9 * rate): int(2.7 * rate)], atol=1e-4)
 
 
+def test_the_fill_does_not_wander_when_the_reads_floor_does(tmp_path):
+    """Round 5: one pause's floor read -31, -42, -54, -47, -42 dBFS in 200 ms, because the fill was drawn from windows 30 dB apart."""
+    import wave
+
+    np = pytest.importorskip("numpy")
+    rate = 48000
+    rng = np.random.RandomState(9)
+    t = np.arange(int(4.0 * rate)) / rate
+    voice = 0.3 * np.sin(2 * np.pi * 140 * t) * (((t > 0.3) & (t < 1.3)) | ((t > 2.2) & (t < 3.2)))
+    level = np.where((np.arange(len(t)) // int(0.2 * rate)) % 2 == 0, -46.0, -62.0)  # the read's floor moves 16 dB every 200 ms
+    x = np.clip((voice + 10 ** (level / 20) * rng.randn(len(t))) * 32767, -32768, 32767).astype("<i2")
+    wav = tmp_path / "wander.wav"
+    with wave.open(str(wav), "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(rate)
+        wf.writeframes(x.tobytes())
+    insert_pauses(wav, [Word("a", 0.3, 1.3), Word("b", 2.2, 3.2)], [(1, 1.5)])  # a 1.5 s pause at 1.75 s
+    with wave.open(str(wav), "rb") as wf:
+        after = np.frombuffer(wf.readframes(wf.getnframes()), dtype="<i2").astype("float64") / 32768
+    body = [_window_db(after, rate, 1.9 + 0.05 * i, 1.95 + 0.05 * i) for i in range(0, 24)]  # inside the pause, 50 ms at a time
+    assert max(body) - min(body) < 3  # one steady floor (the unfixed fill stepped by 16 dB)
+    assert -64 < min(body) and max(body) < -44  # and it is the read's own floor, not zeros and not a tail
+
+
 def test_a_read_whose_floor_is_digital_silence_gets_silence_in_its_pause(tmp_path):
     import wave
 
