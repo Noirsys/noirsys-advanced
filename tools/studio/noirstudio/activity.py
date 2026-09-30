@@ -21,9 +21,12 @@ def _git(repo: Path, *args: str) -> str:
     return proc.stdout
 
 
-def commits(repo: Path, since: str = "1.day", limit: int = 50) -> List[Dict]:
+def commits(repo: Path, since: str = "1.day", limit: int = 50, all_branches: bool = True) -> List[Dict]:
+    """Commits in the window, newest first. Work waiting in a branch or a pull request is still work she did, so by default
+    every local and remote branch counts (a commit on two branches once); `all_branches=False` is what HEAD reaches."""
     fmt = "%H%x1f%aI%x1f%an%x1f%s"
-    out = _git(repo, "log", f"--since={since}", f"--max-count={limit}", f"--format={fmt}", "--shortstat")
+    scope = ["HEAD", "--branches", "--remotes"] if all_branches else []
+    out = _git(repo, "log", *scope, f"--since={since}", f"--max-count={limit}", f"--format={fmt}", "--shortstat")
     entries: List[Dict] = []
     current: Optional[Dict] = None
     for line in out.splitlines():
@@ -62,7 +65,7 @@ def renders(root: Path) -> List[Dict]:
 
 
 def collect(repos: List[Path], since: str = "1.day", render_roots: Optional[List[Path]] = None,
-            exclude_authors: Sequence[str] = ()) -> Dict:
+            exclude_authors: Sequence[str] = (), all_branches: bool = True, limit: int = 200) -> Dict:
     record: Dict = {
         "collected_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "since": since,
@@ -71,10 +74,11 @@ def collect(repos: List[Path], since: str = "1.day", render_roots: Optional[List
     }
     for repo in repos:
         try:
-            cs = [c for c in commits(repo, since) if c["author"] not in exclude_authors]
+            found = commits(repo, since, limit=limit, all_branches=all_branches)
         except RuntimeError as exc:
             record["repos"].append({"path": str(repo), "error": str(exc)})
             continue
+        cs = [c for c in found if c["author"] not in exclude_authors]
         record["repos"].append({
             "path": str(repo),
             "commits": cs,
@@ -83,6 +87,8 @@ def collect(repos: List[Path], since: str = "1.day", render_roots: Optional[List
                 "files": sum(c["files"] for c in cs),
                 "insertions": sum(c["insertions"] for c in cs),
                 "deletions": sum(c["deletions"] for c in cs),
+                # a count that stopped at the limit is a floor, and must not be said as if it were the number
+                "truncated": len(found) >= limit,
             },
         })
     for root in render_roots or []:

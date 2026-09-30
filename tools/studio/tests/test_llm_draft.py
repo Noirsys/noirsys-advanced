@@ -94,6 +94,11 @@ def test_client_complete_and_ping():
     _url, headers, body = c.transport.requests[1]
     assert headers["Authorization"] == "Bearer k" and body["response_format"] == {"type": "json_object"}
     assert extract_json('noise {"x": [1,2]} trailing') == {"x": [1, 2]}
+    # nearly JSON is mended: a raw newline inside a string, and a string closed with a single quote at the end of its line
+    assert extract_json('{"a": "one\ntwo", "b": 1}') == {"a": "one\ntwo", "b": 1}
+    broken = '{\n  "after": "He moved on \u2014 no lingering.\',\n  "n": [1, 2]\n}'
+    assert extract_json(broken) == {"after": "He moved on \u2014 no lingering.", "n": [1, 2]}
+    assert extract_json('{"quote": "it\'s fine",\n "ok": true}') == {"quote": "it's fine", "ok": True}  # a good line is left alone
     with pytest.raises(LLMError):
         extract_json("no json here")
 
@@ -170,6 +175,10 @@ def test_check_agent_log_rules():
     spec.scenes[1].text = "I feel great about 31 files."
     probs = d.check_agent_log(spec, "005", json.dumps(ACTIVITY) + BRIEF)
     assert any("feeling" in p for p in probs)
+    spec.scenes[1].text = "I wanted him to know it was okay. 31 files."  # intent through action: hers
+    assert d.check_agent_log(spec, "005", json.dumps(ACTIVITY) + BRIEF) == []
+    spec.scenes[1].text = "31 files. Like and subscribe."
+    assert any("bait" in p for p in d.check_agent_log(spec, "005", json.dumps(ACTIVITY) + BRIEF))
     assert d.numbers_not_in_evidence(spec, "nothing") == ["359", "31", "2893"]
 
 

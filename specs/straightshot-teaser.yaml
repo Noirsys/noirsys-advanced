@@ -7,7 +7,7 @@ niche: ai-safety
 
 voice:
   voice_id: XwGJOzi38Fyoct3IvqA9   # his Professional Voice Clone
-  model_id: eleven_multilingual_v2
+  model_id: eleven_v4
   words_per_minute: 162
 
 captions:

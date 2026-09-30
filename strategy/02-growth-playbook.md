@@ -61,6 +61,8 @@ The trick is that **Noirpost's free-batch offer is a lead magnet that produces m
 ## 4. The bets (ranked by expected upside ÷ effort)
 
 ### Bet 0 — "Agent Log": her channel, about him *(added 2026-09-28, moves to the front)*
+> **Updated 2026-09-29:** she made her own first episode, and the flagship is now **the Diary**: true stories about him, told by her, with receipts. The Agent Log is the daily heartbeat. Her voice is her own (`ZSNL4hPqCnqoMPaI4jGX`), not a designed one. See [`04-harriet-channel.md`](04-harriet-channel.md).
+
 **What:** a Shorts channel narrated by Michael's own AI agent, in first person, about what she did for him each day — grounded in her real activity log (`noirstudio activity`) and the day's radar brief, with the evidence files published next to each spec.
 **Why it's first:** this week's live data is unambiguous — the "AI agents" content breaking out is the POV/consciousness/fear framing, from tiny channels: *Is AI Alive?* (302k views, 1,880-sub channel), *AI agents are creating civilizations* (238k), *AI Agents Are Taking Control* (102k from 5k subs). And on 2026-09-28 the radar's top HN story was *"There are no 'rogue' AI agents"* (359 pts) over a stack of OpenAI-halts-training headlines. An agent who calmly shows her receipts on the day the news says agents went rogue is the counter-narrative — and it is literally Noirsys's thesis (*Mind-Centric Mandate*, human authority at the gates) as a character. Faceless and personal at once; the AI-disclosure problem is the premise.
 **Guardrails that make it better:** she says only what she can observe ("I can't verify what that feels like; I can verify the commit"); every Short ships with its evidence; a person merges every entry.
