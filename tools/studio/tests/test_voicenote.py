@@ -473,12 +473,13 @@ def test_a_line_that_already_stumbles_is_topped_up_not_doubled():
 
 @pytest.fixture(scope="module")
 def real_note(tmp_path_factory) -> Path:
-    """One of his notes, stood in for: two bursts of speech over a steady room at about -50 dBFS."""
+    """One of his notes, stood in for: four bursts of speech over a steady room at about -50 dBFS, a second of room before the
+    first and after the last (three stretches of room between them)."""
     path = tmp_path_factory.mktemp("real") / "real.ogg"
-    speech = ("if(between(t,0.3,1.2)+between(t,2.0,3.2),"
+    speech = ("if(between(t,1.0,1.8)+between(t,2.6,3.6)+between(t,4.4,5.2)+between(t,5.8,6.4),"
               "(0.3*sin(2*PI*140*t)+0.2*sin(2*PI*280*t))*(0.55+0.45*sin(2*PI*3.5*t)),0)")
-    ffmpeg.run(["-y", "-f", "lavfi", "-i", f"aevalsrc='{speech}':s=48000:d=4",
-                "-f", "lavfi", "-i", "anoisesrc=d=4:c=brown:r=48000:a=0.02:seed=3",
+    ffmpeg.run(["-y", "-f", "lavfi", "-i", f"aevalsrc='{speech}':s=48000:d=7.5",
+                "-f", "lavfi", "-i", "anoisesrc=d=7.5:c=brown:r=48000:a=0.02:seed=3",
                 "-filter_complex", "[0:a][1:a]amix=inputs=2:normalize=0[o]", "-map", "[o]",
                 "-c:a", "libopus", "-b:a", "32k", str(path)])
     return path
@@ -486,7 +487,7 @@ def real_note(tmp_path_factory) -> Path:
 
 def test_his_room_comes_from_a_real_note(clean, real_note, tmp_path):
     room = room_tone(real_note, tmp_path / "room.wav")
-    assert room and room["stretches"] == 3 and room["seconds"] > 1.0
+    assert room and room["stretches"] == 3 and room["dropped"] == 2 and room["seconds"] > 1.0  # its opening and closing are not used
     real = measure(real_note)
     style = NoteStyle(**{**matched(NoteStyle(), real).__dict__, "room_tone": room["path"]})
     render(clean, tmp_path / "rebuilt.ogg", style)
@@ -517,6 +518,30 @@ def test_his_room_has_no_dropouts_at_its_joins_or_where_it_loops(tmp_path):
     # Opus-coded noise wanders up to 5 dB under its median in 10 ms windows; the bare joins went 12 to 13 dB under it
     assert np.median(level) - level.min() < 6.0
     assert level.max() - np.median(level) < 4.0
+
+
+def test_a_notes_dead_opening_and_dead_patches_are_not_his_room(tmp_path):
+    """The note the bed was built from opens with 29 ms of digital zeros and a second 10 dB under its room (a phone's noise
+    suppression coming in), and once a turn of the loop that was a dip to near silence; Harriet found it in round 12."""
+    np = pytest.importorskip("numpy")
+    real = tmp_path / "opens_dead.ogg"
+    bursts = "+".join(f"between(t,{a:.1f},{a + 0.6:.1f})" for a in (1.9 + 1.6 * i for i in range(10)))
+    speech = f"if({bursts},(0.3*sin(2*PI*140*t)+0.2*sin(2*PI*280*t))*(0.55+0.45*sin(2*PI*3.5*t)),0)"
+    # the room: nothing for 30 ms, 10 dB under until 0.9 s, a 0.3 s dead patch inside one pause, and zeros from 19.4 s on
+    # (all of it under a tenth of the note, so that its quietest tenth is still the room)
+    envelope = "if(lt(t,0.03),0,if(lt(t,0.9),0.3,if(between(t,4.3,4.6),0.03,if(gt(t,19.4),0,1))))"
+    ffmpeg.run(["-y", "-f", "lavfi", "-i", f"aevalsrc='{speech}':s=48000:d=20",
+                "-f", "lavfi", "-i", "anoisesrc=d=20:c=white:r=48000:a=0.01:seed=5",
+                "-filter_complex", f"[1:a]volume='{envelope}':eval=frame[n];[0:a][n]amix=inputs=2:normalize=0[o]",
+                "-map", "[o]", "-c:a", "libopus", "-b:a", "48k", str(real)])
+    room = room_tone(real, tmp_path / "room.wav")
+    assert room and room["stretches"] == 8 and room["dropped"] == 3  # the opening, the pause with the dead patch, the closing
+    raw = subprocess.run([ffmpeg.ffmpeg_path(), "-loglevel", "error", "-stream_loop", "2", "-i", str(tmp_path / "room.wav"),
+                          "-f", "f32le", "-ac", "1", "-ar", "16000", "-"], capture_output=True).stdout
+    x = np.frombuffer(raw, dtype="<f4")
+    n = 1 + (len(x) - 160) // 80
+    level = 20 * np.log10(np.sqrt((x[np.arange(160)[None, :] + 80 * np.arange(n)[:, None]] ** 2).mean(axis=1)) + 1e-9)
+    assert level.min() > np.median(level) - 6.0  # not a window of the dead opening, nor of the dead patch, nor of the zeros
 
 
 def test_a_noise_suppressed_note_gives_no_room_and_keeps_ours(tmp_path):

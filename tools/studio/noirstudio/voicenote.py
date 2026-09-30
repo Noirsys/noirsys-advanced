@@ -763,11 +763,16 @@ _AUDIO = re.compile(r"Stream #\d+:\d+.*?Audio: (\w+)[^,]*, (\d+) Hz, (\w+)")  # 
 _RMS = re.compile(r"lavfi\.astats\.Overall\.RMS_level=(-?[\d.]+|-inf)")
 
 
-def _levels(path: Path, rate: int, window_s: float = 0.1) -> List[float]:
+def _trace(path: Path, rate: int, window_s: float = 0.1) -> List[float]:
+    """The RMS level (dBFS) of every consecutive window of a file, in order; digital silence is -inf."""
     err = ffmpeg.run(["-nostats", "-i", str(path), "-vn", "-af",
                       f"asetnsamples=n={max(1, round(rate * window_s))}:p=0,astats=metadata=1:reset=1,"
                       "ametadata=mode=print:key=lavfi.astats.Overall.RMS_level", "-f", "null", "-"])
-    return sorted(float(v) for v in _RMS.findall(err) if v != "-inf")
+    return [float(v) for v in _RMS.findall(err)]
+
+
+def _levels(path: Path, rate: int, window_s: float = 0.1) -> List[float]:
+    return sorted(v for v in _trace(path, rate, window_s) if math.isfinite(v))
 
 
 def _floor(path: Path) -> float:
@@ -821,7 +826,8 @@ def room_tone(real: Path, out: Path, min_s: float = 0.2) -> Optional[dict]:
     up to 12 dB deep on a stand-in, once in about a second, in every note built with `--room`. In a pause the room is all
     there is to hear, and a floor that drops out every second is a "little cliff" that has nothing to do with the speech.
 
-    Returns None when the note has no room in it (noise-suppressed, or too little silence).
+    Returns None when the note has no room in it (noise-suppressed, or too little silence left after the stretches that are not
+    the room, its opening and closing among them, are put aside; `dropped` counts them).
     """
     from .cut import silences
 
@@ -829,8 +835,25 @@ def room_tone(real: Path, out: Path, min_s: float = 0.2) -> Optional[dict]:
     if ref["noise_db"] < GATED_DB:
         return None
     edge = 0.03  # keep clear of the words on either side
-    # silencedetect compares sample peaks, and room noise peaks sit 10-12 dB over its RMS reading
-    spans = [(a + edge, b - edge) for a, b in silences(real, ref["noise_db"] + 14, min_s) if b - a >= min_s + 2 * edge]
+    duration = ffmpeg.probe_duration(real)
+    # silencedetect compares sample peaks, and room noise peaks sit 10-12 dB over its RMS reading. The first and last silence of a
+    # note are not its room: a phone's noise suppression comes in over the first second or so (the note this was built from opens
+    # with 29 ms of digital zeros and a second 10 dB under the rest, once per turn of the loop), so those two are not used.
+    every = [(a, b) for a, b in silences(real, ref["noise_db"] + 14, min_s) if b - a >= min_s + 2 * edge]
+    found = [(a + edge, b - edge) for a, b in every if a > 0.05 and b < duration - 0.05]
+    # and of the rest, only the stretches at the room's level: the same trace, 50 ms at a time, says which are a swell, a word's
+    # tail (louder) or a dip to nothing (quieter)
+    step = 0.05
+    trace = _trace(real, int(ref["sample_rate"]), step)
+    spans = []
+    if found:
+        inside = [trace[math.ceil(a / step): int(b / step)] for a, b in found]
+        medians = [statistics.median(max(v, -120.0) for v in w) if w else None for w in inside]
+        room_db = statistics.median(m for m in medians if m is not None) if any(m is not None for m in medians) else None
+        for span, w, m in zip(found, inside, medians):
+            if m is not None and abs(m - room_db) <= 5.0 and min(max(v, -120.0) for v in w) >= room_db - 15.0:
+                spans.append(span)
+    dropped = len(every) - len(spans)
     if sum(b - a for a, b in spans) < 0.5:
         return None
     xf = ROOM_JOIN_S
@@ -857,4 +880,4 @@ def room_tone(real: Path, out: Path, min_s: float = 0.2) -> Optional[dict]:
     finally:
         joined.unlink(missing_ok=True)
     return {"path": str(out), "seconds": round(ffmpeg.probe_duration(out), 2), "stretches": len(spans),
-            "noise_db": ref["noise_db"]}
+            "dropped": dropped, "noise_db": ref["noise_db"]}
