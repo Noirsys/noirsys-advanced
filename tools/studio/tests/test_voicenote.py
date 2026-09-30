@@ -294,6 +294,43 @@ def test_a_pause_at_the_very_start_or_end_of_a_read_is_fine(tmp_path):
     assert shifted[0].start == pytest.approx(0.8) and shifted[1].end == pytest.approx(3.2, abs=0.01)
 
 
+def test_a_long_pause_is_at_the_level_of_the_short_gaps_around_it(tmp_path):
+    """The seams tool found the pauses of round 7 sat 6 dB under the short gaps between words; in his notes with a room the two
+    are the same floor. The read here has a much quieter lead-in (-64 dBFS) than its gaps (-50): the fill follows the gaps."""
+    import wave
+
+    np = pytest.importorskip("numpy")
+    rate = 48000
+    rng = np.random.RandomState(8)
+    t = np.arange(int(9.0 * rate)) / rate
+    words, level = [], np.full(len(t), -50.0)
+    level[t < 2.5] = -64.0  # the lead-in
+    level[t > 6.7] = -64.0  # and the tail: more of the read is quiet than is gaps
+    voice = np.zeros_like(t)
+    at = 2.5
+    for i in range(10):
+        a, b = at, at + 0.25
+        env = ((t >= a) & (t < b)).astype(float)
+        voice += 0.2 * np.sin(2 * np.pi * (120 + 6 * i) * t) * env
+        words.append(Word(f"w{i}", round(a, 3), round(b, 3)))
+        at = b + 0.16
+    x = np.clip((voice + 10 ** (level / 20) * rng.randn(len(t))) * 32767, -32768, 32767).astype("<i2")
+    wav = tmp_path / "gaps.wav"
+    with wave.open(str(wav), "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(rate)
+        wf.writeframes(x.tobytes())
+    shifted = insert_pauses(wav, words, [(5, 0.8)])  # after w4, in its 160 ms gap
+    with wave.open(str(wav), "rb") as wf:
+        after = np.frombuffer(wf.readframes(wf.getnframes()), dtype="<i2").astype("float64") / 32768
+    w4 = shifted[4]
+    inside = _window_db(after, rate, w4.end + 0.25, w4.end + 0.65)  # the middle of the inserted pause
+    gap = _window_db(after, rate, words[1].end + 0.025, words[1].end + 0.135)  # an untouched gap, off the words' edges
+    assert gap == pytest.approx(-50, abs=2)
+    assert abs(inside - gap) < 3  # one floor; a fill from the quiet lead-in would have sat 14 dB lower
+
+
 def test_a_read_whose_floor_is_digital_silence_gets_silence_in_its_pause(tmp_path):
     import wave
 
