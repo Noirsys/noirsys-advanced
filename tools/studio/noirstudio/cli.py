@@ -20,6 +20,7 @@
     noirstudio safe-area EP.mp4                  how often text sits under the platforms' buttons/captions
     noirstudio voicenote --say "um, his line [pause 1]" OUT.ogg [--match|--room REAL.ogg]   a lost voice note of his, rebuilt
     noirstudio voiceprint HIS.ogg ... --vs OURS.ogg ...   how close our reads are to his real notes, in numbers
+    noirstudio splice NOTE.ogg READ.ogg OUT.wav --replace 1.00-2.60   a stretch of his real note swapped for a rebuilt read
 """
 
 from __future__ import annotations
@@ -569,6 +570,36 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_splice(args: argparse.Namespace) -> int:
+    import json
+
+    from .ffmpeg import FFmpegError
+    from .splice import load, save, splice, summary
+    from .voicenote import VoiceNoteError
+
+    try:
+        first, _, second = args.replace.partition("-")
+        start, end = float(first), float(second)
+    except ValueError:
+        print(f'SPLICE: --replace wants START-END in seconds, like 1.00-2.60 (got "{args.replace}")', file=sys.stderr)
+        return 1
+    target = Path(args.out).expanduser()
+    try:
+        real, read = load(Path(args.note).expanduser()), load(Path(args.read).expanduser())
+        out, report = splice(real, read, start, end, search_s=args.search_ms / 1000, lead_s=args.lead_ms / 1000,
+                             tail_s=args.tail_ms / 1000, xfade_s=args.xfade_ms / 1000, gain_db=args.gain_db,
+                             anywhere=args.anywhere, gate=not args.no_gate)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        save(out, target)
+    except (VoiceNoteError, FFmpegError, OSError) as exc:
+        print(f"SPLICE: {str(exc).splitlines()[0]}", file=sys.stderr)
+        return 1
+    report["out"] = str(target)
+    target.with_name(target.name + ".json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+    print(json.dumps(report, indent=2) if args.json else summary(report))
+    return 0
+
+
 def _cmd_voiceprint(args: argparse.Namespace) -> int:
     import json
 
@@ -947,6 +978,26 @@ def build_parser() -> argparse.ArgumentParser:
                     "the gaps between words): what he hears as \"cliffs\" and \"continuity\". With --vs, ours are set next to his")
     vp.add_argument("--json", action="store_true")
     vp.set_defaults(fn=_cmd_voiceprint)
+
+    sp = sub.add_parser("splice", help="swap a stretch of one of his real notes for a rebuilt read (a note the phone began "
+                        "recording late): everything else in the note stays as it was (needs numpy)")
+    sp.add_argument("note", help="his real note (any audio)")
+    sp.add_argument("read", help="the read to put in: his clone reading what he said, made to sound like the note "
+                    "(voicenote --match NOTE)")
+    sp.add_argument("out", help="the result: .wav for an episode, .ogg for an Opus phone note; OUT.json beside it says what was done")
+    sp.add_argument("--replace", required=True, metavar="START-END",
+                    help="the stretch of the note to swap, in seconds, like 1.00-2.60 (its words: the cuts are moved to the "
+                    "quietest 5 ms within --search-ms, and refused if that is in his speech)")
+    sp.add_argument("--search-ms", type=float, default=120, help="how far a cut may move to find quiet (default 120)")
+    sp.add_argument("--lead-ms", type=float, default=25, help="room kept before the read's first word (default 25)")
+    sp.add_argument("--tail-ms", type=float, default=60, help="room kept after the read's last word (default 60)")
+    sp.add_argument("--xfade-ms", type=float, default=6, help="the crossfade at each join (default 6)")
+    sp.add_argument("--gain-db", type=float, help="the read's gain, dB (default: its loud parts to the note's own)")
+    sp.add_argument("--anywhere", action="store_true", help="allow a cut in his speech (a cut into a word is a cut off word)")
+    sp.add_argument("--no-gate", action="store_true",
+                    help="keep the read's own room around and between its words (default: the note's floor is the only floor)")
+    sp.add_argument("--json", action="store_true", help="print the report as JSON")
+    sp.set_defaults(fn=_cmd_splice)
     return p
 
 
