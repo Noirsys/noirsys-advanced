@@ -346,6 +346,62 @@ def test_gaps_only_keeps_a_pause_at_the_very_start_or_end(tmp_path):
     assert [d["after_words"] for d in report["kept"]] == [0, 3] and not report["dropped"]
 
 
+def test_reflow_puts_a_pause_inside_the_gap_as_silence_and_touches_no_word(tmp_path):
+    """Q21, "perfect": the pause sits in the gap the clone left, silent (the room tone is what is heard in it), the fades stay
+    in the gap and the words on either side are not scaled by a sample."""
+    import wave
+
+    np = pytest.importorskip("numpy")
+    wav, words, n, rate = _of_of_what(tmp_path)
+    with wave.open(str(wav), "rb") as wf:
+        before = np.frombuffer(wf.readframes(wf.getnframes()), dtype="<i2").copy()
+    report: dict = {}
+    shifted = insert_pauses(wav, words, [(2, 1.0)], report=report, gaps_only=True, bed_db=-54.0)
+    with wave.open(str(wav), "rb") as wf:
+        after = np.frombuffer(wf.readframes(wf.getnframes()), dtype="<i2")
+    assert len(after) == n + rate and shifted[:2] == words[:2] and shifted[2] == Word("what", 1.95, 2.20)
+    cut = report["cuts"][0]
+    assert report["method"] == "reflow" and 0.68 <= cut["at_s"] <= 0.95 and cut["gap_ms"] == 270  # in the gap between "of" and "what"
+    start = round(cut["at_s"] * rate) - round(cut["fade_out_ms"] / 1000 * rate)
+    # everything before the fade-out, "of of" whole, is the read itself, sample for sample
+    assert (after[:start] == before[:start]).all() and start >= round(0.68 * rate) - 1
+    zeros = np.flatnonzero(after[round(cut["at_s"] * rate): round(cut["at_s"] * rate) + rate] != 0)
+    assert len(zeros) == 0  # a second of exact silence, at the place it was put
+    # and "what" is the read itself again from where its fade-in ends (which is before it starts)
+    resume = round(cut["at_s"] * rate) + rate + round(cut["fade_in_ms"] / 1000 * rate)
+    assert (after[resume:] == before[round(cut["at_s"] * rate) + round(cut["fade_in_ms"] / 1000 * rate):]).all()
+    assert cut["fade_out_ms"] <= 270 and cut["depth_db"] >= 6
+
+
+def test_reflow_fades_end_under_the_room_tone(tmp_path):
+    """The fade goes down only as far as it must: to `REFLOW_HEADROOM_DB` under the bed, from where the read stands."""
+    import wave
+
+    from noirstudio.voicenote import REFLOW_HEADROOM_DB
+
+    np = pytest.importorskip("numpy")
+    rate = 48000
+    rng = np.random.RandomState(4)
+    t = np.arange(int(2.0 * rate)) / rate
+    env = np.zeros_like(t)
+    env[(t >= 0.2) & (t < 0.6)] = 1.0
+    env[(t >= 0.6) & (t < 0.75)] = np.exp(-(t[(t >= 0.6) & (t < 0.75)] - 0.6) / 0.03)  # a word dying away over its gap
+    env[(t >= 1.2) & (t < 1.6)] = 1.0
+    x = np.clip((0.25 * np.sin(2 * np.pi * 140 * t) * env + 10 ** (-60 / 20) * rng.randn(len(t))) * 32767, -32768, 32767).astype("<i2")
+    wav = tmp_path / "decay.wav"
+    with wave.open(str(wav), "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(rate)
+        wf.writeframes(x.tobytes())
+    report: dict = {}
+    insert_pauses(wav, [Word("a", 0.2, 0.6), Word("b", 1.2, 1.6)], [(1, 0.8)], report=report, gaps_only=True, bed_db=-54.0)
+    cut = report["cuts"][0]
+    assert cut["cut_dbfs"] < -50 and 0.6 <= cut["at_s"] <= 1.2  # in the quiet after the decay
+    assert cut["depth_db"] == pytest.approx(max(6.0, cut["cut_dbfs"] + 54.0 + REFLOW_HEADROOM_DB), abs=0.2)
+    assert cut["fade_out_ms"] == pytest.approx(cut["depth_db"] / 0.4, abs=1.5) or cut["fade_out_ms"] < cut["depth_db"] / 0.4  # bounded by the gap
+
+
 def test_a_pause_goes_in_after_the_words_tail_not_through_it(tmp_path):
     """The aligner put a word's end 140 ms before its sound had died away: the cut belongs where the sound has."""
     import wave
@@ -675,7 +731,7 @@ def test_cli_say_puts_his_pauses_in(clean, tmp_path, monkeypatch):
     assert json.loads(calls[2][1])["text"] == "Say it… for me."  # the clean read trails off in an ellipsis
     words = json.loads((tmp_path / "note.words.json").read_text(encoding="utf-8"))
     assert words["pauses"] == [{"after_words": 2, "s": 1.0}]
-    assert "fill_dbfs" in words["fill"]  # what the pause was filled with, for the build's own record
+    assert words["fill"]["method"] == "reflow" and words["fill"]["cuts"][0]["after_words"] == 2  # the build's own record of where it went
     assert words["words"][2] == {"text": "for", "start": 1.75, "end": 1.95}  # 0.4 + 1.0 pause + 0.35 lead
     assert abs(ffmpeg.probe_duration(out) - (0.35 + 3.0 + 0.5)) < 0.1
 
@@ -704,7 +760,7 @@ def test_cli_puts_pauses_only_where_the_clone_left_a_gap(tmp_path, monkeypatch, 
     assert moved["words"][2]["start"] == pytest.approx(0.35 + 0.95 + 2.0, abs=0.01)
     anywhere, err = build("anywhere", "--anywhere")  # and asked for anywhere, it goes in where it was asked for
     assert anywhere["pauses"] == [{"after_words": 1, "s": 2.0}] and "left out" not in err
-    assert anywhere["fill"]["cuts"][0]["over_floor_db"] > 20  # cut in live audio, and the build's own record says so
+    assert anywhere["fill"]["cuts"][0]["cut_dbfs"] > anywhere["fill"]["quiet_limit_dbfs"]  # cut in live audio, and the build's own record says so
 
 
 # --- "too perfect, too dynamic, too articulate" -----------------------------------------------
@@ -848,7 +904,7 @@ def test_cli_hesitate_adds_his_pauses_and_marks_them(clean, tmp_path, monkeypatc
     assert main(["voicenote", "--say", text, str(out), "--rough", "0"]) == 0
     plain = json.loads((tmp_path / "note.words.json").read_text(encoding="utf-8"))
     assert plain["pauses"] == []
-    assert main(["voicenote", "--say", text, str(out), "--rough", "0", "--hesitate", "2"]) == 0
+    assert main(["voicenote", "--say", text, str(out), "--rough", "0", "--hesitate", "2", "--anywhere"]) == 0
     got = json.loads((tmp_path / "note.words.json").read_text(encoding="utf-8"))
     assert got["pauses"] and all(p["auto"] for p in got["pauses"])
     added = sum(p["s"] for p in got["pauses"])

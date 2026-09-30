@@ -461,7 +461,7 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
             spoken = clone_spelling(line)  # "um" is asked for as "ummm": a plain one merges into the word before it
             clean_wav = out.with_name(out.stem + ".clean.wav")
             if args.reuse:  # the read an earlier build of this line kept: no key, no cost, the same read
-                said, pauses, auto = reuse_read(Path(args.reuse), clean_wav, spoken)
+                said, pauses, auto = reuse_read(Path(args.reuse), clean_wav, spoken, line)
             else:
                 said = ElevenLabsVoice().synthesize(spoken, voice, clean_wav)
             heard = [Word(plain_filler(w.text), w.start, w.end) for w in said.words]  # and captioned as "um"
@@ -484,7 +484,8 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
                 pauses = sorted(pauses + auto)
             fill: dict = {}
             asked = list(pauses)
-            timed = insert_pauses(src, aligned, pauses, report=fill, gaps_only=not args.anywhere, snap=args.snap)
+            timed = insert_pauses(src, aligned, pauses, report=fill, gaps_only=not args.anywhere, snap=args.snap,
+                                  bed_db=style.noise_db if args.pauses == "reflow" else None)
             if "kept" in fill:  # only the pauses the clone left a gap for went in: the captions and the record say which
                 pauses = [(d["after_words"], d["s"]) for d in fill["kept"]]
                 auto = [(d["after_words"], d["s"]) for d in fill["kept"] if (d.get("asked_after_words", d["after_words"]), d["s"]) in auto]
@@ -852,6 +853,10 @@ def build_parser() -> argparse.ArgumentParser:
                     help="add the stumbles he makes on his own: an occasional uh or um and words said twice (the, i, and), "
                     "at his transcripts' rate (0.8 fillers and 1.3 repeats per 100 words): 0 = none (default), 1 = that rate, "
                     "2 = twice as often. They go in the line the clone reads and on the captions")
+    vn.add_argument("--pauses", choices=["reflow", "fill"], default="reflow",
+                    help="how a pause goes in. `reflow` (default): in the gap the clone left between two words, at its quietest 20 ms, as "
+                    "silence under the room tone, with the speech beside it faded in dB under that room tone and never past the gap "
+                    "(the way that got 'perfect'). `fill`: the earlier way, a cut at the quietest 5 ms near the boundary and a fill of the read's own floor")
     vn.add_argument("--anywhere", action="store_true",
                     help="put every pause exactly where it was asked for, even where the clone left no gap (the cut then takes the end "
                     "of a word with it). By default a pause goes in only where the read is quiet, 24 dB under its loud parts")

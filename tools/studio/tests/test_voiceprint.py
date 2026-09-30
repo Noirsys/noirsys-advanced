@@ -2,6 +2,7 @@
 
 import json
 import re
+import shutil
 import wave
 
 import pytest
@@ -576,7 +577,7 @@ def test_reuse_runs_a_build_again_from_the_read_it_kept_without_asking_for_a_new
     was = json.loads((tmp_path / "first.words.json").read_text(encoding="utf-8"))
     calls = len(sent)
     assert calls == 2 and was["pauses"] and was["fill"]["cuts"]  # a read and its alignment; and the build says where each pause went
-    assert {"after_words", "moved_ms", "over_floor_db", "fade_out_ms", "fade_in_ms"} <= set(was["fill"]["cuts"][0])
+    assert {"after_words", "gap_ms", "at_s", "cut_dbfs", "depth_db", "fade_out_ms", "fade_in_ms"} <= set(was["fill"]["cuts"][0])
 
     again = tmp_path / "again.ogg"
     assert cli.main(["voicenote", "--say", text, str(again), "--preset", "home", "--reuse", str(tmp_path / "first"), "--anywhere"]) == 0
@@ -588,6 +589,14 @@ def test_reuse_runs_a_build_again_from_the_read_it_kept_without_asking_for_a_new
         assert a["start"] == pytest.approx(b["start"], abs=0.02) and a["end"] == pytest.approx(b["end"], abs=0.02)
     assert ffmpeg.probe_duration(again) == pytest.approx(ffmpeg.probe_duration(first), abs=0.02)
 
+    # an older build sent the plain "um" (no "ummm" spelling, so no "spelled" key): its read can still be reused
+    old = json.loads((tmp_path / "first.words.json").read_text(encoding="utf-8"))
+    old["read"] = old.pop("spelled", old["read"]).replace("ummm", "um")
+    (tmp_path / "older.words.json").write_text(json.dumps(old), encoding="utf-8")
+    shutil.copyfile(tmp_path / "first.unswung.wav", tmp_path / "older.unswung.wav")
+    assert cli.main(["voicenote", "--say", text, str(tmp_path / "again2.ogg"), "--preset", "home", "--reuse", str(tmp_path / "older"),
+                     "--anywhere"]) == 0
+    assert len(sent) == calls
     # a different line is not that read, and a build that kept no read cannot be reused; neither reaches the clone
     assert cli.main(["voicenote", "--say", text + " Also this.", str(tmp_path / "x.ogg"), "--preset", "home",
                      "--reuse", str(tmp_path / "first")]) == 2

@@ -634,9 +634,151 @@ def _plan_pauses(x, rate: int, words: Sequence[Word], pauses: Sequence[Tuple[int
     return kept, dropped
 
 
+REFLOW_HEADROOM_DB = 8.0  # a fade ends this far under the room tone the render will add, so that what is left cannot be heard
+REFLOW_DB_PER_MS = 0.4  # and falls at this rate, a room's own decay (his: 2 to 3 dB in 5 ms)
+REFLOW_MAX_FADE_MS = 60.0
+
+
+def _fade_db(n: int, out: bool, depth_db: float):
+    """A fade that is a straight line in dB over `n` samples: 0 dB to -depth (out) or -depth to 0 (in). Level is what the ear
+    tracks, and a raised cosine is very steep in dB where it begins."""
+    import numpy as np
+
+    t = np.arange(n) / max(n, 1)
+    return 10.0 ** ((-depth_db * t if out else -depth_db * (1.0 - t)) / 20.0)
+
+
+def _quietest_window(cum, n: int, lo: int, hi: int, w: int, probe: int) -> int:
+    """Where, among the sample positions lo..hi, the quietest `w`-sample window starts: a running mean of three probes taken every
+    `probe` samples, so that it is a quiet stretch and not one dip, with the edges of the range not favoured."""
+    import numpy as np
+
+    lo, hi = max(0, lo), min(max(lo, hi), max(0, n - w))
+    if hi <= lo:
+        return lo
+    idx = np.arange(lo, hi + 1, probe)
+    e = (cum[idx + w] - cum[idx]) / w
+    if len(e) > 3:
+        e = np.convolve(np.concatenate([[e[0]], e, [e[-1]]]), np.ones(3) / 3, mode="valid")
+    return int(idx[int(np.argmin(e))])
+
+
+def _insert_pauses_reflow(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[int, float]], report: Optional[dict],
+                          gaps_only: bool, snap: bool, bed_db: float) -> Optional[List[Word]]:
+    """The way that got "perfect" (Harriet's Q21, his 01:23 EDT 2026-09-30), in the tool.
+
+    A pause sits entirely inside the gap the clone left between two words (from the previous word's end to the next word's
+    start, as aligned), at the quietest 20 ms in it, and is digital silence: the room tone the render mixes in is what he
+    hears inside it. The speech next to it is faded, in dB, down to `REFLOW_HEADROOM_DB` under that room tone (from where the read
+    stands at the cut: no deeper than it needs), at the rate of a room's decay, and never further than the gap it is in, so no
+    fade can reach a word. With `gaps_only` a pause whose quietest place is not quiet (the clone ran the words together) is
+    left out, or with `snap` tried in the gaps one and two words away. Returns None when it cannot run (no numpy, not 16-bit)."""
+    try:
+        import numpy as np
+    except ImportError:
+        return None
+    with wave.open(str(wav_path), "rb") as wf:
+        params, rate = wf.getparams(), wf.getframerate()
+        width, channels = wf.getsampwidth(), wf.getnchannels()
+        audio = wf.readframes(wf.getnframes())
+    if width != 2:
+        return None
+    x = np.frombuffer(audio, dtype="<i2").reshape(-1, channels).astype("float64") / 32768.0
+    n = len(x)
+    mono = x.mean(axis=1)
+    cum = np.concatenate([[0.0], np.cumsum(mono ** 2)])
+    w, probe = int(0.02 * rate), int(0.005 * rate)
+
+    def level_db(pos: int) -> float:
+        pos = min(max(pos, 0), max(0, n - w))
+        return float(10 * np.log10((cum[pos + w] - cum[pos]) / w + 1e-20))
+
+    def cut_for(k: int):
+        """(position, its level, the gap's start and end) for a pause after `k` words."""
+        if not words or k <= 0:
+            return 0, None, 0, 0
+        if k >= len(words):
+            return n, None, n, n
+        lo, hi = round(words[k - 1].end * rate), round(words[k].start * rate)
+        lo, hi = min(max(lo, 0), n), min(max(hi, 0), n)
+        if hi < lo:
+            lo = hi = (lo + hi) // 2
+        pos = _quietest_window(cum, n, lo, hi, w, probe)
+        return pos, level_db(pos), lo, hi
+
+    speech_db = _speech_db((x * 32768.0).astype("float32"), rate)
+    limit_db = speech_db - REAL_QUIET_BELOW_SPEECH_DB
+    kept, dropped, used = [], [], set()
+    for k, seconds in sorted(pauses):
+        chosen, first_level = None, None
+        for d in ((0, 1, -1, 2, -2) if snap else (0,)):
+            kk = k + d
+            if kk in used or (d and not 0 < kk < len(words)):
+                continue
+            _pos, level, _lo, _hi = cut_for(kk)
+            if d == 0:
+                first_level = level
+            if not gaps_only or level is None or level <= limit_db:
+                chosen = kk
+                break
+        if chosen is None:
+            dropped.append((k, seconds, first_level))
+        else:
+            used.add(chosen)
+            kept.append((chosen, seconds, k))
+    kept.sort()
+
+    out, cursor, prev_pos, cuts = [], 0, -10 ** 9, []
+    for kk, seconds, asked in kept:
+        dur = round(seconds * rate)
+        pos, level, lo, hi = cut_for(kk)
+        pos = min(max(pos, prev_pos + int(0.05 * rate)), max(lo, hi)) if level is not None else pos
+        pos = min(max(pos, cursor), n)
+        seg = x[cursor:pos].copy()
+        nfo = nfi = 0
+        depth = 0.0
+        if level is not None:
+            here = level_db(pos)
+            depth = max(6.0, min(60.0, here - (bed_db - REFLOW_HEADROOM_DB)))
+            want = int(min(REFLOW_MAX_FADE_MS, depth / REFLOW_DB_PER_MS) / 1000 * rate)
+            nfo = max(0, min(want, pos - max(lo, cursor), len(seg)))
+            if nfo:
+                seg[-nfo:] *= _fade_db(nfo, True, depth)[:, None]
+            nfi = max(0, min(want, max(0, hi - pos), n - pos))
+        nxt = x[pos: pos + nfi].copy()
+        if len(nxt):
+            nxt *= _fade_db(len(nxt), False, depth)[:, None]
+        out += [seg, np.zeros((dur, channels)), nxt]
+        cuts.append({"after_words": kk, **({"asked_after_words": asked} if asked != kk else {}),
+                     "gap_ms": round((hi - lo) / rate * 1000), "at_s": round(pos / rate, 3),
+                     "cut_dbfs": None if level is None else round(level_db(pos), 1), "depth_db": round(depth, 1),
+                     "fade_out_ms": round(nfo / rate * 1000, 1), "fade_in_ms": round(nfi / rate * 1000, 1)})
+        cursor = pos + len(nxt)
+        prev_pos = pos
+    out.append(x[cursor:])
+    data = np.clip(np.rint(np.concatenate(out) * 32768.0), -32768, 32767).astype("<i2").tobytes()
+    with wave.open(str(wav_path), "wb") as wf:
+        wf.setparams(params)
+        wf.writeframes(data)
+    if report is not None:
+        report.update(method="reflow", bed_dbfs=round(bed_db, 1), speech_dbfs=round(speech_db, 1),
+                      quiet_limit_dbfs=round(limit_db, 1), cuts=cuts,
+                      kept=[{"after_words": kk, "s": seconds, **({"asked_after_words": a} if a != kk else {})} for kk, seconds, a in kept],
+                      dropped=[{"after_words": k, "s": seconds, "cut_dbfs": None if lv is None else round(lv, 1)}
+                               for k, seconds, lv in dropped])
+    shifted = []
+    for i, word in enumerate(words):
+        shift = sum(seconds for kk, seconds, _a in kept if i >= kk)
+        shifted.append(Word(word.text, round(word.start + shift, 3), round(word.end + shift, 3)))
+    return shifted
+
+
 def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[int, float]],
-                  report: Optional[dict] = None, gaps_only: bool = False, snap: bool = False) -> List[Word]:
-    """Put the pauses back into the clean read, between the aligned words; returns shifted words. `report`, if given, gets what
+                  report: Optional[dict] = None, gaps_only: bool = False, snap: bool = False,
+                  bed_db: Optional[float] = None) -> List[Word]:
+    """Put the pauses back into the clean read, between the aligned words; returns shifted words. With `bed_db`, the room tone the
+    render will mix in (dBFS), it is done the way that got "perfect" (`_insert_pauses_reflow`: silence in the gap, faded in dB
+    under that bed); without, as follows. `report`, if given, gets what
     the fill was made of (see `_quiet_bank`, and `gaps_used`, `fill_dbfs`) and, in `cuts`, where each pause went in: how far from
     the aligner's boundary, how loud the speech still was there (`over_floor_db`: 0 is a real gap) and how long the words on
     either side were faded, so that a build says what it did.
@@ -659,6 +801,10 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
     """
     if not pauses:
         return list(words)
+    if bed_db is not None:
+        done = _insert_pauses_reflow(wav_path, words, pauses, report, gaps_only, snap, bed_db)
+        if done is not None:
+            return done
 
     def place(plan) -> list:
         out = []
@@ -747,7 +893,7 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
     return shifted
 
 
-def reuse_read(prefix: Path, clean: Path, spoken: str):
+def reuse_read(prefix: Path, clean: Path, spoken: str, line: Optional[str] = None):
     """The clone's read and its word timings from an earlier build of the same line, so that everything after the read can be
     run again (a new pitch, a new pause fill, a new room) without asking for a new one: no key, no cost, and the same read.
 
@@ -766,7 +912,7 @@ def reuse_read(prefix: Path, clean: Path, spoken: str):
                                  "the read as the clone made it)")
     meta = json.loads(meta_path.read_text(encoding="utf-8"))
     was = meta.get("spelled", meta.get("read"))
-    if was != spoken:
+    if was not in (spoken, line):  # a build from before "um" was asked for as "ummm" sent the plain line
         raise VoiceNoteError(f"that read was made from a different line:\n  then: {was}\n  now:  {spoken}")
     lead = float(meta.get("lead_s") or 0.0)
     pace = float((meta.get("swing") or {}).get("pace_effective") or 1.0)
