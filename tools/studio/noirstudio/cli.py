@@ -456,6 +456,10 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
             voice = Voice(voice_id=args.voice, model_id=args.model, stability=args.stability,
                           similarity_boost=args.similarity)
             say = stumbles(args.say, args.stumble or 0.0, style.seed)  # his uh, um and repeated words, if asked for
+            if args.reuse:  # the `said` of the build's own words.json is the line after its stumbles: take it as it is, not stumbled twice
+                saved = Path(args.reuse).with_name(Path(args.reuse).name + ".words.json")
+                if saved.exists() and json.loads(saved.read_text(encoding="utf-8")).get("said", "").strip() == args.say.strip():
+                    say = args.say
             text = roughen(say, style.rough)
             line, pauses = split_pauses(rawify(text) if args.raw else text, trail="," if style.rough else "…")
             spoken = clone_spelling(line)  # "um" is asked for as "ummm": a plain one merges into the word before it
@@ -859,7 +863,7 @@ def build_parser() -> argparse.ArgumentParser:
                     "(the way that got 'perfect'). `fill`: the earlier way, a cut at the quietest 5 ms near the boundary and a fill of the read's own floor")
     vn.add_argument("--anywhere", action="store_true",
                     help="put every pause exactly where it was asked for, even where the clone left no gap (the cut then takes the end "
-                    "of a word with it). By default a pause goes in only where the read is quiet, 24 dB under its loud parts")
+                    "of a word with it). By default a pause goes in only where the read is quiet, 18 dB under its loud parts")
     vn.add_argument("--snap", action="store_true",
                     help="a pause that cannot go where it was asked for is moved to the nearest gap one or two words away, not left out")
     vn.add_argument("--hesitate", type=float, default=None, metavar="X",

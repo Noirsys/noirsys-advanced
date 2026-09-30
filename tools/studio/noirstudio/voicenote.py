@@ -587,7 +587,9 @@ def _bank_db(bank) -> float:
     return float(10 * np.log10((bank[0].astype("float64") ** 2).mean() / 32768.0 ** 2 + 1e-12)) if bank else -120.0
 
 
-REAL_QUIET_BELOW_SPEECH_DB = 24.0  # a pause may be cut in only where the read is at least this far under its loud parts
+REAL_QUIET_BELOW_SPEECH_DB = 18.0  # a pause may be cut in only where the read is at least this far under its loud parts.
+# Calibrated on Q21 (round 16): the pauses he heard as perfect were cut 20.1 dB and more under the speech; the two he named as
+# broken (after "of" and after "trying", Q17) 12.3 and 5.0 dB under. 24 (my first guess) left out the 20.1 one too.
 
 
 def _speech_db(x, rate: int) -> float:

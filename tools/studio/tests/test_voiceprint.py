@@ -589,6 +589,12 @@ def test_reuse_runs_a_build_again_from_the_read_it_kept_without_asking_for_a_new
         assert a["start"] == pytest.approx(b["start"], abs=0.02) and a["end"] == pytest.approx(b["end"], abs=0.02)
     assert ffmpeg.probe_duration(again) == pytest.approx(ffmpeg.probe_duration(first), abs=0.02)
 
+    # the `said` of a build's own words.json is the line after its stumbles: passing it back must not stumble it a second time
+    assert was["said"] != text
+    assert cli.main(["voicenote", "--say", was["said"], str(tmp_path / "again3.ogg"), "--preset", "home", "--reuse", str(tmp_path / "first"),
+                     "--anywhere"]) == 0
+    assert json.loads((tmp_path / "again3.words.json").read_text(encoding="utf-8"))["said"] == was["said"]
+    assert len(sent) == calls
     # an older build sent the plain "um" (no "ummm" spelling, so no "spelled" key): its read can still be reused
     old = json.loads((tmp_path / "first.words.json").read_text(encoding="utf-8"))
     old["read"] = old.pop("spelled", old["read"]).replace("ummm", "um")
