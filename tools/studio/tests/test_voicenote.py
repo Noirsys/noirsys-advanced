@@ -198,6 +198,8 @@ def test_a_read_whose_floor_is_digital_silence_gets_silence_in_its_pause(tmp_pat
 
 
 def test_stumbles_are_his_measured_rate_deterministic_and_leave_markers_alone():
+    from noirstudio.voicenote import HIS_STUMBLES
+
     line = ("so I think we should probably just go with the first one, you know, and see what happens because the thing "
             "is that we need to decide by tomorrow and I don't want to wait any longer than that [pause 1.2] honestly "
             "it is what it is and that is really all there is to say about it for now okay") * 3
@@ -207,12 +209,60 @@ def test_stumbles_are_his_measured_rate_deterministic_and_leave_markers_alone():
     assert "[pause 1.2]" in heavy and heavy.count("[pause 1.2]") == 3  # the markers pass through whole
     words = line.replace("[pause 1.2]", "").split()
     got = heavy.replace("[pause 1.2]", "").split()
+    n = len(words)
     fillers = [w for w in got if w in ("uh", "um")]
-    assert 0.8 * 6 * len(words) / 100 * 0.5 <= len(fillers) <= 0.8 * 6 * len(words) / 100 * 2 + 2
-    collapsed = [w for i, w in enumerate(got) if w not in ("uh", "um") and not (i and w.lower() == got[i - 1].lower())]
-    original = [w for i, w in enumerate(words) if not (i and w.lower() == words[i - 1].lower())]
-    assert [w.lower() for w in collapsed] == [w.lower() for w in original]  # only ever additions: his words stay in order
-    assert len(got) > len(words) + 5
+    expected = 6 * HIS_STUMBLES["fillers_per_100"] * n / 100
+    assert expected * 0.5 <= len(fillers) <= expected * 1.5 + 1
+    added = len(got) - n
+    total = 6 * sum(HIS_STUMBLES.values()) * n / 100
+    assert total * 0.6 <= added <= total * 1.6 + 2  # fillers, repeated words and restarts together, at his rate x scale
+    # only ever additions: take the inserted words out and his words are left, in order
+    def plain(ws):
+        out = []
+        for w in ws:
+            if w in ("uh", "um"):
+                continue
+            out.append(w.lower())
+        return out
+
+    def collapse(ws):  # repeats and restarts removed: a word said twice in a row, a pair said twice in a row
+        ws = list(ws)
+        changed = True
+        while changed:
+            changed = False
+            for i in range(len(ws) - 1):
+                if ws[i] == ws[i + 1]:
+                    del ws[i + 1]
+                    changed = True
+                    break
+            if changed:
+                continue
+            for i in range(len(ws) - 3):
+                if ws[i: i + 2] == ws[i + 2: i + 4]:
+                    del ws[i + 2: i + 4]
+                    changed = True
+                    break
+        return ws
+
+    assert collapse(plain(got)) == collapse(plain(words))
+
+
+def test_asking_for_more_is_audible_on_a_short_line_and_a_restart_repeats_two_words():
+    line = "all right another thing and this is a big deal to me you know how people back up their agents to their github just in case"
+    n = len(line.split())
+    for seed in range(6):
+        out = stumbles(line, 2, seed=seed)
+        assert len(out.split()) > n  # a 25-word line always gets something at twice his rate
+    restarts = 0
+    for seed in range(40):
+        got = stumbles(line, 8, seed=seed).split()
+        restarts += sum(1 for i in range(len(got) - 3) if got[i: i + 2] == got[i + 2: i + 4] and got[i] != got[i + 1])
+    assert restarts >= 40  # "i don't i don't": two words said again; placed first, so a crowded line still gets them
+    only = {"fillers_per_100": 0, "repeats_per_100": 0, "restarts_per_100": 12}
+    for seed in range(6):  # restarts on their own: three on 26 words, each one two words said again, nothing else added
+        got = stumbles(line, 1, seed=seed, habits=only).split()
+        assert len(got) == n + 2 * int(12 * n / 100 + 0.5)
+        assert all(w not in ("uh", "um") for w in got)
 
 
 @pytest.fixture(scope="module")

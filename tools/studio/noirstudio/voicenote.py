@@ -285,10 +285,12 @@ def split_pauses(text: str, trail: str = "…") -> Tuple[str, List[Tuple[int, fl
 # How he stops to think, measured on 87 of his real notes (29 min of speech, `voiceprint`, 2026-09-29):
 # about 17 pauses a minute, median 0.88 s, middle half 0.49 to 1.54 s. The clone's own median was 0.34 s.
 HIS_PAUSES = {"rate_per_min": 17.0, "median_s": 0.85, "sigma": 0.85, "min_s": 0.25, "max_s": 3.0}
-# What his stored transcripts hold (279 of his spoken lines, 15,034 words): about 0.8 "uh" or "um" and 1.3 repeated words
-# ("i i", "the the", "in in in") per 100 words. A transcriber drops many of both, so this is a floor, not his rate: on
-# 2026-09-29 he heard the P3 takes and asked for "more stupid 'uh' 'um' pauses stutters".
-HIS_STUMBLES = {"fillers_per_100": 0.8, "repeats_per_100": 1.3}
+# What his audio holds (40 of his notes transcribed so that fillers survive, 3,424 words, 2026-09-30): 1.46 "uh" or "um",
+# 1.75 repeated words ("i i", "the the", "in in in") and 0.79 two-word restarts ("i don't i don't") per 100 words, 4.0
+# stumbles in all; his stored transcripts hold a quarter of that (0.15, 0.64 and 0.21) because a transcriber drops them. On
+# 2026-09-29 he heard the P3 takes and asked for "more stupid 'uh' 'um' pauses stutters". A note's first 30 words hold 1.3
+# of them on average, so a 25-word line at his rate has one, and "more" needs `scale` 2 or so.
+HIS_STUMBLES = {"fillers_per_100": 1.46, "repeats_per_100": 1.75, "restarts_per_100": 0.79}
 # "Him at home" (P3, 2026-09-29): his real numbers on Praat's tracker (101 notes: a pitch swing of 2.1 semitones, a median
 # pitch of 104 Hz, 17 pauses a minute; strategy/04) and the settings that moved the clone toward them, then his answer to the
 # P3 takes ("gettin closer"): more stumbles and pauses (`stumble` 2 is twice the transcripts' rate; `hesitate` 1.3 is his 17
@@ -362,62 +364,69 @@ _TOKEN = re.compile(r"\[[^\[\]\n]{1,48}\]|\S+")  # a [tag] or [pause 1.2] is one
 
 
 def stumbles(text: str, scale: float = 1.0, seed: int = 7, habits: Optional[dict] = None) -> str:
-    """Give a line his stumbles: the odd "uh" or "um" and words said twice ("i i", "the the", "in in in").
+    """Give a line his stumbles: the odd "uh" or "um", words said twice ("i i", "the the", "in in in") and a two-word
+    restart ("i don't i don't").
 
-    His transcripts hold about 0.8 fillers and 1.3 repeated words per 100 words (`HIS_STUMBLES`, a floor: a transcriber
-    drops many), and he asked for more of both, so `scale` 1 is that rate and 2 is twice as often; 0 changes nothing.
-    A filler lands where a person's does (after a comma or a full stop, before "so", "and", "like", after "the" or "to"
-    while the next word is looked for), a repeat on a small word, never two stumbles within three words of each other and
-    never in the first or last two words. `[tags]` and `[pause N]` markers are left alone. The same line and seed always
-    give the same stumbles. The words are his: only the line the clone reads, and the captions, carry them.
+    `HIS_STUMBLES` is his rate, measured on his audio (4.0 in all per 100 words); `scale` 1 is that rate, 2 is twice as
+    often, 0 changes nothing. Counts are rounded to the nearest whole stumble, and a line of about 20 words or more that
+    would otherwise get none gets one filler, so that asking for more is audible on a short line. A filler lands where a
+    person's does (after a comma or a full stop, before "so", "and", "like", after "the" or "to" while the next word is
+    looked for); a repeat or restart on small words; never two stumbles within three words of each other and never in the
+    first or last two words. `[tags]` and `[pause N]` markers are left alone. The same line and seed always give the same
+    stumbles. The words are his: only the line the clone reads, and the captions, carry them.
     """
     h = {**HIS_STUMBLES, **(habits or {})}
     tokens = _TOKEN.findall(text)
     is_word = [not (t.startswith("[") and t.endswith("]")) and any(c.isalnum() for c in t) for t in tokens]
-    positions = [i for i, w in enumerate(is_word) if w]
+    positions = [i for i, w in enumerate(is_word) if w]  # token index of each word
     n = len(positions)
     if scale <= 0 or n < 8:
         return text
     rng = random.Random(f"{seed}:{text}")
-
-    def count(per_100: float) -> int:
-        expected = scale * per_100 * n / 100
-        return int(expected) + (1 if rng.random() < expected - int(expected) else 0)
-
-    order = {tok_i: k for k, tok_i in enumerate(positions)}  # token index -> word index
-    filler_weight, repeat_weight = {}, {}
+    kinds = ("fillers", "repeats", "restarts")
+    want = {kind: int(scale * h[f"{kind}_per_100"] * n / 100 + 0.5) for kind in kinds}
+    if not any(want.values()) and sum(scale * h[f"{kind}_per_100"] for kind in kinds) * n / 100 >= 0.9:
+        want["fillers"] = 1
+    filler_w, repeat_w, restart_w = {}, {}, {}
     for k in range(2, n - 2):  # never in the first or last two words
-        i = positions[k]
-        prev, here = tokens[positions[k - 1]], tokens[i]
+        prev, here = tokens[positions[k - 1]], tokens[positions[k]]
         before, after = prev.lower().strip(_PUNCT), here.lower().strip(_PUNCT)
         if before in _FILLERS or after in _FILLERS or before == after:
             continue
-        w = 0.3 + 3.0 * (prev[-1:] in _PUNCT) + 1.5 * (after in _LEADS) + 1.0 * (before in _SEARCHING)
-        filler_weight[k] = w
+        filler_w[k] = 0.3 + 3.0 * (prev[-1:] in _PUNCT) + 1.5 * (after in _LEADS) + 1.0 * (before in _SEARCHING)
         if after in _REPEATABLE and here[-1:] not in _PUNCT:
-            repeat_weight[k] = 1.0
+            repeat_w[k] = 1.0
+        nxt = tokens[positions[k + 1]]
+        if (after in _REPEATABLE or after in _LEADS) and here[-1:] not in _PUNCT and nxt[-1:] not in _PUNCT and k + 2 < n - 1:
+            restart_w[k] = 1.0  # the words at k and k+1, said again
 
-    def pick(weight: dict, want: int, taken: set) -> List[int]:
+    def pick(weight: dict, count: int, taken: set) -> List[int]:
         chosen: List[int] = []
         weight = {k: v for k, v in weight.items() if not any(abs(k - t) <= 3 for t in taken)}
-        while len(chosen) < want and weight:
+        while len(chosen) < count and weight:
             k = rng.choices(list(weight), list(weight.values()))[0]
             chosen.append(k)
             for near in range(k - 3, k + 4):
                 weight.pop(near, None)
         return chosen
 
-    fillers = pick(filler_weight, count(h["fillers_per_100"]), set())
-    repeats = pick(repeat_weight, count(h["repeats_per_100"]), set(fillers))
+    restarts = pick(restart_w, want["restarts"], set())  # the rarest first: a filler can go almost anywhere
+    repeats = pick(repeat_w, want["repeats"], set(restarts))
+    fillers = pick(filler_w, want["fillers"], set(restarts) | set(repeats))
+    before_tok: dict = {}
+    after_tok: dict = {}
+    for k in fillers:
+        before_tok[positions[k]] = [rng.choice(("uh", "um"))]
+    for k in repeats:
+        after_tok[positions[k]] = [tokens[positions[k]].lower().strip(_PUNCT)] * (2 if rng.random() < 0.15 else 1)
+    for k in restarts:
+        phrase = [tokens[positions[j]].lower().strip(_PUNCT) for j in (k, k + 1)]
+        after_tok.setdefault(positions[k + 1], []).extend(phrase)
     out: List[str] = []
     for i, tok in enumerate(tokens):
-        k = order.get(i)
-        if k in fillers:
-            out.append(rng.choice(("uh", "um")))
+        out += before_tok.get(i, [])
         out.append(tok)
-        if k in repeats:
-            word = tok.lower() if k > 0 else tok
-            out += [word] * (2 if rng.random() < 0.15 else 1)
+        out += after_tok.get(i, [])
     return " ".join(out)
 
 
