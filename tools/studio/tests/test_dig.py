@@ -1,6 +1,7 @@
 """Digging through Harriet's memory against a scripted fake of the n8n/Hermes jobs API — no network."""
 
 import json
+from pathlib import Path
 
 import pytest
 
@@ -273,3 +274,23 @@ def test_tell_sends_a_note_and_keeps_her_answer(tmp_path, monkeypatch, capsys):
     (note,) = (tmp_path / "notes").glob("*.md")
     text = note.read_text()
     assert "Please keep his voice notes." in text and "# Harriet\n\nCopied all 18 files." in text
+
+
+def test_the_default_root_is_the_repos_stories_wherever_the_command_runs(tmp_path, monkeypatch):
+    """2026-09-30: run from tools/studio, `stories` was a new folder there, and a job's record went into the wrong file."""
+    from noirstudio.cli import stories_root
+
+    repo = tmp_path / "repo"
+    (repo / ".git").mkdir(parents=True)
+    (repo / "stories").mkdir()
+    deep = repo / "tools" / "studio"
+    deep.mkdir(parents=True)
+    assert stories_root("stories", start=deep) == repo / "stories"
+    assert stories_root("stories", start=repo) == repo / "stories"
+    assert stories_root("elsewhere", start=deep) == Path("elsewhere")  # asked for: used as given
+    monkeypatch.chdir(deep)
+    (deep / "stories").mkdir()
+    assert stories_root("stories") == Path("stories")  # one right here wins
+    lonely = tmp_path / "lonely"
+    (lonely / ".git").mkdir(parents=True)
+    assert stories_root("stories", start=lonely) == Path("stories")  # none anywhere: the first use makes it where you are

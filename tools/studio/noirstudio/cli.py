@@ -27,6 +27,7 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
+from typing import Optional
 
 from . import __version__
 from .brandkit import BRANDS, FONTS_DIR, font_family_name
@@ -216,12 +217,28 @@ def _cmd_loop(args: argparse.Namespace) -> int:
     return 0
 
 
+def stories_root(arg: str = "stories", start: Optional[Path] = None) -> Path:
+    """Where her material is kept. The default is `stories` at the repo root, wherever the command is run from: run from
+    tools/studio, a bare relative `stories` made a second one there (2026-09-30: a job's record went into the wrong file
+    and the poller saw nothing). An explicit --root, or a `stories` in the current directory, is used as given."""
+    path = Path(arg)
+    if arg != "stories" or path.is_absolute() or path.is_dir():
+        return path
+    here = (start or Path.cwd()).resolve()
+    for parent in (here, *here.parents):
+        if (parent / "stories").is_dir():
+            return parent / "stories"
+        if (parent / ".git").exists():
+            break
+    return path
+
+
 def _cmd_harriet(args: argparse.Namespace) -> int:
     from . import dig as d
     from . import harriet as h
     from .llm import LLMError
 
-    root, cmd = Path(args.root), args.harriet_cmd
+    root, cmd = stories_root(args.root), args.harriet_cmd
     inbox = root / "inbox"
     say = lambda m: print(m, file=sys.stderr)  # noqa: E731
     if cmd == "inbox":

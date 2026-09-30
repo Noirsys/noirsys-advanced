@@ -373,7 +373,9 @@ def stumbles(text: str, scale: float = 1.0, seed: int = 7, habits: Optional[dict
     person's does (after a comma or a full stop, before "so", "and", "like", after "the" or "to" while the next word is
     looked for); a repeat or restart on small words; never two stumbles within three words of each other and never in the
     first or last two words. `[tags]` and `[pause N]` markers are left alone. The same line and seed always give the same
-    stumbles. The words are his: only the line the clone reads, and the captions, carry them.
+    stumbles. The words are his: only the line the clone reads, and the captions, carry them. A line written the way he talks
+    already has some ("uh…", "your— your"): those count toward the rate, and only the shortfall is added, so a script that
+    has his stumbles written in is not given twice as many.
     """
     h = {**HIS_STUMBLES, **(habits or {})}
     tokens = _TOKEN.findall(text)
@@ -384,8 +386,12 @@ def stumbles(text: str, scale: float = 1.0, seed: int = 7, habits: Optional[dict
         return text
     rng = random.Random(f"{seed}:{text}")
     kinds = ("fillers", "repeats", "restarts")
-    want = {kind: int(scale * h[f"{kind}_per_100"] * n / 100 + 0.5) for kind in kinds}
-    if not any(want.values()) and sum(scale * h[f"{kind}_per_100"] for kind in kinds) * n / 100 >= 0.9:
+    said = [tokens[i].lower().strip(_PUNCT) for i in positions]
+    have = {"fillers": sum(w in _FILLERS for w in said),
+            "repeats": sum(a == b and a not in _FILLERS for a, b in zip(said, said[1:])),
+            "restarts": sum(said[i: i + 2] == said[i + 2: i + 4] and said[i] != said[i + 1] for i in range(n - 3))}
+    want = {kind: max(0, int(scale * h[f"{kind}_per_100"] * n / 100 + 0.5) - have[kind]) for kind in kinds}
+    if not any(want.values()) and not any(have.values()) and sum(scale * h[f"{kind}_per_100"] for kind in kinds) * n / 100 >= 0.9:
         want["fillers"] = 1
     filler_w, repeat_w, restart_w = {}, {}, {}
     for k in range(2, n - 2):  # never in the first or last two words

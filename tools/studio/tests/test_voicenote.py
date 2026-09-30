@@ -290,6 +290,21 @@ def test_asking_for_more_is_audible_on_a_short_line_and_a_restart_repeats_two_wo
         assert all(w not in ("uh", "um") for w in got)
 
 
+def test_a_line_that_already_stumbles_is_topped_up_not_doubled():
+    """The episode scripts are written the way he talks ("uh…", "your— your"): --stumble must count those."""
+    written = ("look I— I might get upset and knock over a chair, you know, during an episode of sadness and sleep fine "
+               "but if I started, uh, pushing kittens to the floor whenever I got upset, um, that wouldn't sit right with me")
+    n = len(written.split())
+    for scale in (1, 2):
+        for seed in range(8):
+            got = stumbles(written, scale, seed=seed)
+            added = len(got.split()) - n
+            # he has 4.0 in 100 words: 3 already written (I I, uh, um) in 40 words is 7.5 per 100, so nothing is added at 1
+            assert added == 0 if scale == 1 else 0 <= added <= 4
+    bare = " ".join(["so we went over to the other room and looked at the whole thing again"] * 3)  # 42 plain words
+    assert len(stumbles(bare, 2, seed=1).split()) > len(bare.split())  # the same rate on a bare line does add some
+
+
 @pytest.fixture(scope="module")
 def real_note(tmp_path_factory) -> Path:
     """One of his notes, stood in for: two bursts of speech over a steady room at about -50 dBFS."""
