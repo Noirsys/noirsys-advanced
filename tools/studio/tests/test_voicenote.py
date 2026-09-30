@@ -289,6 +289,63 @@ def test_a_pause_does_not_eat_the_end_of_a_word_that_runs_into_the_next(tmp_path
     assert len(after) == len(x) + int(1.5 * rate)
 
 
+def _of_of_what(tmp_path):
+    """"... of of [a real gap] what": the first "of" runs into the second with its /v/ still 14 dB under the vowel (a cut
+    there takes the end of the word), and the second is followed by 270 ms of floor before "what"."""
+    import wave
+
+    np = pytest.importorskip("numpy")
+    rate = 48000
+    rng = np.random.RandomState(9)
+    t = np.arange(int(1.6 * rate)) / rate
+    env = np.zeros_like(t)
+    env[(t >= 0.30) & (t < 0.42)] = 1.0
+    env[(t >= 0.42) & (t < 0.49)] = 0.2
+    env[(t >= 0.49) & (t < 0.61)] = 1.0
+    env[(t >= 0.61) & (t < 0.68)] = 0.2
+    env[(t >= 0.95) & (t < 1.20)] = 1.0
+    x = np.clip((0.25 * np.sin(2 * np.pi * 140 * t) * env + 10 ** (-62 / 20) * rng.randn(len(t))) * 32767, -32768, 32767).astype("<i2")
+    wav = tmp_path / "ofofwhat.wav"
+    with wave.open(str(wav), "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(rate)
+        wf.writeframes(x.tobytes())
+    return wav, [Word("of", 0.30, 0.49), Word("of", 0.49, 0.68), Word("what", 0.95, 1.20)], len(x), rate
+
+
+def test_gaps_only_leaves_out_a_pause_that_would_cut_into_a_word(tmp_path):
+    """Q17 (his 01:19 EDT): \"after the word of, after the word trying, it's fucked up, everything else is perfect\": the two pauses that
+    landed in live audio. Q21, with only the pauses that land in real quiet, was \"perfect\"."""
+    wav, words, n, rate = _of_of_what(tmp_path)
+    report: dict = {}
+    shifted = insert_pauses(wav, words, [(1, 2.0), (2, 1.0)], report=report, gaps_only=True)
+    assert [d["after_words"] for d in report["kept"]] == [2] and [d["after_words"] for d in report["dropped"]] == [1]
+    assert report["dropped"][0]["cut_dbfs"] > report["quiet_limit_dbfs"]  # the /v/ is -29 dBFS, the limit -39
+    assert report["kept"][0]["s"] == 1.0
+    # the word before the dropped pause is untouched, and only the pause that went in moved the words after it
+    assert shifted[:2] == words[:2] and shifted[2] == Word("what", 1.95, 2.20)
+    import wave
+
+    with wave.open(str(wav), "rb") as wf:
+        assert wf.getnframes() == n + int(1.0 * rate)
+
+
+def test_gaps_only_can_move_a_pause_to_the_next_gap(tmp_path):
+    wav, words, n, rate = _of_of_what(tmp_path)
+    report: dict = {}
+    shifted = insert_pauses(wav, words, [(1, 2.0)], report=report, gaps_only=True, snap=True)
+    assert report["kept"] == [{"after_words": 2, "s": 2.0, "asked_after_words": 1}] and not report["dropped"]
+    assert shifted[:2] == words[:2] and shifted[2] == Word("what", 2.95, 3.20)  # the pause came after the second "of", where there is a gap
+
+
+def test_gaps_only_keeps_a_pause_at_the_very_start_or_end(tmp_path):
+    wav, words, n, rate = _of_of_what(tmp_path)
+    report: dict = {}
+    insert_pauses(wav, words, [(0, 0.4), (3, 0.3)], report=report, gaps_only=True)
+    assert [d["after_words"] for d in report["kept"]] == [0, 3] and not report["dropped"]
+
+
 def test_a_pause_goes_in_after_the_words_tail_not_through_it(tmp_path):
     """The aligner put a word's end 140 ms before its sound had died away: the cut belongs where the sound has."""
     import wave
@@ -612,15 +669,42 @@ def test_cli_say_puts_his_pauses_in(clean, tmp_path, monkeypatch):
     monkeypatch.setenv("ELEVENLABS_API_KEY", "test-key")
     monkeypatch.setattr(ElevenLabsVoice, "_send", fake_send)
     out = tmp_path / "note.ogg"
-    assert main(["voicenote", "--say", "Say it [pause 1] for me.", str(out)]) == 0
+    assert main(["voicenote", "--say", "Say it [pause 1] for me.", str(out), "--anywhere"]) == 0  # the fake read has no real gaps
     assert json.loads(calls[0][1])["text"] == "Say it, for me."  # the clone never sees the marker; rough 2 trails off in a comma
-    assert main(["voicenote", "--say", "Say it [pause 1] for me.", str(out), "--rough", "0"]) == 0
+    assert main(["voicenote", "--say", "Say it [pause 1] for me.", str(out), "--rough", "0", "--anywhere"]) == 0
     assert json.loads(calls[2][1])["text"] == "Say it… for me."  # the clean read trails off in an ellipsis
     words = json.loads((tmp_path / "note.words.json").read_text(encoding="utf-8"))
     assert words["pauses"] == [{"after_words": 2, "s": 1.0}]
     assert "fill_dbfs" in words["fill"]  # what the pause was filled with, for the build's own record
     assert words["words"][2] == {"text": "for", "start": 1.75, "end": 1.95}  # 0.4 + 1.0 pause + 0.35 lead
     assert abs(ffmpeg.probe_duration(out) - (0.35 + 3.0 + 0.5)) < 0.1
+
+
+def test_cli_puts_pauses_only_where_the_clone_left_a_gap(tmp_path, monkeypatch, capsys):
+    wav, words, n, rate = _of_of_what(tmp_path)
+
+    def fake_send(self, method, path, data, content_type, accept, query=""):
+        if path == "/v1/forced-alignment":
+            return json.dumps({"words": [{"text": w.text, "start": w.start, "end": w.end} for w in words]}).encode()
+        return wav.read_bytes()
+
+    monkeypatch.setenv("ELEVENLABS_API_KEY", "test-key")
+    monkeypatch.setattr(ElevenLabsVoice, "_send", fake_send)
+
+    def build(name, *flags):
+        out = tmp_path / f"{name}.ogg"
+        assert main(["voicenote", "--say", "Of [pause 2] of what", str(out), "--rough", "0", *flags]) == 0
+        return json.loads((tmp_path / f"{name}.words.json").read_text(encoding="utf-8")), capsys.readouterr().err
+
+    left_out, err = build("default")  # the default: the pause after the first "of" would cut into its /v/, so it is left out
+    assert left_out["pauses"] == [] and "was left out" in err and "the clone left no gap" in err
+    assert left_out["words"][2]["start"] == pytest.approx(0.35 + 0.95, abs=0.01)  # nothing moved
+    moved, err = build("snap", "--snap")  # or moved to the gap after the second one
+    assert moved["pauses"] == [{"after_words": 2, "s": 2.0}] and "went in after word 2" in err
+    assert moved["words"][2]["start"] == pytest.approx(0.35 + 0.95 + 2.0, abs=0.01)
+    anywhere, err = build("anywhere", "--anywhere")  # and asked for anywhere, it goes in where it was asked for
+    assert anywhere["pauses"] == [{"after_words": 1, "s": 2.0}] and "left out" not in err
+    assert anywhere["fill"]["cuts"][0]["over_floor_db"] > 20  # cut in live audio, and the build's own record says so
 
 
 # --- "too perfect, too dynamic, too articulate" -----------------------------------------------

@@ -483,7 +483,19 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
                 auto = hesitations(" ".join(shown) if shown else line, aligned, pauses, args.hesitate, style.seed)
                 pauses = sorted(pauses + auto)
             fill: dict = {}
-            timed = insert_pauses(src, aligned, pauses, report=fill)
+            asked = list(pauses)
+            timed = insert_pauses(src, aligned, pauses, report=fill, gaps_only=not args.anywhere, snap=args.snap)
+            if "kept" in fill:  # only the pauses the clone left a gap for went in: the captions and the record say which
+                pauses = [(d["after_words"], d["s"]) for d in fill["kept"]]
+                auto = [(d["after_words"], d["s"]) for d in fill["kept"] if (d.get("asked_after_words", d["after_words"]), d["s"]) in auto]
+                for d in fill["dropped"]:
+                    print(f"note: the pause after word {d['after_words']} ({d['s']:g} s) was left out: the clone left no gap there, and a "
+                          f"cut would take the end of a word with it (--snap moves it to the next gap, --anywhere cuts through)",
+                          file=sys.stderr)
+                for d in fill["kept"]:
+                    if "asked_after_words" in d:
+                        print(f"note: the pause after word {d['asked_after_words']} ({d['s']:g} s) went in after word {d['after_words']}, "
+                              "where the clone left a gap", file=sys.stderr)
             if shown:
                 timed = [Word(t, w.start, w.end) for t, w in zip(shown, timed)]
             words = {"said": say, "read": line, **({"spelled": spoken} if spoken != line else {}),
@@ -840,6 +852,11 @@ def build_parser() -> argparse.ArgumentParser:
                     help="add the stumbles he makes on his own: an occasional uh or um and words said twice (the, i, and), "
                     "at his transcripts' rate (0.8 fillers and 1.3 repeats per 100 words): 0 = none (default), 1 = that rate, "
                     "2 = twice as often. They go in the line the clone reads and on the captions")
+    vn.add_argument("--anywhere", action="store_true",
+                    help="put every pause exactly where it was asked for, even where the clone left no gap (the cut then takes the end "
+                    "of a word with it). By default a pause goes in only where the read is quiet, 24 dB under its loud parts")
+    vn.add_argument("--snap", action="store_true",
+                    help="a pause that cannot go where it was asked for is moved to the nearest gap one or two words away, not left out")
     vn.add_argument("--hesitate", type=float, default=None, metavar="X",
                     help="add the thinking pauses he makes on his own, at his measured rate (17 a minute, median 0.85 s): "
                     "0 = none (default), 1 = his rate, 2 = twice as often. [pause N] markers in the line count toward it")

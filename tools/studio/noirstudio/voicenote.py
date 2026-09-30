@@ -344,6 +344,8 @@ def hesitations(line: str, words: Sequence[Word], explicit: Sequence[Tuple[int, 
                 w += 3.0
             w += 1.5 * (after in _LEADS) + 1.5 * (before.lower().strip(_PUNCT) in _FILLERS)
             w += 1.0 * (before.lower().strip(_PUNCT) in _SEARCHING)
+        if words[b].start - words[b - 1].end < 0.03:  # the clone ran these two words together: little to cut in, and a cut there takes a word's end
+            w *= 0.25
         weight[b] = w
     chosen: List[int] = []
     while len(chosen) < count and weight:
@@ -585,12 +587,66 @@ def _bank_db(bank) -> float:
     return float(10 * np.log10((bank[0].astype("float64") ** 2).mean() / 32768.0 ** 2 + 1e-12)) if bank else -120.0
 
 
+REAL_QUIET_BELOW_SPEECH_DB = 24.0  # a pause may be cut in only where the read is at least this far under its loud parts
+
+
+def _speech_db(x, rate: int) -> float:
+    """How loud the read's loud parts are: the 95th percentile of its 50 ms RMS, dBFS."""
+    import numpy as np
+
+    win = int(0.05 * rate)
+    n = len(x) // win if win else 0
+    if n < 1:
+        return -120.0
+    rms = np.sqrt((x[: n * win].reshape(n, win, -1).astype("float64") ** 2).mean(axis=(1, 2)))
+    return float(20 * np.log10(np.percentile(rms, 95) / 32768.0 + 1e-9))
+
+
+def _plan_pauses(x, rate: int, words: Sequence[Word], pauses: Sequence[Tuple[int, float]], limit_db: float, snap: bool):
+    """Which of the pauses can go in without cutting into a word: those whose cut lands where the read is at or under
+    `limit_db`. Returns (kept, dropped): kept is [(after_words, seconds, asked_after_words)], dropped [(after_words, seconds, the
+    level at the cut, dBFS)]. With `snap` a pause that cannot go where it was asked for is tried one and two words on either
+    side (nearest first) before it is dropped."""
+    kept, dropped, used = [], [], set()
+    for k, seconds in sorted(pauses):
+        chosen, first_level = None, None
+        for d in ((0, 1, -1, 2, -2) if snap else (0,)):
+            kk = k + d
+            if kk in used or (d and not 0 < kk < len(words)):
+                continue
+            if kk <= 0 or kk >= len(words):  # before the first word or after the last: nothing to cut into
+                chosen = kk
+                break
+            t, gap = (words[kk - 1].end + words[kk].start) / 2, max(0.0, words[kk].start - words[kk - 1].end)
+            near = round(t * rate)
+            reach = int(min(0.08, max(0.04, gap / 2 + 0.03)) * rate)
+            _cut, level = _valley(x, max(1, near - reach), near + reach, near, rate)
+            if d == 0:
+                first_level = level
+            if level is None or level <= limit_db:
+                chosen = kk
+                break
+        if chosen is None:
+            dropped.append((k, seconds, first_level))
+        else:
+            used.add(chosen)
+            kept.append((chosen, seconds, k))
+    return kept, dropped
+
+
 def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[int, float]],
-                  report: Optional[dict] = None) -> List[Word]:
+                  report: Optional[dict] = None, gaps_only: bool = False, snap: bool = False) -> List[Word]:
     """Put the pauses back into the clean read, between the aligned words; returns shifted words. `report`, if given, gets what
     the fill was made of (see `_quiet_bank`, and `gaps_used`, `fill_dbfs`) and, in `cuts`, where each pause went in: how far from
     the aligner's boundary, how loud the speech still was there (`over_floor_db`: 0 is a real gap) and how long the words on
     either side were faded, so that a build says what it did.
+
+    `gaps_only` puts a pause in only where the clone left a real gap: where the cut lands the read is at least
+    `REAL_QUIET_BELOW_SPEECH_DB` under its loud parts (or within 6 dB of its own floor). Any other pause is left out, or with `snap`
+    moved to the nearest such gap one or two words away, and `report` says which (`kept`, `dropped`). A pause cut into the end of
+    a word takes the end of the word with it: "cutting off some of my words like before they're fully pronounced. After the word
+    of, after the word trying" (his 01:15 and 01:19 EDT), and the pauses left out here are exactly those two; with only the
+    pauses that land in real quiet he called the clip "perfect" (01:23).
 
     A pause is not digital silence. His notes have a floor under every word, and a step from the clone's own floor (which
     the AGC lifts) down to nothing is an audible cliff, which is what he heard in the first takes ("weird dropoffs ... a
@@ -603,16 +659,20 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
     """
     if not pauses:
         return list(words)
-    at = []
-    for k, seconds in pauses:
-        if not words or k <= 0:
-            t, gap = 0.0, 0.0
-        elif k >= len(words):
-            t, gap = words[-1].end, 0.0
-        else:
-            t, gap = (words[k - 1].end + words[k].start) / 2, max(0.0, words[k].start - words[k - 1].end)
-        at.append((t, seconds, gap, k))
-    at.sort()
+
+    def place(plan) -> list:
+        out = []
+        for k, seconds in plan:
+            if not words or k <= 0:
+                t, gap = 0.0, 0.0
+            elif k >= len(words):
+                t, gap = words[-1].end, 0.0
+            else:
+                t, gap = (words[k - 1].end + words[k].start) / 2, max(0.0, words[k].start - words[k - 1].end)
+            out.append((t, seconds, gap, k))
+        return sorted(out)
+
+    at = place(pauses)
     with wave.open(str(wav_path), "rb") as wf:
         params, rate = wf.getparams(), wf.getframerate()
         width, channels = wf.getsampwidth(), wf.getnchannels()
@@ -637,6 +697,17 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
         if report is not None:
             report["fill_dbfs"] = round(floor_db, 1)
             report["fill"] = "the read's own floor" if bank else "silence: the read's floor is digital silence or it has no quiet stretch"
+        if gaps_only:
+            speech_db = _speech_db(x, rate)
+            limit_db = max(speech_db - REAL_QUIET_BELOW_SPEECH_DB, floor_db + 6.0)
+            kept, dropped = _plan_pauses(x, rate, words, pauses, limit_db, snap)
+            at = place([(kk, seconds) for kk, seconds, _ in kept])
+            if report is not None:
+                report.update(speech_dbfs=round(speech_db, 1), quiet_limit_dbfs=round(limit_db, 1),
+                              kept=[{"after_words": kk, "s": seconds, **({"asked_after_words": k} if kk != k else {})}
+                                    for kk, seconds, k in kept],
+                              dropped=[{"after_words": k, "s": seconds, "cut_dbfs": None if lv is None else round(lv, 1)}
+                                       for k, seconds, lv in dropped])
         rng = random.Random(f"{len(x)}:{len(at)}:{round(sum(a[0] for a in at), 3)}")
         parts, last = [], 0
         for t, seconds, gap, k in at:

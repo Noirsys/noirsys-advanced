@@ -477,7 +477,7 @@ def test_say_with_swing_hesitate_and_raw_end_to_end(tmp_path, monkeypatch):
     monkeypatch.setenv("ELEVENLABS_API_KEY", "test-key")
     monkeypatch.setattr(ElevenLabsVoice, "_send", fake_send)
     out = tmp_path / "note.ogg"
-    args = ["voicenote", "--say", text, str(out), "--rough", "2", "--raw", "--swing", "2.0", "--hesitate", "2"]
+    args = ["voicenote", "--say", text, str(out), "--rough", "2", "--raw", "--swing", "2.0", "--hesitate", "2", "--anywhere"]
     assert cli.main(args) == 0
     got = json.loads((tmp_path / "note.words.json").read_text(encoding="utf-8"))
     assert got["swing"]["swing_before_st"] > 3 and got["swing"]["swing_after_st"] == pytest.approx(2.0, abs=0.4)
@@ -572,14 +572,14 @@ def test_reuse_runs_a_build_again_from_the_read_it_kept_without_asking_for_a_new
     monkeypatch.setenv("ELEVENLABS_API_KEY", "test-key")
     monkeypatch.setattr(ElevenLabsVoice, "_send", fake_send)
     first = tmp_path / "first.ogg"
-    assert cli.main(["voicenote", "--say", text, str(first), "--preset", "home"]) == 0
+    assert cli.main(["voicenote", "--say", text, str(first), "--preset", "home", "--anywhere"]) == 0  # the fake read has no real gaps
     was = json.loads((tmp_path / "first.words.json").read_text(encoding="utf-8"))
     calls = len(sent)
     assert calls == 2 and was["pauses"] and was["fill"]["cuts"]  # a read and its alignment; and the build says where each pause went
     assert {"after_words", "moved_ms", "over_floor_db", "fade_out_ms", "fade_in_ms"} <= set(was["fill"]["cuts"][0])
 
     again = tmp_path / "again.ogg"
-    assert cli.main(["voicenote", "--say", text, str(again), "--preset", "home", "--reuse", str(tmp_path / "first")]) == 0
+    assert cli.main(["voicenote", "--say", text, str(again), "--preset", "home", "--reuse", str(tmp_path / "first"), "--anywhere"]) == 0
     got = json.loads((tmp_path / "again.words.json").read_text(encoding="utf-8"))
     assert len(sent) == calls  # nothing was asked of the clone
     assert got["reused"].endswith("first") and got["pauses"] == was["pauses"] and got["said"] == was["said"]
