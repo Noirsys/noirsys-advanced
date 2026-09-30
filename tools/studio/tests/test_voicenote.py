@@ -10,8 +10,9 @@ from noirstudio import ffmpeg
 from noirstudio.cli import main
 from noirstudio.captions import Word
 from noirstudio.voice import ElevenLabsVoice
-from noirstudio.voicenote import (HIS_VOICE, NoteStyle, VoiceNoteError, hesitations, insert_pauses, loudness, matched,
-                                  measure, rawify, render, room_tone, roughen, split_pauses, stumbles, voice_chain)
+from noirstudio.voicenote import (HIS_VOICE, NoteStyle, VoiceNoteError, _vowel_final, clone_spelling, hesitations,
+                                  insert_pauses, loudness, matched, measure, plain_filler, rawify, render, room_tone,
+                                  roughen, split_pauses, stumbles, voice_chain)
 
 # voiced at 140 Hz with harmonics, syllable-paced, plus air at 10 kHz: a stand-in for a studio read
 SPEECHY = ("(0.3*sin(2*PI*140*t)+0.2*sin(2*PI*280*t)+0.1*sin(2*PI*420*t)+0.06*sin(2*PI*2800*t)"
@@ -288,6 +289,35 @@ def test_asking_for_more_is_audible_on_a_short_line_and_a_restart_repeats_two_wo
         got = stumbles(line, 1, seed=seed, habits=only).split()
         assert len(got) == n + 2 * int(12 * n / 100 + 0.5)
         assert all(w not in ("uh", "um") for w in got)
+
+
+def test_um_is_asked_for_as_ummm_and_captioned_as_um():
+    """Filler lab, 2026-09-30: "base um or" came back as "basem" (0.2 s, not voiced); "ummm" was a real filler in both takes."""
+    assert clone_spelling("so um tell me, Um, and umm and ummm and umbrella and Umm...") == \
+        "so ummm tell me, Ummm, and ummm and ummm and umbrella and Ummm..."
+    assert plain_filler("so ummm tell me, Ummm, and umm and ummm. and Ummmm,") == "so um tell me, Um, and umm and um. and Um,"
+    line = "it was a local model um or something, um, that is what he said"
+    assert plain_filler(clone_spelling(line)) == line  # what is captioned is what was written
+    assert clone_spelling("uh, so I mean the umpire") == "uh, so I mean the umpire"  # only "um" changes; "uh" and other words do not
+
+
+def test_an_uh_only_follows_a_word_that_ends_on_a_vowel():
+    """Lab 1: "a uh big" was heard in both takes (p .8 and .9); "base uh", "right uh" and "their uh" were weak or not said."""
+    for word in ("a", "to", "the", "so", "you", "my", "know", "yeah", "she"):
+        assert _vowel_final(word), word
+    for word in ("base", "right", "their", "it", "and", "this", "that", "there", "where", "but"):
+        assert not _vowel_final(word), word
+    line = ("we went over to the old house on the hill and looked at the whole thing again because it was the only way "
+            "to be sure that nothing had been left behind in the cellar or the attic or the barn out back") * 1
+    seen = set()
+    for seed in range(60):
+        got = stumbles(line, 4, seed=seed).split()
+        for i, w in enumerate(got):
+            if w in ("uh", "um"):
+                seen.add(w)
+                if w == "uh":
+                    assert _vowel_final(got[i - 1]), (got[i - 1], w)  # never "right uh", "their uh"
+    assert seen == {"uh", "um"}  # both do appear, and "um" more often (33 to 17 in his notes)
 
 
 def test_a_line_that_already_stumbles_is_topped_up_not_doubled():

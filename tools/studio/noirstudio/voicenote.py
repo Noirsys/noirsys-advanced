@@ -363,6 +363,33 @@ _REPEATABLE = {"and", "the", "i", "it", "to", "in", "you", "so", "but", "is", "t
 _TOKEN = re.compile(r"\[[^\[\]\n]{1,48}\]|\S+")  # a [tag] or [pause 1.2] is one token
 
 
+def _vowel_final(word: str) -> bool:
+    """Does the word end on a vowel sound? Spelling is a fair guide: a, to, so, you, my; w or h after a vowel (know, how,
+    yeah, oh); a final e only in the short words that sound it (the, he, she, me, we, be), not in "base" or "there"."""
+    w = word.lower().strip(_PUNCT)
+    if not w:
+        return False
+    if w[-1] == "e":
+        return w in ("the", "he", "she", "me", "we", "be", "ye")
+    return w[-1] in "aiouyw" or (w[-1] == "h" and len(w) > 1 and w[-2] in "aeiou")
+
+
+_UM = re.compile(r"(?<![\w'])([Uu])[Mm]{1,2}(?![\w'])")
+_UMMM = re.compile(r"(?<![\w'])([Uu])[Mm]{3,}(?![\w'])")
+
+
+def clone_spelling(text: str) -> str:
+    """How the clone is asked to say "um". A plain "um" runs into the word before it ("base um" came back as "basem": 0.2 s
+    long and not voiced), while "ummm" came back as a real filler in both takes: 0.34 to 0.48 s, voiced, at about 100 Hz,
+    5 to 8 dB under the speech, and heard (filler lab, 2026-09-30). The captions keep "um": see `plain_filler`."""
+    return _UM.sub(lambda m: m.group(1) + "mmm", text)
+
+
+def plain_filler(text: str) -> str:
+    """The way a filler is captioned: "ummm" back to "um" (punctuation and case kept)."""
+    return _UMMM.sub(lambda m: m.group(1) + "m", text)
+
+
 def stumbles(text: str, scale: float = 1.0, seed: int = 7, habits: Optional[dict] = None) -> str:
     """Give a line his stumbles: the odd "uh" or "um", words said twice ("i i", "the the", "in in in") and a two-word
     restart ("i don't i don't").
@@ -421,8 +448,9 @@ def stumbles(text: str, scale: float = 1.0, seed: int = 7, habits: Optional[dict
     fillers = pick(filler_w, want["fillers"], set(restarts) | set(repeats))
     before_tok: dict = {}
     after_tok: dict = {}
-    for k in fillers:
-        before_tok[positions[k]] = [rng.choice(("uh", "um"))]
+    for k in fillers:  # his ratio is about two um to one uh (33 to 17); an "uh" only came out after a vowel ("a uh big")
+        um_or_uh = ("um", "um", "uh") if _vowel_final(tokens[positions[k - 1]]) else ("um",)
+        before_tok[positions[k]] = [rng.choice(um_or_uh)]
     for k in repeats:
         after_tok[positions[k]] = [tokens[positions[k]].lower().strip(_PUNCT)] * (2 if rng.random() < 0.15 else 1)
     for k in restarts:

@@ -1,6 +1,7 @@
 """voiceprint: the measurable habits of a voice, checked on signals whose answers are known."""
 
 import json
+import re
 import wave
 
 import pytest
@@ -496,7 +497,7 @@ def test_preset_home_fills_in_the_recipe_and_what_you_pass_wins(tmp_path, monkey
     mono = _expressive_read(tmp_path, "tts.wav")
     stereo = tmp_path / "tts_stereo.wav"
     ffmpeg.run(["-y", "-i", str(mono), "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", str(stereo)])
-    text = ("So, uh, I think we should probably just go with the first one, you know, and see what happens, because "
+    text = ("So, uh, I think we should probably just go with the first one, you know, um, and see what happens, because "
             "the thing is that we need to decide by tomorrow and I do not want to wait any longer than that.")
     sent = []
 
@@ -526,6 +527,12 @@ def test_preset_home_fills_in_the_recipe_and_what_you_pass_wins(tmp_path, monkey
 
     shown = [t for t in roughen(home["said"], 2).split() if any(c.isalnum() for c in t)]
     assert [w["text"] for w in home["words"]] == shown  # --raw: the captions are the line, stumbles and all
+    assert re.search(r"\bum\b", home["said"])  # his "um" goes to the clone as "ummm" (a plain one merges into the word before it)
+    assert re.search(r"\bummm\b", sent[-1]["text"]) and not re.search(r"\bum\b", sent[-1]["text"])
+    assert home["spelled"] != home["read"] and "ummm" not in home["read"]
+    um = re.compile(r"^um\W*$", re.I)  # and it is captioned "um" (with whatever punctuation the script gave it)
+    assert sum(bool(um.match(w["text"])) for w in home["words"]) == sum(bool(um.match(w)) for w in home["said"].split()) >= 1
+    assert not any("ummm" in w["text"] for w in home["words"])
     mine = build("mine", "--preset", "home", "--stability", "0.5", "--swing", "3.0", "--rough", "1")
     assert sent[-1]["voice_settings"]["stability"] == 0.5 and mine["stability"] == 0.5 and mine["rough"] == 1
     assert mine["swing"]["swing_target_st"] == 3.0

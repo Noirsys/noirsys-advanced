@@ -71,29 +71,6 @@ def fit_words(words: List[Word], duration: float, tail: float = 0.45) -> List[Wo
     return [Word(w.text, w.start * k, w.end * k) for w in words]
 
 
-def complete_tail(aligned: List[Word], heard: str, duration: float, tail: float = 0.25) -> List[Word]:
-    """The aligner sometimes stops early and leaves the last word or two of the line without a time (round 5: "machine",
-    in both L3 takes). A caption that loses the end of a line is worse than one a few tenths off, so the missing words get
-    estimated times in what is left of the audio. Only when the aligned words are the line's first ones, in order: any other
-    disagreement is something else going wrong, and a guess would hide it."""
-    tokens = heard.split()
-    n = len(aligned)
-    if not aligned or n >= len(tokens):
-        return aligned
-
-    def key(text: str) -> str:
-        return re.sub(r"[^\w']", "", text.lower())
-
-    if [key(w.text) for w in aligned] != [key(t) for t in tokens[:n]]:
-        return aligned
-    rest = tokens[n:]
-    start = aligned[-1].end
-    end = min(duration, max(start + 0.15 * len(rest), duration - tail))
-    guess = estimate_words(" ".join(rest), 175.0)
-    k = (end - start) / guess[-1].end if guess and guess[-1].end > 0 else 0.0
-    return list(aligned) + [Word(w.text, start + w.start * k, start + w.end * k) for w in guess]
-
-
 @dataclass
 class VoiceResult:
     audio_path: Path
@@ -227,11 +204,6 @@ class ElevenLabsVoice:
             words = fit_words(estimate_words(heard, voice.words_per_minute), duration)
             if not str(meta.get("timings", "")).startswith("estimated"):
                 meta["timings"] = "estimated"
-        elif meta.get("timings") == "forced-alignment":  # the aligner can stop before the last word
-            whole = complete_tail(words, heard, duration)
-            if len(whole) != len(words):
-                meta["tail_estimated"] = len(whole) - len(words)
-                words = whole
         return VoiceResult(out_path, words, duration, self.provider, meta)
 
 

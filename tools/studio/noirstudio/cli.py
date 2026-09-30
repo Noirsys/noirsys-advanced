@@ -408,8 +408,8 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
     from .captions import Word
     from .ffmpeg import FFmpegError
     from .voice import VoiceError
-    from .voicenote import (HOME_PRESET, NoteStyle, VoiceNoteError, hesitations, insert_pauses, matched, measure, prosody,
-                            rawify, render, roughen, room_tone, split_pauses, stumbles)
+    from .voicenote import (HOME_PRESET, NoteStyle, VoiceNoteError, clone_spelling, hesitations, insert_pauses, matched,
+                            measure, plain_filler, prosody, rawify, render, roughen, room_tone, split_pauses, stumbles)
 
     if args.preset:  # the recipe fills in what was not asked for; anything asked for wins
         for key, value in HOME_PRESET.items():
@@ -452,14 +452,16 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
             say = stumbles(args.say, args.stumble or 0.0, style.seed)  # his uh, um and repeated words, if asked for
             text = roughen(say, style.rough)
             line, pauses = split_pauses(rawify(text) if args.raw else text, trail="," if style.rough else "…")
-            said = ElevenLabsVoice().synthesize(line, voice, out.with_name(out.stem + ".clean.wav"))
-            src, aligned = said.audio_path, said.words
+            spoken = clone_spelling(line)  # "um" is asked for as "ummm": a plain one merges into the word before it
+            said = ElevenLabsVoice().synthesize(spoken, voice, out.with_name(out.stem + ".clean.wav"))
+            heard = [Word(plain_filler(w.text), w.start, w.end) for w in said.words]  # and captioned as "um"
+            src, aligned = said.audio_path, heard
             if args.swing or args.pitch or args.pace:  # his pitch, swing and pace, on the speech before any pause goes in
                 unswung = src.with_name(out.stem + ".unswung.wav")
                 shutil.copyfile(src, unswung)
                 swung = prosody(unswung, src, args.swing, args.pitch, args.pace or 1.0)
                 k = swung["pace_effective"]
-                aligned = [Word(w.text, round(w.start * k, 3), round(w.end * k, 3)) for w in said.words]
+                aligned = [Word(w.text, round(w.start * k, 3), round(w.end * k, 3)) for w in heard]
             shown = None
             if args.raw:  # the clone read a run-on; the script's own words (casing, commas) still go on the captions
                 for source in (say, text):  # as written, else as roughened
@@ -472,7 +474,8 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
             timed = insert_pauses(src, aligned, pauses)
             if shown:
                 timed = [Word(t, w.start, w.end) for t, w in zip(shown, timed)]
-            words = {"said": say, "read": line, "voice_id": args.voice, "model_id": args.model,
+            words = {"said": say, "read": line, **({"spelled": spoken} if spoken != line else {}),
+                     "voice_id": args.voice, "model_id": args.model,
                      "stability": args.stability, "rough": style.rough, "swing": swung, "stumble": args.stumble or 0.0,
                      "timings": said.meta.get("timings"), "lead_s": style.lead_s,
                      "pauses": [{"after_words": k, "s": s, **({"auto": True} if (k, s) in auto else {})}
