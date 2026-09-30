@@ -452,18 +452,40 @@ def stumbles(text: str, scale: float = 1.0, seed: int = 7, habits: Optional[dict
     return " ".join(out)
 
 
-def _quiet_bank(x, rate: int, win_s: float = 0.05, gaps=None):
+def _gap_floor_db(x, words, rate: int) -> Optional[float]:
+    """The level of the floor between the words, in the units of `_quiet_bank` (20 log10 of the rms of int16 samples): for every
+    aligned gap of 60 to 300 ms, the quieter quarter of its 10 ms windows (off the words' edges), and the middle of those over
+    the read. None with fewer than three such gaps."""
+    import numpy as np
+
+    win = int(0.01 * rate)
+    levels = []
+    for a, b in zip(words, words[1:]):
+        if not 0.06 <= b.start - a.end <= 0.30:
+            continue
+        seg = x[round((a.end + 0.01) * rate): round((b.start - 0.01) * rate)].astype("float64").mean(axis=1)
+        m = len(seg) // win
+        if m < 3:
+            continue
+        e = (seg[: m * win].reshape(m, win) ** 2).mean(axis=1)
+        e = e[e > 0]
+        if len(e) >= 3:
+            levels.append(10 * np.log10(np.percentile(e, 25)))
+    return float(np.median(levels)) if len(levels) >= 3 else None
+
+
+def _quiet_bank(x, rate: int, win_s: float = 0.05, target_db: Optional[float] = None):
     """The read's own floor, as float windows all at one level.
 
-    Where `gaps` (sample ranges between two aligned words) give at least six steady windows, the floor is what the read
-    sounds like between its words, so that a long pause is at the level of the short gaps around it (his real notes with a
-    room have no step between the two; the first fill sat 6 dB under the gaps). Otherwise the candidates are the windows more
-    than 30 dB under its loud ones. That is a wide band (a word's tail at -48 dBFS, a dead stretch at -75), and a fill drawn
-    at random from all of it wobbles by ten dB or more from one window to the next (round 5: -31, -42, -54, -47, -42 across
-    200 ms of one pause). So the bank keeps steady windows (no 10 ms stretch of one more than 4 dB from another: not a tail
-    on its way down), of those the ones within 3 dB of the middle of the gaps' windows (or the 40th percentile of the quiet
-    ones; the five nearest, if fewer), and brings each to exactly that level, at most 6 dB either way. Empty when the read's
-    floor is digital silence (then the fill is silence too) or when it has no quiet stretch."""
+    The candidates are the windows more than 30 dB under its loud ones. That is a wide band (a word's tail at -48 dBFS, a
+    dead stretch at -75), and a fill drawn at random from all of it wobbles by ten dB or more from one window to the next
+    (round 5: -31, -42, -54, -47, -42 across 200 ms of one pause). So the bank keeps steady windows (no 10 ms stretch of
+    one more than 4 dB from another: not a tail on its way down), of those the ones within 3 dB of the 40th percentile
+    (the five nearest, if fewer), and brings each to exactly that level, at most 6 dB either way. `target_db` (the floor
+    between the words, from `_gap_floor_db`) moves that level: in his notes with a room the long pauses and the short gaps are
+    one floor, and the first fill sat 5 to 7 dB under the gaps, so the level is the gaps' when it is within 6 dB under and
+    12 dB over the quiet windows' own. Empty when the read's floor is digital silence (then the fill is silence too) or when
+    it has no quiet stretch."""
     import numpy as np
 
     win = int(win_s * rate)
@@ -475,34 +497,25 @@ def _quiet_bank(x, rate: int, win_s: float = 0.05, gaps=None):
     loud = float(np.percentile(rms, 95))
     if loud <= 0:
         return []
+    quiet = np.flatnonzero(rms < loud * 10 ** (-30 / 20))
+    if len(quiet) == 0 or (rms[quiet] == 0).mean() >= 0.5:
+        return []
+    live = quiet[rms[quiet] > 0]
+    if len(live) == 0:
+        return []
     sub = win // 5  # five 10 ms stretches to a window: how much the level moves inside it
     stretch = np.sqrt((frames[:, : sub * 5].reshape(n, 5, sub, -1) ** 2).mean(axis=(2, 3)))
     inside = 20 * np.log10(stretch + 1e-9)
     moves = inside.max(axis=1) - inside.min(axis=1)
-    pool, percentile = None, 40
-    if gaps:
-        starts = np.arange(n) * win
-        in_gap = np.zeros(n, dtype=bool)
-        for g0, g1 in gaps:
-            in_gap |= (starts >= g0) & (starts + win <= g1)
-        between = np.flatnonzero(in_gap & (rms > 0) & (rms < loud * 10 ** (-20 / 20)) & (moves <= 4.0))
-        if len(between) >= 6:
-            pool, percentile = between, 50
-    if pool is None:
-        quiet = np.flatnonzero(rms < loud * 10 ** (-30 / 20))
-        if len(quiet) == 0 or (rms[quiet] == 0).mean() >= 0.5:
-            return []
-        live = quiet[rms[quiet] > 0]
-        if len(live) == 0:
-            return []
-        steady = live[moves[live] <= 4.0]
-        pool = steady if len(steady) >= 3 else live[np.argsort(moves[live])[:5]]
+    steady = live[moves[live] <= 4.0]
+    pool = steady if len(steady) >= 3 else live[np.argsort(moves[live])[:5]]
     db = 20 * np.log10(rms[pool])
-    ref = float(np.percentile(db, percentile))
+    ref = float(np.percentile(db, 40))
     order = np.argsort(np.abs(db - ref))
     near = order[np.abs(db[order] - ref) <= 3.0]
     keep = near if len(near) >= 3 else order[: min(5, len(order))]
-    return [frames[pool[j]] * np.float32(10 ** (float(np.clip(ref - db[j], -6.0, 6.0)) / 20)) for j in keep]
+    level = ref if target_db is None else float(np.clip(target_db, ref - 6.0, ref + 12.0))
+    return [frames[pool[j]] * np.float32(10 ** (float(np.clip(level - db[j], -12.0, 15.0)) / 20)) for j in keep]
 
 
 def _fill(bank, m: int, channels: int, rate: int, rng: random.Random):
@@ -602,10 +615,7 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
         data = b"".join(chunks)
     else:
         x = np.frombuffer(audio, dtype="<i2").reshape(-1, channels).astype("float32")
-        margin = int(0.015 * rate)  # the aligner is a few tens of ms out: keep off the words' edges
-        gaps = [(round(a.end * rate) + margin, round(b.start * rate) - margin) for a, b in zip(words, words[1:])
-                if 0.06 <= b.start - a.end <= 0.30]
-        bank = _quiet_bank(x, rate, gaps=gaps)
+        bank = _quiet_bank(x, rate, target_db=_gap_floor_db(x, words, rate))
         floor_db = _bank_db(bank)
         rng = random.Random(f"{len(x)}:{len(at)}:{round(sum(t for t, _, _ in at), 3)}")
         parts, last = [], 0

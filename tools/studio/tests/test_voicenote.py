@@ -311,6 +311,8 @@ def test_a_long_pause_is_at_the_level_of_the_short_gaps_around_it(tmp_path):
     for i in range(10):
         a, b = at, at + 0.25
         env = ((t >= a) & (t < b)).astype(float)
+        tail = (t >= b) & (t < b + 0.07)  # and each word dies away over 70 ms, so a gap is never steady (the real clone's are not)
+        env[tail] = np.exp(-(t[tail] - b) / 0.012)
         voice += 0.2 * np.sin(2 * np.pi * (120 + 6 * i) * t) * env
         words.append(Word(f"w{i}", round(a, 3), round(b, 3)))
         at = b + 0.16
@@ -326,7 +328,7 @@ def test_a_long_pause_is_at_the_level_of_the_short_gaps_around_it(tmp_path):
         after = np.frombuffer(wf.readframes(wf.getnframes()), dtype="<i2").astype("float64") / 32768
     w4 = shifted[4]
     inside = _window_db(after, rate, w4.end + 0.25, w4.end + 0.65)  # the middle of the inserted pause
-    gap = _window_db(after, rate, words[1].end + 0.025, words[1].end + 0.135)  # an untouched gap, off the words' edges
+    gap = _window_db(after, rate, words[1].end + 0.09, words[1].end + 0.15)  # an untouched gap, after the tail has died away
     assert gap == pytest.approx(-50, abs=2)
     assert abs(inside - gap) < 3  # one floor; a fill from the quiet lead-in would have sat 14 dB lower
 
