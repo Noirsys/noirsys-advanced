@@ -10,7 +10,7 @@ from noirstudio import ffmpeg
 from noirstudio.cli import main
 from noirstudio.captions import Word
 from noirstudio.voice import ElevenLabsVoice
-from noirstudio.voicenote import (HIS_VOICE, NoteStyle, VoiceNoteError, _vowel_final, clone_spelling, hesitations,
+from noirstudio.voicenote import (HIS_VOICE, NoteStyle, VoiceNoteError, clone_spelling, hesitations,
                                   insert_pauses, loudness, matched, measure, plain_filler, rawify, render, room_tone,
                                   roughen, split_pauses, stumbles, voice_chain)
 
@@ -301,23 +301,15 @@ def test_um_is_asked_for_as_ummm_and_captioned_as_um():
     assert clone_spelling("uh, so I mean the umpire") == "uh, so I mean the umpire"  # only "um" changes; "uh" and other words do not
 
 
-def test_an_uh_only_follows_a_word_that_ends_on_a_vowel():
-    """Lab 1: "a uh big" was heard in both takes (p .8 and .9); "base uh", "right uh" and "their uh" were weak or not said."""
-    for word in ("a", "to", "the", "so", "you", "my", "know", "yeah", "she"):
-        assert _vowel_final(word), word
-    for word in ("base", "right", "their", "it", "and", "this", "that", "there", "where", "but"):
-        assert not _vowel_final(word), word
+def test_the_fillers_it_adds_are_always_um():
+    """Filler lab 2 (60 clone reads, ten words before the filler): a written "ummm" was heard in 15 takes of 20, "uh" in 7."""
     line = ("we went over to the old house on the hill and looked at the whole thing again because it was the only way "
-            "to be sure that nothing had been left behind in the cellar or the attic or the barn out back") * 1
-    seen = set()
+            "to be sure that nothing had been left behind in the cellar or the attic or the barn out back")
+    added = set()
     for seed in range(60):
-        got = stumbles(line, 4, seed=seed).split()
-        for i, w in enumerate(got):
-            if w in ("uh", "um"):
-                seen.add(w)
-                if w == "uh":
-                    assert _vowel_final(got[i - 1]), (got[i - 1], w)  # never "right uh", "their uh"
-    assert seen == {"uh", "um"}  # both do appear, and "um" more often (33 to 17 in his notes)
+        added |= {w for w in stumbles(line, 4, seed=seed).split() if w in ("uh", "um")}
+    assert added == {"um"}
+    assert "uh" in stumbles("so we went uh over to the old house on the hill and looked at the whole thing again", 0.5)  # a written one stays
 
 
 def test_a_line_that_already_stumbles_is_topped_up_not_doubled():

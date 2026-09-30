@@ -7,8 +7,8 @@ line carries his disfluencies (uh, um, a restart, a self-correction) and `[pause
 marks where he stops to think. The pauses come out of the text before the clone reads it
 and go back in at the aligned word boundary, filled with the read's own floor and crossfaded
 into the words on both sides (never digital silence: he heard a step down to nothing as a
-"cliff"), with his room running under them. `stumbles` adds the uh, um and repeated words he
-asked for more of. Then the read goes through his phone:
+"cliff"), with his room running under them. `stumbles` adds the um, repeated words and restarts
+he asked for more of. Then the read goes through his phone:
 
     band      highpass 100 Hz, lowpass 8 kHz (24 dB/oct)     a phone mic's voice input
     colour    -2 dB at 250 Hz, +1.5 dB at 2.8 kHz, -2 dB above 6 kHz   a quiet voice, not projected
@@ -363,17 +363,6 @@ _REPEATABLE = {"and", "the", "i", "it", "to", "in", "you", "so", "but", "is", "t
 _TOKEN = re.compile(r"\[[^\[\]\n]{1,48}\]|\S+")  # a [tag] or [pause 1.2] is one token
 
 
-def _vowel_final(word: str) -> bool:
-    """Does the word end on a vowel sound? Spelling is a fair guide: a, to, so, you, my; w or h after a vowel (know, how,
-    yeah, oh); a final e only in the short words that sound it (the, he, she, me, we, be), not in "base" or "there"."""
-    w = word.lower().strip(_PUNCT)
-    if not w:
-        return False
-    if w[-1] == "e":
-        return w in ("the", "he", "she", "me", "we", "be", "ye")
-    return w[-1] in "aiouyw" or (w[-1] == "h" and len(w) > 1 and w[-2] in "aeiou")
-
-
 _UM = re.compile(r"(?<![\w'])([Uu])[Mm]{1,2}(?![\w'])")
 _UMMM = re.compile(r"(?<![\w'])([Uu])[Mm]{3,}(?![\w'])")
 
@@ -391,8 +380,8 @@ def plain_filler(text: str) -> str:
 
 
 def stumbles(text: str, scale: float = 1.0, seed: int = 7, habits: Optional[dict] = None) -> str:
-    """Give a line his stumbles: the odd "uh" or "um", words said twice ("i i", "the the", "in in in") and a two-word
-    restart ("i don't i don't").
+    """Give a line his stumbles: the odd "um", words said twice ("i i", "the the", "in in in") and a two-word restart
+    ("i don't i don't").
 
     `HIS_STUMBLES` is his rate, measured on his audio (4.0 in all per 100 words); `scale` 1 is that rate, 2 is twice as
     often, 0 changes nothing. Counts are rounded to the nearest whole stumble, and a line of about 20 words or more that
@@ -448,9 +437,8 @@ def stumbles(text: str, scale: float = 1.0, seed: int = 7, habits: Optional[dict
     fillers = pick(filler_w, want["fillers"], set(restarts) | set(repeats))
     before_tok: dict = {}
     after_tok: dict = {}
-    for k in fillers:  # his ratio is about two um to one uh (33 to 17); an "uh" only came out after a vowel ("a uh big")
-        um_or_uh = ("um", "um", "uh") if _vowel_final(tokens[positions[k - 1]]) else ("um",)
-        before_tok[positions[k]] = [rng.choice(um_or_uh)]
+    for k in fillers:  # always "um": his ratio is two um to one uh (33 to 17), but a written "uh" was heard in 7 of 20 clone
+        before_tok[positions[k]] = ["um"]  # reads and a written "um" (as "ummm") in 15 of 20, across ten different words before it
     for k in repeats:
         after_tok[positions[k]] = [tokens[positions[k]].lower().strip(_PUNCT)] * (2 if rng.random() < 0.15 else 1)
     for k in restarts:
