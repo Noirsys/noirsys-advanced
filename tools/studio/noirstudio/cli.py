@@ -25,6 +25,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 from typing import Optional
@@ -412,6 +413,10 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
                             measure, plain_filler, prosody, rawify, render, reuse_read, roughen, room_tone, split_pauses,
                             stumbles)
 
+    for name in ("match", "room", "reuse", "batch"):  # a note typed with ~/ in quotes reaches here unexpanded
+        if getattr(args, name, None):
+            setattr(args, name, os.path.expanduser(getattr(args, name)))
+    args.paths = [os.path.expanduser(p) for p in args.paths]
     if args.batch:  # every line of a manifest, each by this same command
         from .voicebatch import run_batch
 

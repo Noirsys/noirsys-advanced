@@ -162,3 +162,15 @@ def test_a_reuse_needs_no_swing_because_every_read_is_kept(clean, tmp_path, monk
     second = tmp_path / "second.ogg"
     assert main(["voicenote", "--say", "Say it for me.", str(second), "--no-room", "--lufs", "-19", "--reuse", str(tmp_path / "first")]) == 0
     assert json.loads((tmp_path / "second.words.json").read_text(encoding="utf-8"))["reused"] == str(tmp_path / "first")
+
+
+def test_a_tilde_in_a_path_is_the_home_directory(clean, tmp_path, monkeypatch):
+    """A recipe kept in a variable and a path typed in quotes reach the tool with the ~ still in them."""
+    from noirstudio.voicenote import NoteStyle, render
+
+    _clone(monkeypatch, clean)
+    monkeypatch.setenv("HOME", str(tmp_path))
+    render(clean, tmp_path / "real.ogg", NoteStyle(noise_db=-40, lufs=-24, kbps=32))
+    (tmp_path / "lines.json").write_text(json.dumps({"lines": [{"id": "a", "say": "Say it for me."}]}), encoding="utf-8")
+    assert main(["voicenote", "--batch", "~/lines.json", "~/v4", "--match", "~/real.ogg", "--lufs", "-18.2", "--no-room"]) == 0
+    assert (tmp_path / "v4" / "a.ogg").exists() and not Path("~").exists()
