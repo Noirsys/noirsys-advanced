@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-09-30T16:22:24+00:00",
+  "stories": [
+    {
+      "id": "49906637",
+      "title": "Pi.dev: You Said No MCP",
+      "url": "https://earendil.com/posts/you-said-no-mcp/",
+      "points": 416,
+      "comments": 225,
+      "created_at": "2026-09-30T09:55:23Z",
+      "pph": 64.491,
+      "query": "mcp"
+    },
+    {
+      "id": "49888905",
+      "title": "Show HN: Open-source skills for end-to-end video ad campaigns",
+      "url": "https://github.com/SupercmoHQ/superCMO-skills",
+      "points": 7,
+      "comments": 0,
+      "created_at": "2026-09-29T06:11:45Z",
+      "pph": 0.205,
+      "query": "claude code"
+    },
+    {
+      "id": "49891989",
+      "title": "Show HN: CodeDiff \u2013 Fast (<100ms), robust (99.95%) syntax-aware code diff",
+      "url": "https://github.com/ivankovic/codediff",
+      "points": 6,
+      "comments": 0,
+      "created_at": "2026-09-29T12:22:44Z",
+      "pph": 0.214,
+      "query": "claude code"
+    },
+    {
+      "id": "49910148",
+      "title": "Show HN: How we made web agents 3x faster by building the missing memory layer",
+      "url": "https://blog.reduck.ai/browser-action-memory-layer-for-faster-agents/",
+      "points": 5,
+      "comments": 1,
+      "created_at": "2026-09-30T15:20:26Z",
+      "pph": 4.84,
+      "query": "ai agents"
+    },
+    {
+      "id": "49906422",
+      "title": "All Windows Sounds",
+      "url": "https://github.com/MCPlayer2015/all-windows-sounds",
+      "points": 5,
+      "comments": 0,
+      "created_at": "2026-09-30T09:25:46Z",
+      "pph": 0.72,
+      "query": "mcp"
+    },
+    {
+      "id": "49904273",
+      "title": "Agents Work Better When They Can Pass Each Other Notes",
+      "url": "https://www.deeplearning.ai/the-batch/agents-work-better-when-they-can-pass-each-other-notes",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-09-30T04:12:21Z",
+      "pph": 0.329,
+      "query": "ai agents"
+    },
+    {
+      "id": "49903060",
+      "title": "LabBench: Can AI agents decide what experiment to run next?",
+      "url": "https://gamowlabs.com/labbench-benchmarking-ai-wet-lab-decisions.html",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-09-30T00:59:52Z",
+      "pph": 0.26,
+      "query": "ai agents"
+    },
+    {
+      "id": "49910465",
+      "title": "cp: -r or -R?",
+      "url": "https://movq.de/blog/postings/2026-09-30/0/POSTING-en.html",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-09-30T15:44:02Z",
+      "pph": 4.0,
+      "query": "mcp"
+    },
+    {
+      "id": "49905600",
+      "title": "Lost Dinosaur Cities on Mars",
+      "url": "https://mceglowski.substack.com/p/lost-dinosaur-cities-on-mars",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-09-30T07:29:01Z",
+      "pph": 0.45,
+      "query": "mcp"
+    },
+    {
+      "id": "49908484",
+      "title": "Show HN: Explainroo, Open Source Framework to Make Explainer Videos with Claude",
+      "url": "https://github.com/vincentsch/explainroo",
+      "points": 4,
+      "comments": 2,
+      "created_at": "2026-09-30T13:13:27Z",
+      "pph": 1.27,
+      "query": "claude code"
+    }
+  ]
+}
