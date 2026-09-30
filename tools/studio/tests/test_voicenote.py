@@ -11,7 +11,7 @@ from noirstudio.cli import main
 from noirstudio.captions import Word
 from noirstudio.voice import ElevenLabsVoice
 from noirstudio.voicenote import (HIS_VOICE, NoteStyle, VoiceNoteError, hesitations, insert_pauses, loudness, matched,
-                                  measure, rawify, render, room_tone, roughen, split_pauses, voice_chain)
+                                  measure, rawify, render, room_tone, roughen, split_pauses, stumbles, voice_chain)
 
 # voiced at 140 Hz with harmonics, syllable-paced, plus air at 10 kHz: a stand-in for a studio read
 SPEECHY = ("(0.3*sin(2*PI*140*t)+0.2*sin(2*PI*280*t)+0.1*sin(2*PI*420*t)+0.06*sin(2*PI*2800*t)"
@@ -133,6 +133,86 @@ def test_thinking_pauses_come_out_of_the_line_and_back_in_as_silence(tmp_path):
     shifted = insert_pauses(wav, words, [(1, 0.5)])  # between "a" and "b", at 0.4 s
     assert shifted == [Word("a", 0.1, 0.3), Word("b", 1.0, 1.2)]
     assert abs(ffmpeg.probe_duration(wav) - 1.5) < 0.02
+
+
+def _read_with_floor(path: Path, floor_db=-50.0, seconds=3.0, rate=48000):
+    """A stand-in clone read: two bursts of voice over a floor at `floor_db` (None: digital silence between them)."""
+    import wave
+
+    import numpy as np
+
+    rng = np.random.RandomState(4)
+    t = np.arange(int(seconds * rate)) / rate
+    voice = 0.3 * np.sin(2 * np.pi * 140 * t) * (((t > 0.3) & (t < 1.1)) | ((t > 1.9) & (t < 2.7)))
+    floor = 0.0 if floor_db is None else 10 ** (floor_db / 20) * rng.randn(len(t))
+    x = np.clip((voice + floor) * 32767, -32768, 32767).astype("<i2")
+    with wave.open(str(path), "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(rate)
+        wf.writeframes(x.tobytes())
+    return x.astype("float64") / 32768
+
+
+def _window_db(x, rate, start_s, end_s):
+    import numpy as np
+
+    seg = x[int(start_s * rate): int(end_s * rate)]
+    return 20 * np.log10(np.sqrt((seg ** 2).mean()) + 1e-12)
+
+
+def test_a_pause_is_filled_with_the_reads_own_floor_and_joined_without_a_cliff(tmp_path):
+    """He heard "weird dropoffs ... audible cliffs" where the artificial silences were: a step from the clone's floor to nothing."""
+    import wave
+
+    np = pytest.importorskip("numpy")
+    wav = tmp_path / "read.wav"
+    before = _read_with_floor(wav)
+    words = [Word("a", 0.3, 1.1), Word("b", 1.9, 2.7)]
+    shifted = insert_pauses(wav, words, [(1, 1.0)])  # in the gap, at 1.5 s
+    assert shifted == [Word("a", 0.3, 1.1), Word("b", 2.9, 3.7)]
+    with wave.open(str(wav), "rb") as wf:
+        rate, frames = wf.getframerate(), wf.getnframes()
+        after = np.frombuffer(wf.readframes(frames), dtype="<i2").astype("float64") / 32768
+    assert frames == len(before) + 48000  # exactly the pause, nothing lost and nothing added at the seams
+    floor = _window_db(before, rate, 1.2, 1.8)
+    assert floor == pytest.approx(-50, abs=1.5)
+    assert _window_db(after, rate, 1.6, 2.4) == pytest.approx(floor, abs=2.5)  # the pause carries the floor, not zeros
+    steps = [_window_db(after, rate, 1.1 + 0.01 * i, 1.11 + 0.01 * i) for i in range(0, 180)]  # 10 ms windows across both seams
+    assert max(steps) - min(steps) < 8  # no cliff; a zero fill would drop more than 30 dB
+    # the words did not move
+    assert np.allclose(after[: int(1.4 * rate)], before[: int(1.4 * rate)], atol=1e-4)
+    assert np.allclose(after[int(2.9 * rate): int(3.7 * rate)], before[int(1.9 * rate): int(2.7 * rate)], atol=1e-4)
+
+
+def test_a_read_whose_floor_is_digital_silence_gets_silence_in_its_pause(tmp_path):
+    import wave
+
+    np = pytest.importorskip("numpy")
+    wav = tmp_path / "read.wav"
+    _read_with_floor(wav, floor_db=None)
+    insert_pauses(wav, [Word("a", 0.3, 1.1), Word("b", 1.9, 2.7)], [(1, 1.0)])
+    with wave.open(str(wav), "rb") as wf:
+        after = np.frombuffer(wf.readframes(wf.getnframes()), dtype="<i2")
+    assert not after[int(1.6 * 48000): int(2.4 * 48000)].any()
+
+
+def test_stumbles_are_his_measured_rate_deterministic_and_leave_markers_alone():
+    line = ("so I think we should probably just go with the first one, you know, and see what happens because the thing "
+            "is that we need to decide by tomorrow and I don't want to wait any longer than that [pause 1.2] honestly "
+            "it is what it is and that is really all there is to say about it for now okay") * 3
+    assert stumbles(line, 0) == line and stumbles("too short", 5) == "too short"
+    heavy = stumbles(line, 6)
+    assert heavy == stumbles(line, 6) and stumbles(line, 6, seed=8) != heavy  # the same line and seed, the same stumbles
+    assert "[pause 1.2]" in heavy and heavy.count("[pause 1.2]") == 3  # the markers pass through whole
+    words = line.replace("[pause 1.2]", "").split()
+    got = heavy.replace("[pause 1.2]", "").split()
+    fillers = [w for w in got if w in ("uh", "um")]
+    assert 0.8 * 6 * len(words) / 100 * 0.5 <= len(fillers) <= 0.8 * 6 * len(words) / 100 * 2 + 2
+    collapsed = [w for i, w in enumerate(got) if w not in ("uh", "um") and not (i and w.lower() == got[i - 1].lower())]
+    original = [w for i, w in enumerate(words) if not (i and w.lower() == words[i - 1].lower())]
+    assert [w.lower() for w in collapsed] == [w.lower() for w in original]  # only ever additions: his words stay in order
+    assert len(got) > len(words) + 5
 
 
 @pytest.fixture(scope="module")

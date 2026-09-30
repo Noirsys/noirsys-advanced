@@ -5,8 +5,10 @@ voice clone reads the line (his decision, 2026-09-29). He talks quietly, at home
 small noise floor in the room, and he thinks out loud (his note, the same night). So the
 line carries his disfluencies (uh, um, a restart, a self-correction) and `[pause 1.2]`
 marks where he stops to think. The pauses come out of the text before the clone reads it
-and go back in as real silence at the aligned word boundary, with his room running under
-them. Then the read goes through his phone:
+and go back in at the aligned word boundary, filled with the read's own floor and crossfaded
+into the words on both sides (never digital silence: he heard a step down to nothing as a
+"cliff"), with his room running under them. `stumbles` adds the uh, um and repeated words he
+asked for more of. Then the read goes through his phone:
 
     band      highpass 100 Hz, lowpass 8 kHz (24 dB/oct)     a phone mic's voice input
     colour    -2 dB at 250 Hz, +1.5 dB at 2.8 kHz, -2 dB above 6 kHz   a quiet voice, not projected
@@ -282,12 +284,19 @@ def split_pauses(text: str, trail: str = "…") -> Tuple[str, List[Tuple[int, fl
 
 # How he stops to think, measured on 87 of his real notes (29 min of speech, `voiceprint`, 2026-09-29):
 # about 17 pauses a minute, median 0.88 s, middle half 0.49 to 1.54 s. The clone's own median was 0.34 s.
-# "Him at home" (P3, 2026-09-29): his real numbers on Praat's tracker (101 notes: a pitch swing of 2.1 semitones, a median
-# pitch of 104 Hz, 17 pauses a minute; strategy/04) and the settings that moved the clone toward them. `--match` and `--room`
-# depend on the note being rebuilt and stay outside it. Opt-in, like every one of its parts, until he has heard it.
-HOME_PRESET = {"stability": 0.9, "rough": 2, "raw": True, "swing": 2.1, "pitch": 104.0, "pace": 1.2, "hesitate": 1.0}
-
 HIS_PAUSES = {"rate_per_min": 17.0, "median_s": 0.85, "sigma": 0.85, "min_s": 0.25, "max_s": 3.0}
+# What his stored transcripts hold (279 of his spoken lines, 15,034 words): about 0.8 "uh" or "um" and 1.3 repeated words
+# ("i i", "the the", "in in in") per 100 words. A transcriber drops many of both, so this is a floor, not his rate: on
+# 2026-09-29 he heard the P3 takes and asked for "more stupid 'uh' 'um' pauses stutters".
+HIS_STUMBLES = {"fillers_per_100": 0.8, "repeats_per_100": 1.3}
+# "Him at home" (P3, 2026-09-29): his real numbers on Praat's tracker (101 notes: a pitch swing of 2.1 semitones, a median
+# pitch of 104 Hz, 17 pauses a minute; strategy/04) and the settings that moved the clone toward them, then his answer to the
+# P3 takes ("gettin closer"): more stumbles and pauses (`stumble` 2 is twice the transcripts' rate; `hesitate` 1.3 is his 17
+# pauses a minute once the clone's own gaps are counted). `--match` and `--room` depend on the note being rebuilt and stay
+# outside it, and so does the room: leave `--noise-db` alone, because a pause with nothing under it is the "pure silence" he
+# hears as fake. Opt-in, like every one of its parts, until he has heard it.
+HOME_PRESET = {"stability": 0.9, "rough": 2, "raw": True, "swing": 2.1, "pitch": 104.0, "pace": 1.2, "hesitate": 1.3,
+               "stumble": 2.0}
 _PUNCT = ".,?!;:…—-\"'"
 _FILLERS = {"uh", "um", "er", "erm", "ah", "hmm", "mm"}
 _LEADS = {"so", "and", "but", "like", "well", "okay", "ok", "because", "cause", "then", "yeah", "honestly",
@@ -347,36 +356,184 @@ def hesitations(line: str, words: Sequence[Word], explicit: Sequence[Tuple[int, 
     return out
 
 
+_REPEATABLE = {"and", "the", "i", "it", "to", "in", "you", "so", "but", "is", "that", "we", "for", "a", "of", "my", "just",
+               "like", "no", "if", "on", "with", "this", "was", "have", "be", "do", "don't", "can't", "i'm", "it's", "that's"}
+_TOKEN = re.compile(r"\[[^\[\]\n]{1,48}\]|\S+")  # a [tag] or [pause 1.2] is one token
+
+
+def stumbles(text: str, scale: float = 1.0, seed: int = 7, habits: Optional[dict] = None) -> str:
+    """Give a line his stumbles: the odd "uh" or "um" and words said twice ("i i", "the the", "in in in").
+
+    His transcripts hold about 0.8 fillers and 1.3 repeated words per 100 words (`HIS_STUMBLES`, a floor: a transcriber
+    drops many), and he asked for more of both, so `scale` 1 is that rate and 2 is twice as often; 0 changes nothing.
+    A filler lands where a person's does (after a comma or a full stop, before "so", "and", "like", after "the" or "to"
+    while the next word is looked for), a repeat on a small word, never two stumbles within three words of each other and
+    never in the first or last two words. `[tags]` and `[pause N]` markers are left alone. The same line and seed always
+    give the same stumbles. The words are his: only the line the clone reads, and the captions, carry them.
+    """
+    h = {**HIS_STUMBLES, **(habits or {})}
+    tokens = _TOKEN.findall(text)
+    is_word = [not (t.startswith("[") and t.endswith("]")) and any(c.isalnum() for c in t) for t in tokens]
+    positions = [i for i, w in enumerate(is_word) if w]
+    n = len(positions)
+    if scale <= 0 or n < 8:
+        return text
+    rng = random.Random(f"{seed}:{text}")
+
+    def count(per_100: float) -> int:
+        expected = scale * per_100 * n / 100
+        return int(expected) + (1 if rng.random() < expected - int(expected) else 0)
+
+    order = {tok_i: k for k, tok_i in enumerate(positions)}  # token index -> word index
+    filler_weight, repeat_weight = {}, {}
+    for k in range(2, n - 2):  # never in the first or last two words
+        i = positions[k]
+        prev, here = tokens[positions[k - 1]], tokens[i]
+        before, after = prev.lower().strip(_PUNCT), here.lower().strip(_PUNCT)
+        if before in _FILLERS or after in _FILLERS or before == after:
+            continue
+        w = 0.3 + 3.0 * (prev[-1:] in _PUNCT) + 1.5 * (after in _LEADS) + 1.0 * (before in _SEARCHING)
+        filler_weight[k] = w
+        if after in _REPEATABLE and here[-1:] not in _PUNCT:
+            repeat_weight[k] = 1.0
+
+    def pick(weight: dict, want: int, taken: set) -> List[int]:
+        chosen: List[int] = []
+        weight = {k: v for k, v in weight.items() if not any(abs(k - t) <= 3 for t in taken)}
+        while len(chosen) < want and weight:
+            k = rng.choices(list(weight), list(weight.values()))[0]
+            chosen.append(k)
+            for near in range(k - 3, k + 4):
+                weight.pop(near, None)
+        return chosen
+
+    fillers = pick(filler_weight, count(h["fillers_per_100"]), set())
+    repeats = pick(repeat_weight, count(h["repeats_per_100"]), set(fillers))
+    out: List[str] = []
+    for i, tok in enumerate(tokens):
+        k = order.get(i)
+        if k in fillers:
+            out.append(rng.choice(("uh", "um")))
+        out.append(tok)
+        if k in repeats:
+            word = tok.lower() if k > 0 else tok
+            out += [word] * (2 if rng.random() < 0.15 else 1)
+    return " ".join(out)
+
+
+def _quiet_bank(x, rate: int, win_s: float = 0.05):
+    """The read's own floor: the windows more than 30 dB under its loud ones, as float arrays. Empty when the read's floor is
+    digital silence (then the fill is silence too) or when it has no quiet stretch at all."""
+    import numpy as np
+
+    win = int(win_s * rate)
+    n = len(x) // win if win else 0
+    if n < 4:
+        return []
+    frames = x[: n * win].reshape(n, win, -1)
+    rms = np.sqrt((frames ** 2).mean(axis=(1, 2)))
+    loud = float(np.percentile(rms, 95))
+    if loud <= 0:
+        return []
+    quiet = np.flatnonzero(rms < loud * 10 ** (-30 / 20))
+    if len(quiet) == 0 or (rms[quiet] == 0).mean() >= 0.5:
+        return []
+    return [frames[i] for i in quiet if rms[i] > 0]
+
+
+def _fill(bank, m: int, channels: int, rate: int, rng: random.Random):
+    """`m` samples of the read's own floor, laid end to end from its quiet windows with 10 ms equal-power joins."""
+    import numpy as np
+
+    out = np.zeros((m, channels), dtype="float32")
+    if not bank or m <= 0:
+        return out
+    pos = 0
+    join = int(0.01 * rate)
+    while pos < m:
+        w = bank[rng.randrange(len(bank))]
+        c = min(join, len(w) // 2) if pos else 0
+        if c:
+            t = np.linspace(0, np.pi / 2, c, endpoint=False, dtype="float32")[:, None]
+            out[pos - c: pos] = out[pos - c: pos] * np.cos(t) + w[:c] * np.sin(t)
+        take = min(len(w) - c, m - pos)
+        out[pos: pos + take] = w[c: c + take]
+        pos += take
+    return out
+
+
+def _xfade(a, b):
+    """Equal-power crossfade from `a` to `b` (same shape)."""
+    import numpy as np
+
+    t = np.linspace(0, np.pi / 2, len(a), endpoint=False, dtype="float32")[:, None]
+    return a * np.cos(t) + b * np.sin(t)
+
+
 def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[int, float]]) -> List[Word]:
-    """Put the pauses back into the clean read as silence, between the aligned words; returns shifted words."""
+    """Put the pauses back into the clean read, between the aligned words; returns shifted words.
+
+    A pause is not digital silence. His notes have a floor under every word, and a step from the clone's own floor (which
+    the AGC lifts) down to nothing is an audible cliff, which is what he heard in the first takes ("weird dropoffs ... a
+    small crossfade for artificial silences is necessary"). So each pause is filled with the read's own floor, taken from
+    its quietest windows, and joined to the audio on both sides with a 20 ms equal-power crossfade that stays inside the
+    gap between the words. A read whose floor is digital silence, or that has no quiet stretch, gets silence, still faded.
+    """
     if not pauses:
         return list(words)
     at = []
     for k, seconds in pauses:
         if not words or k <= 0:
-            t = 0.0
+            t, gap = 0.0, 0.0
         elif k >= len(words):
-            t = words[-1].end
+            t, gap = words[-1].end, 0.0
         else:
-            t = (words[k - 1].end + words[k].start) / 2
-        at.append((t, seconds))
+            t, gap = (words[k - 1].end + words[k].start) / 2, max(0.0, words[k].start - words[k - 1].end)
+        at.append((t, seconds, gap))
     at.sort()
     with wave.open(str(wav_path), "rb") as wf:
         params, rate = wf.getparams(), wf.getframerate()
-        frame_bytes = wf.getsampwidth() * wf.getnchannels()
+        width, channels = wf.getsampwidth(), wf.getnchannels()
         audio = wf.readframes(wf.getnframes())
-    chunks, last = [], 0
-    for t, seconds in at:
-        cut = min(len(audio), round(t * rate) * frame_bytes)
-        chunks += [audio[last:cut], b"\x00" * (round(seconds * rate) * frame_bytes)]
-        last = cut
-    chunks.append(audio[last:])
+    try:
+        import numpy as np
+    except ImportError:  # no numpy: the old splice, silence between the words
+        np = None
+    if np is None or width != 2:
+        frame_bytes = width * channels
+        chunks, last = [], 0
+        for t, seconds, _gap in at:
+            cut = min(len(audio), round(t * rate) * frame_bytes)
+            chunks += [audio[last:cut], b"\x00" * (round(seconds * rate) * frame_bytes)]
+            last = cut
+        chunks.append(audio[last:])
+        data = b"".join(chunks)
+    else:
+        x = np.frombuffer(audio, dtype="<i2").reshape(-1, channels).astype("float32")
+        bank = _quiet_bank(x, rate)
+        rng = random.Random(f"{len(x)}:{len(at)}:{round(sum(t for t, _, _ in at), 3)}")
+        parts, last = [], 0
+        for t, seconds, gap in at:
+            cut = min(len(x), round(t * rate))
+            n = round(seconds * rate)
+            f = min(int(0.02 * rate), int(0.4 * gap * rate), (cut - last) // 2, (len(x) - cut) // 2)
+            f = max(0, f)
+            fill = _fill(bank, n + 2 * f, channels, rate, rng)
+            parts.append(x[last: cut - f])
+            if f:
+                parts.append(_xfade(x[cut - f: cut], fill[:f]))
+            parts.append(fill[f: f + n])
+            if f:
+                parts.append(_xfade(fill[f + n:], x[cut: cut + f]))
+            last = cut + f
+        parts.append(x[last:])
+        data = np.clip(np.rint(np.concatenate(parts)), -32768, 32767).astype("<i2").tobytes()
     with wave.open(str(wav_path), "wb") as wf:
         wf.setparams(params)
-        wf.writeframes(b"".join(chunks))
+        wf.writeframes(data)
     shifted = []
     for w in words:
-        d = sum(s for t, s in at if w.start >= t)
+        d = sum(s for t, s, _g in at if w.start >= t)
         shifted.append(Word(w.text, round(w.start + d, 3), round(w.end + d, 3)))
     return shifted
 

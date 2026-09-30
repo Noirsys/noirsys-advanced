@@ -391,7 +391,7 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
     from .ffmpeg import FFmpegError
     from .voice import VoiceError
     from .voicenote import (HOME_PRESET, NoteStyle, VoiceNoteError, hesitations, insert_pauses, matched, measure, prosody,
-                            rawify, render, roughen, room_tone, split_pauses)
+                            rawify, render, roughen, room_tone, split_pauses, stumbles)
 
     if args.preset:  # the recipe fills in what was not asked for; anything asked for wins
         for key, value in HOME_PRESET.items():
@@ -431,7 +431,8 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
 
             voice = Voice(voice_id=args.voice, model_id=args.model, stability=args.stability,
                           similarity_boost=args.similarity)
-            text = roughen(args.say, style.rough)
+            say = stumbles(args.say, args.stumble or 0.0, style.seed)  # his uh, um and repeated words, if asked for
+            text = roughen(say, style.rough)
             line, pauses = split_pauses(rawify(text) if args.raw else text, trail="," if style.rough else "…")
             said = ElevenLabsVoice().synthesize(line, voice, out.with_name(out.stem + ".clean.wav"))
             src, aligned = said.audio_path, said.words
@@ -443,7 +444,7 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
                 aligned = [Word(w.text, round(w.start * k, 3), round(w.end * k, 3)) for w in said.words]
             shown = None
             if args.raw:  # the clone read a run-on; the script's own words (casing, commas) still go on the captions
-                for source in (args.say, text):  # as written, else as roughened
+                for source in (say, text):  # as written, else as roughened
                     tokens = [t for t in split_pauses(source, trail="")[0].split() if any(c.isalnum() for c in t)]
                     if len(tokens) == len(aligned):
                         shown = tokens
@@ -453,8 +454,8 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
             timed = insert_pauses(src, aligned, pauses)
             if shown:
                 timed = [Word(t, w.start, w.end) for t, w in zip(shown, timed)]
-            words = {"said": args.say, "read": line, "voice_id": args.voice, "model_id": args.model,
-                     "stability": args.stability, "rough": style.rough, "swing": swung,
+            words = {"said": say, "read": line, "voice_id": args.voice, "model_id": args.model,
+                     "stability": args.stability, "rough": style.rough, "swing": swung, "stumble": args.stumble or 0.0,
                      "timings": said.meta.get("timings"), "lead_s": style.lead_s,
                      "pauses": [{"after_words": k, "s": s, **({"auto": True} if (k, s) in auto else {})}
                                 for k, s in pauses],
@@ -748,7 +749,8 @@ def build_parser() -> argparse.ArgumentParser:
     vn.add_argument("--model", default="eleven_v4")
     vn.add_argument("--preset", choices=["home"],
                     help="`home`: the whole recipe measured from his real notes (stability 0.9, --rough 2, --raw, --swing 2.1, "
-                    "--pitch 104, --pace 1.2, --hesitate 1); any of those flags you pass still wins. Use with --match and --room")
+                    "--pitch 104, --pace 1.2, --hesitate 1.3, --stumble 2); any of those flags you pass still wins. Use with --match and --room, "
+                    "and leave --noise-db alone: a pause with nothing under it is dead silence")
     vn.add_argument("--stability", type=float, default=None,
                     help="the clone's steadiness: higher is flatter and less performed (default 0.85; 0.5 is the v3 read)")
     vn.add_argument("--similarity", type=float, default=0.8)
@@ -761,6 +763,10 @@ def build_parser() -> argparse.ArgumentParser:
     vn.add_argument("--raw", action="store_true",
                     help="write the line the way his transcripts read: lowercase, no punctuation, run together (a clone "
                     "performs punctuation: it falls at a full stop and lifts at a question)")
+    vn.add_argument("--stumble", type=float, default=None, metavar="X",
+                    help="add the stumbles he makes on his own: an occasional uh or um and words said twice (the, i, and), "
+                    "at his transcripts' rate (0.8 fillers and 1.3 repeats per 100 words): 0 = none (default), 1 = that rate, "
+                    "2 = twice as often. They go in the line the clone reads and on the captions")
     vn.add_argument("--hesitate", type=float, default=None, metavar="X",
                     help="add the thinking pauses he makes on his own, at his measured rate (17 a minute, median 0.85 s): "
                     "0 = none (default), 1 = his rate, 2 = twice as often. [pause N] markers in the line count toward it")

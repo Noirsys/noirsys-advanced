@@ -496,16 +496,16 @@ def test_preset_home_fills_in_the_recipe_and_what_you_pass_wins(tmp_path, monkey
     mono = _expressive_read(tmp_path, "tts.wav")
     stereo = tmp_path / "tts_stereo.wav"
     ffmpeg.run(["-y", "-i", str(mono), "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", str(stereo)])
-    text = "So, uh, I think we should probably just go with the first one, you know, and see what happens."
-    tokens = text.split()
-    step = 4.0 / len(tokens)
-    aligned = [{"text": w.lower().strip(",."), "start": round(0.3 + i * step, 3), "end": round(0.3 + i * step + step * 0.85, 3)}
-               for i, w in enumerate(tokens)]
+    text = ("So, uh, I think we should probably just go with the first one, you know, and see what happens, because "
+            "the thing is that we need to decide by tomorrow and I do not want to wait any longer than that.")
     sent = []
 
     def fake_send(self, method, path, data, content_type, accept, query=""):
-        if path == "/v1/forced-alignment":
-            return json.dumps({"words": aligned}).encode()
+        if path == "/v1/forced-alignment":  # aligned to the text the clone was sent, stumbles and all
+            tokens = sent[-1]["text"].split()
+            step = 4.0 / len(tokens)
+            return json.dumps({"words": [{"text": w.lower().strip(",."), "start": round(0.3 + i * step, 3),
+                                          "end": round(0.3 + i * step + step * 0.85, 3)} for i, w in enumerate(tokens)]}).encode()
         sent.append(json.loads(data))
         return stereo.read_bytes()
 
@@ -521,12 +521,20 @@ def test_preset_home_fills_in_the_recipe_and_what_you_pass_wins(tmp_path, monkey
     assert sent[-1]["voice_settings"]["stability"] == 0.9 and home["stability"] == 0.9 and home["rough"] == 2
     assert home["swing"]["swing_target_st"] == 2.1 and home["swing"]["swing_after_st"] == pytest.approx(2.1, abs=0.5)
     assert home["swing"]["pace_effective"] == pytest.approx(1.2, abs=0.05)
-    assert [w["text"] for w in home["words"]] == tokens  # --raw: the captions keep the script's own words
+    assert home["stumble"] == 2.0 and len(home["said"].split()) > len(text.split())  # the stumbles are in what was said
+    from noirstudio.voicenote import roughen
+
+    shown = [t for t in roughen(home["said"], 2).split() if any(c.isalnum() for c in t)]
+    assert [w["text"] for w in home["words"]] == shown  # --raw: the captions are the line, stumbles and all
     mine = build("mine", "--preset", "home", "--stability", "0.5", "--swing", "3.0", "--rough", "1")
     assert sent[-1]["voice_settings"]["stability"] == 0.5 and mine["stability"] == 0.5 and mine["rough"] == 1
     assert mine["swing"]["swing_target_st"] == 3.0
+    assert mine["stumble"] == 2.0
+    quiet = build("quiet", "--preset", "home", "--stumble", "0")
+    assert quiet["said"] == text and quiet["stumble"] == 0.0  # an explicit flag wins over the preset's
     plain = build("plain")  # without the preset nothing changes: the old defaults
     assert sent[-1]["voice_settings"]["stability"] == 0.85 and plain["rough"] == 2 and plain["swing"] is None
+    assert plain["said"] == text and plain["stumble"] == 0.0
 
 
 # --- prosody: pitch level, swing and pace, found by measuring ---------------------------------

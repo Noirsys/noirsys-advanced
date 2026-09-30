@@ -21,7 +21,7 @@ noirstudio harriet moments | pitch | inbox                      # what she found
 noirstudio harriet ping | retry                                  # does she answer (or is her provider out of credit)?; resend the blocked jobs
 noirstudio cut diary/<ep>.cuts.yaml --master EP.mp4 [--check]    # full / <=3:00 / <=60 s versions, -14 LUFS
 noirstudio voicenote --say "his line" OUT.ogg --match REAL.ogg   # a lost voice note of his, rebuilt (ELEVENLABS_API_KEY)
-noirstudio voicenote --say "his line" OUT.ogg --preset home --match REAL.ogg   # the same, with the recipe measured from his real notes (swing 2.1 st, 104 Hz, pace, pauses); opt-in until he has heard it
+noirstudio voicenote --say "his line" OUT.ogg --preset home --match REAL.ogg   # the same, with the recipe measured from his real notes (swing 2.1 st, 104 Hz, pace, pauses, stumbles); opt-in until he has heard it; leave --noise-db alone (a pause with nothing under it is the dead silence he hears as fake)
 noirstudio voiceprint HIS.ogg ... --vs OURS.ogg ...              # how close our reads are to his real notes, in numbers (needs numpy)
 noirstudio voiceprint CLIP.ogg --timeline                        # inside one clip, 100 ms at a time: level, pitch, bursts (a laugh? a breath?)
 noirstudio voiceprint HIS.ogg ... --readers-apart               # where the two pitch readers part on real notes (needs parselmouth)
