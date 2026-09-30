@@ -252,6 +252,43 @@ def test_words_that_touch_are_not_cut_with_a_step(tmp_path):
     assert _steps_around(after, rate, begin, span_s=0.04, hop_s=0.004) < 25  # and comes back in over 25 ms (a hard cut was 38 dB in 2 ms)
 
 
+def test_a_pause_does_not_eat_the_end_of_a_word_that_runs_into_the_next(tmp_path):
+    """"Cutting off some of my words like before they're fully pronounced. After the word of, after the word trying" (his
+    01:15 and 01:19, EDT). In "of of" the /v/ of the first word runs straight into the vowel of the second, with no gap to cut
+    in; the cut then falls in the weak /v/, 26 dB over the floor, and the speech used to be faded out over up to 60 ms before
+    it and the next word in over up to 25 ms: the whole /v/ and the start of the vowel after the pause."""
+    import wave
+
+    np = pytest.importorskip("numpy")
+    rate = 48000
+    rng = np.random.RandomState(6)
+    t = np.arange(int(2.0 * rate)) / rate
+    env = np.zeros_like(t)
+    env[(t >= 0.30) & (t < 0.42)] = 1.0          # the vowel of the first "of"
+    env[(t >= 0.42) & (t < 0.49)] = 0.03         # its /v/: weak, 30 dB under the vowel, and it does not stop before the next word
+    env[(t >= 0.49) & (t < 0.61)] = 1.0          # the vowel of the second "of", right behind it
+    env[(t >= 0.61) & (t < 0.68)] = 0.03
+    voice = 0.25 * np.sin(2 * np.pi * 140 * t) * env
+    x = np.clip((voice + 10 ** (-62 / 20) * rng.randn(len(t))) * 32767, -32768, 32767).astype("<i2")
+    wav = tmp_path / "of_of.wav"
+    with wave.open(str(wav), "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(rate)
+        wf.writeframes(x.tobytes())
+    before = x.astype("float64") / 32768
+    words = [Word("of", 0.30, 0.49), Word("of", 0.49, 0.68)]
+    shifted = insert_pauses(wav, words, [(1, 1.5)])
+    with wave.open(str(wav), "rb") as wf:
+        after = np.frombuffer(wf.readframes(wf.getnframes()), dtype="<i2").astype("float64") / 32768
+    # the first word keeps its weak /v/ apart from the last few ms before the cut (a 60 ms fade took all of it)
+    assert _window_db(after, rate, 0.42, 0.465) == pytest.approx(_window_db(before, rate, 0.42, 0.465), abs=1.0)
+    # and the second word comes back at full level within 10 ms of the end of the pause (a 25 ms fade-in was 5 dB down there)
+    began = shifted[1].start
+    assert _window_db(after, rate, began + 0.010, began + 0.040) == pytest.approx(_window_db(before, rate, 0.50, 0.53), abs=1.5)
+    assert len(after) == len(x) + int(1.5 * rate)
+
+
 def test_a_pause_goes_in_after_the_words_tail_not_through_it(tmp_path):
     """The aligner put a word's end 140 ms before its sound had died away: the cut belongs where the sound has."""
     import wave

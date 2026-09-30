@@ -409,7 +409,8 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
     from .ffmpeg import FFmpegError
     from .voice import VoiceError
     from .voicenote import (HOME_PRESET, NoteStyle, VoiceNoteError, clone_spelling, hesitations, insert_pauses, matched,
-                            measure, plain_filler, prosody, rawify, render, roughen, room_tone, split_pauses, stumbles)
+                            measure, plain_filler, prosody, rawify, render, reuse_read, roughen, room_tone, split_pauses,
+                            stumbles)
 
     if args.preset:  # the recipe fills in what was not asked for; anything asked for wins
         for key, value in HOME_PRESET.items():
@@ -423,6 +424,9 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
         args.hesitate = 0.0
     if len(args.paths) != (1 if args.say or args.measure else 2):
         print("usage: voicenote IN OUT | voicenote --say TEXT OUT | voicenote --measure REAL", file=sys.stderr)
+        return 1
+    if args.reuse and not args.say:
+        print("--reuse goes with --say (the line the saved read was made from)", file=sys.stderr)
         return 1
     try:
         if args.measure:
@@ -455,7 +459,11 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
             text = roughen(say, style.rough)
             line, pauses = split_pauses(rawify(text) if args.raw else text, trail="," if style.rough else "…")
             spoken = clone_spelling(line)  # "um" is asked for as "ummm": a plain one merges into the word before it
-            said = ElevenLabsVoice().synthesize(spoken, voice, out.with_name(out.stem + ".clean.wav"))
+            clean_wav = out.with_name(out.stem + ".clean.wav")
+            if args.reuse:  # the read an earlier build of this line kept: no key, no cost, the same read
+                said, pauses, auto = reuse_read(Path(args.reuse), clean_wav, spoken)
+            else:
+                said = ElevenLabsVoice().synthesize(spoken, voice, clean_wav)
             heard = [Word(plain_filler(w.text), w.start, w.end) for w in said.words]  # and captioned as "um"
             src, aligned = said.audio_path, heard
             if args.swing or args.pitch or args.pace:  # his pitch, swing and pace, on the speech before any pause goes in
@@ -471,8 +479,9 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
                     if len(tokens) == len(aligned):
                         shown = tokens
                         break
-            auto = hesitations(" ".join(shown) if shown else line, aligned, pauses, args.hesitate, style.seed)
-            pauses = sorted(pauses + auto)
+            if not args.reuse:
+                auto = hesitations(" ".join(shown) if shown else line, aligned, pauses, args.hesitate, style.seed)
+                pauses = sorted(pauses + auto)
             fill: dict = {}
             timed = insert_pauses(src, aligned, pauses, report=fill)
             if shown:
@@ -481,6 +490,7 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
                      "voice_id": args.voice, "model_id": args.model,
                      "stability": args.stability, "rough": style.rough, "swing": swung, "stumble": args.stumble or 0.0,
                      "timings": said.meta.get("timings"), "lead_s": style.lead_s,
+                     **({"reused": str(args.reuse)} if args.reuse else {}),
                      "pauses": [{"after_words": k, "s": s, **({"auto": True} if (k, s) in auto else {})}
                                 for k, s in pauses],
                      **({"fill": fill} if fill else {}),
@@ -804,6 +814,10 @@ def build_parser() -> argparse.ArgumentParser:
                     help="IN OUT (filter a clean read); OUT with --say; REAL with --measure. OUT .ogg is the note itself")
     vn.add_argument("--say", metavar="TEXT", help="his line as the script has it, uh/um and all; [pause 1.2] marks where he "
                     "stops to think (default 0.8 s). His clone reads it (ELEVENLABS_API_KEY)")
+    vn.add_argument("--reuse", metavar="PREFIX",
+                    help="with --say: use the clone's read and word timings that an earlier build of the same line kept "
+                    "(PREFIX.unswung.wav and PREFIX.words.json; PREFIX is its output without .ogg) instead of asking for a new "
+                    "one: no key, no cost. Everything after the read runs again, with the pauses that build put in")
     vn.add_argument("--voice", default=HIS_VOICE, help="voice id for --say (default: his clone)")
     vn.add_argument("--model", default="eleven_v4")
     vn.add_argument("--preset", choices=["home"],

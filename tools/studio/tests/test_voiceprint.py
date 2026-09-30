@@ -544,6 +544,60 @@ def test_preset_home_fills_in_the_recipe_and_what_you_pass_wins(tmp_path, monkey
     assert plain["said"] == text and plain["stumble"] == 0.0
 
 
+def test_reuse_runs_a_build_again_from_the_read_it_kept_without_asking_for_a_new_one(tmp_path, monkeypatch, capsys):
+    """The clone's account can be locked (a failed payment) or the change can be after the read (a new bed, a new fill): `--reuse`
+    takes the read and word timings an earlier build of the same line kept, and runs everything after them again."""
+    pytest.importorskip("parselmouth")
+    from noirstudio import ffmpeg
+    from noirstudio.voice import ElevenLabsVoice
+
+    mono = _expressive_read(tmp_path, "tts.wav")
+    stereo = tmp_path / "tts_stereo.wav"
+    ffmpeg.run(["-y", "-i", str(mono), "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", str(stereo)])
+    text = ("So, uh, I think we should probably just go with the first one, you know, um, and see what happens, because "
+            "the thing is that we need to decide by tomorrow and I do not want to wait any longer than that.")
+    sent = []
+
+    def fake_send(self, method, path, data, content_type, accept, query=""):
+        sent.append(path)
+        if path == "/v1/forced-alignment":
+            tokens = json.loads(data_of[-1])["text"].split()
+            step = 4.0 / len(tokens)
+            return json.dumps({"words": [{"text": w.lower().strip(",."), "start": round(0.3 + i * step, 3),
+                                          "end": round(0.3 + i * step + step * 0.85, 3)} for i, w in enumerate(tokens)]}).encode()
+        data_of.append(data)
+        return stereo.read_bytes()
+
+    data_of: list = []
+    monkeypatch.setenv("ELEVENLABS_API_KEY", "test-key")
+    monkeypatch.setattr(ElevenLabsVoice, "_send", fake_send)
+    first = tmp_path / "first.ogg"
+    assert cli.main(["voicenote", "--say", text, str(first), "--preset", "home"]) == 0
+    was = json.loads((tmp_path / "first.words.json").read_text(encoding="utf-8"))
+    calls = len(sent)
+    assert calls == 2 and was["pauses"] and was["fill"]["cuts"]  # a read and its alignment; and the build says where each pause went
+    assert {"after_words", "moved_ms", "over_floor_db", "fade_out_ms", "fade_in_ms"} <= set(was["fill"]["cuts"][0])
+
+    again = tmp_path / "again.ogg"
+    assert cli.main(["voicenote", "--say", text, str(again), "--preset", "home", "--reuse", str(tmp_path / "first")]) == 0
+    got = json.loads((tmp_path / "again.words.json").read_text(encoding="utf-8"))
+    assert len(sent) == calls  # nothing was asked of the clone
+    assert got["reused"].endswith("first") and got["pauses"] == was["pauses"] and got["said"] == was["said"]
+    assert [w["text"] for w in got["words"]] == [w["text"] for w in was["words"]]
+    for a, b in zip(got["words"], was["words"]):  # the timings worked back from the captions land where they were
+        assert a["start"] == pytest.approx(b["start"], abs=0.02) and a["end"] == pytest.approx(b["end"], abs=0.02)
+    assert ffmpeg.probe_duration(again) == pytest.approx(ffmpeg.probe_duration(first), abs=0.02)
+
+    # a different line is not that read, and a build that kept no read cannot be reused; neither reaches the clone
+    assert cli.main(["voicenote", "--say", text + " Also this.", str(tmp_path / "x.ogg"), "--preset", "home",
+                     "--reuse", str(tmp_path / "first")]) == 2
+    assert "different line" in capsys.readouterr().err
+    assert cli.main(["voicenote", "--say", text, str(tmp_path / "y.ogg"), "--preset", "home", "--reuse", str(tmp_path / "none")]) == 2
+    assert "nothing to reuse" in capsys.readouterr().err
+    assert cli.main(["voicenote", str(stereo), str(tmp_path / "z.ogg"), "--reuse", str(tmp_path / "first")]) == 1
+    assert len(sent) == calls
+
+
 # --- prosody: pitch level, swing and pace, found by measuring ---------------------------------
 
 def test_prosody_moves_the_pitch_level_the_swing_and_the_pace_together(tmp_path):

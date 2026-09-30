@@ -588,7 +588,9 @@ def _bank_db(bank) -> float:
 def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[int, float]],
                   report: Optional[dict] = None) -> List[Word]:
     """Put the pauses back into the clean read, between the aligned words; returns shifted words. `report`, if given, gets what
-    the fill was made of (see `_quiet_bank`, and `gaps_used`, `fill_dbfs`), so that a build says what it did.
+    the fill was made of (see `_quiet_bank`, and `gaps_used`, `fill_dbfs`) and, in `cuts`, where each pause went in: how far from
+    the aligner's boundary, how loud the speech still was there (`over_floor_db`: 0 is a real gap) and how long the words on
+    either side were faded, so that a build says what it did.
 
     A pause is not digital silence. His notes have a floor under every word, and a step from the clone's own floor (which
     the AGC lifts) down to nothing is an audible cliff, which is what he heard in the first takes ("weird dropoffs ... a
@@ -609,7 +611,7 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
             t, gap = words[-1].end, 0.0
         else:
             t, gap = (words[k - 1].end + words[k].start) / 2, max(0.0, words[k].start - words[k - 1].end)
-        at.append((t, seconds, gap))
+        at.append((t, seconds, gap, k))
     at.sort()
     with wave.open(str(wav_path), "rb") as wf:
         params, rate = wf.getparams(), wf.getframerate()
@@ -622,7 +624,7 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
     if np is None or width != 2:
         frame_bytes = width * channels
         chunks, last = [], 0
-        for t, seconds, _gap in at:
+        for t, seconds, *_ in at:
             cut = min(len(audio), round(t * rate) * frame_bytes)
             chunks += [audio[last:cut], b"\x00" * (round(seconds * rate) * frame_bytes)]
             last = cut
@@ -635,9 +637,9 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
         if report is not None:
             report["fill_dbfs"] = round(floor_db, 1)
             report["fill"] = "the read's own floor" if bank else "silence: the read's floor is digital silence or it has no quiet stretch"
-        rng = random.Random(f"{len(x)}:{len(at)}:{round(sum(t for t, _, _ in at), 3)}")
+        rng = random.Random(f"{len(x)}:{len(at)}:{round(sum(a[0] for a in at), 3)}")
         parts, last = [], 0
-        for t, seconds, gap in at:
+        for t, seconds, gap, k in at:
             near = round(t * rate)
             reach = int(min(0.08, max(0.04, gap / 2 + 0.03)) * rate)  # the aligner is a few tens of ms out, and words can touch
             cut, level = _valley(x, max(last + 1, near - reach), near + reach, near, rate)
@@ -649,6 +651,11 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
             f_out = int((0.008 + min(max(over - 6.0, 0.0), 24.0) / 24.0 * 0.052) * rate)
             f_out = max(0, min(f_out, (cut - last) // 2))
             f_in = max(0, min(int(0.025 * rate), max(f_out, int(0.008 * rate)), (len(x) - cut) // 2))  # never a bare splice into speech
+            if report is not None:  # where each pause went in and what it did to the words on either side
+                report.setdefault("cuts", []).append(
+                    {"after_words": k, "boundary_s": round(t, 3), "moved_ms": round((cut - near) / rate * 1000), "gap_ms": round(gap * 1000),
+                     "cut_dbfs": None if level is None else round(level, 1), "over_floor_db": round(over, 1),
+                     "fade_out_ms": round(f_out / rate * 1000, 1), "fade_in_ms": round(f_in / rate * 1000, 1)})
             fill = _fill(bank, n + f_out + f_in, channels, rate, rng)
             parts.append(x[last: cut - f_out])
             if f_out:
@@ -664,9 +671,46 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
         wf.writeframes(data)
     shifted = []
     for w in words:
-        d = sum(s for t, s, _g in at if w.start >= t)
+        d = sum(a[1] for a in at if w.start >= a[0])
         shifted.append(Word(w.text, round(w.start + d, 3), round(w.end + d, 3)))
     return shifted
+
+
+def reuse_read(prefix: Path, clean: Path, spoken: str):
+    """The clone's read and its word timings from an earlier build of the same line, so that everything after the read can be
+    run again (a new pitch, a new pause fill, a new room) without asking for a new one: no key, no cost, and the same read.
+
+    `prefix` is the earlier build's output without its extension: `PREFIX.unswung.wav` (the read as the clone made it; only
+    builds that flattened or moved the pitch or slowed the speech keep one) and `PREFIX.words.json`. The line the clone would
+    be sent now must be the line it was sent then. Returns the read (copied to `clean`), the pauses that build put in and which
+    of them it added itself; the word timings are worked back from that build's captions (its lead-in, its pauses and its pace
+    taken off), to within a millisecond."""
+    from .voice import VoiceResult
+
+    prefix = Path(prefix)
+    raw, meta_path = prefix.with_name(prefix.name + ".unswung.wav"), prefix.with_name(prefix.name + ".words.json")
+    for path in (raw, meta_path):
+        if not path.exists():
+            raise VoiceNoteError(f"nothing to reuse: {path} is missing (only a build that changed the pitch, swing or pace keeps "
+                                 "the read as the clone made it)")
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    was = meta.get("spelled", meta.get("read"))
+    if was != spoken:
+        raise VoiceNoteError(f"that read was made from a different line:\n  then: {was}\n  now:  {spoken}")
+    lead = float(meta.get("lead_s") or 0.0)
+    pace = float((meta.get("swing") or {}).get("pace_effective") or 1.0)
+    pauses = [(int(p["after_words"]), float(p["s"])) for p in meta.get("pauses", [])]
+    auto = [(int(p["after_words"]), float(p["s"])) for p in meta.get("pauses", []) if p.get("auto")]
+    words = []
+    for i, w in enumerate(meta["words"]):
+        shift = sum(s for k, s in pauses if i >= k)  # every pause before a word pushed it later by its length
+        words.append(Word(w["text"], round((w["start"] - lead - shift) / pace, 3), round((w["end"] - lead - shift) / pace, 3)))
+    clean.parent.mkdir(parents=True, exist_ok=True)
+    if raw.resolve() != clean.resolve():
+        shutil.copyfile(raw, clean)
+    result = VoiceResult(clean, words, ffmpeg.probe_duration(clean), "reused",
+                         {"timings": meta.get("timings"), "reused": str(prefix)})
+    return result, pauses, auto
 
 
 # --- pitch and pace -----------------------------------------------------------------------
