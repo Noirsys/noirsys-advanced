@@ -292,6 +292,21 @@ def test_a_pause_at_the_very_start_or_end_of_a_read_is_fine(tmp_path):
     shifted = insert_pauses(wav, words, [(0, 0.5), (2, 0.4)])  # before the first word, after the last
     assert wave.open(str(wav)).getnframes() == n0 + int(0.9 * 48000)
     assert shifted[0].start == pytest.approx(0.8) and shifted[1].end == pytest.approx(3.2, abs=0.01)
+    # a read that begins in speech: the pause before it still comes in over a few ms, not as a bare splice
+    rate = 48000
+    speech = (np.sin(2 * np.pi * 140 * np.arange(rate) / rate) * 0.3 * 32767).astype("<i2")
+    start = tmp_path / "start.wav"
+    with wave.open(str(start), "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(rate)
+        wf.writeframes(speech.tobytes())
+    insert_pauses(start, [Word("a", 0.0, 1.0)], [(0, 0.3)])
+    with wave.open(str(start), "rb") as wf:
+        got = np.frombuffer(wf.readframes(wf.getnframes()), dtype="<i2").astype("float64") / 32768
+    edge = int(0.3 * rate)
+    assert abs(got[edge]) < 0.05 and abs(got[edge + 1]) < 0.05  # the first samples of the speech are faded, not full level
+    assert np.abs(got[edge + int(0.010 * rate): edge + int(0.030 * rate)]).max() > 0.2  # and it is at full level by 10 to 30 ms
 
 
 def test_a_long_pause_is_at_the_level_of_the_short_gaps_around_it(tmp_path):

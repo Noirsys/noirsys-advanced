@@ -630,7 +630,7 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
             over = 0.0 if level is None else max(0.0, level - floor_db)
             f_out = int((0.008 + min(max(over - 6.0, 0.0), 24.0) / 24.0 * 0.052) * rate)
             f_out = max(0, min(f_out, (cut - last) // 2))
-            f_in = max(0, min(int(0.025 * rate), f_out, (len(x) - cut) // 2))
+            f_in = max(0, min(int(0.025 * rate), max(f_out, int(0.008 * rate)), (len(x) - cut) // 2))  # never a bare splice into speech
             fill = _fill(bank, n + f_out + f_in, channels, rate, rng)
             parts.append(x[last: cut - f_out])
             if f_out:
