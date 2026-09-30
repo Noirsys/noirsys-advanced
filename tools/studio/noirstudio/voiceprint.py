@@ -516,7 +516,8 @@ def readers_apart_text(rows: Sequence[dict], summary: dict) -> str:
 SEAM_WIN = 160  # 10 ms at 16 kHz
 SEAM_HOP = 80  # 5 ms
 SEAM_PAUSE_S = 0.30  # a pause with an inside; a shorter gap is a breath between words
-SEAM_KEYS = ("fall_ms", "rise_ms", "depth_db", "floor_db", "floor_sd_db", "swell_db", "floor_step_db")
+SEAM_DIP_DB = 6.0  # a moment this far under the floor's own median is a dropout in it
+SEAM_KEYS = ("fall_ms", "rise_ms", "depth_db", "floor_db", "floor_sd_db", "swell_db", "dips_per_s", "floor_step_db")
 SEAM_WHAT = {
     "fall_ms": "how long speech takes to fall from 10 dB under its level to the floor (3 dB over it, or twice its wander) (small: a cliff)",
     "rise_ms": "how long it takes to come back, from the last frame at the floor to 10 dB under the speech level",
@@ -524,6 +525,8 @@ SEAM_WHAT = {
     "floor_db": "the level of the floor inside a pause (dBFS)",
     "floor_sd_db": "how much the floor wanders inside a pause, from 50 ms to 50 ms (dB, standard deviation)",
     "swell_db": "the floor at the end of a pause minus the floor at its start (dB): an AGC letting go",
+    "dips_per_s": "how often the floor drops 6 dB or more under its own median for a moment, per second of pause: a dropout "
+                  "(a bare join in a looped room bed made about one a second)",
     "floor_step_db": "the floor of the long pauses minus the floor of the short gaps between words (dB)",
 }
 
@@ -603,9 +606,12 @@ def seams(path: Path) -> dict:
             inside = level[i0:i1]
             floor = float(np.median(inside))
             blocks = inside[: (len(inside) // 10) * 10].reshape(-1, 10).mean(axis=1)
+            below = np.flatnonzero(inside < floor - SEAM_DIP_DB)  # frames well under the floor; a run of them is one dip
+            dips = int(np.count_nonzero(np.diff(below) > 2)) + 1 if len(below) else 0
             row.update(floor_db=round(floor, 1), floor_sd_db=round(float(blocks.std()), 2),
                        swell_db=round(float(level[i1 - 20:i1].mean() - level[i0:i0 + 20].mean()), 1),
-                       depth_db=round((before + after) / 2 - floor, 1))
+                       depth_db=round((before + after) / 2 - floor, 1),
+                       dips_per_s=round(dips / (len(inside) * SEAM_HOP / RATE), 2))
             # How long speech takes to reach the floor, and to come back from it. The searches run on a 3-frame median, and "at the
             # floor" means within 3 dB of it or within twice the floor's own wander, whichever is more: on his loud-floor notes a
             # frame 130 ms before an onset dipped and started the clock early (rise_ms 330 against a real 50). And when the speech
@@ -631,7 +637,7 @@ def seams(path: Path) -> dict:
         rows.append(row)
     out = {"path": str(path), "seconds": round(len(x) / RATE, 2), "pauses": len(rows), "rows": rows,
            "short_gaps": len(short), "short_gap_floor_db": round(float(np.median(short)), 1) if short else None}
-    for key in SEAM_KEYS[:6]:
+    for key in SEAM_KEYS[:-1]:  # all but floor_step_db, which compares the pauses with the gaps
         vals = [r[key] for r in rows if key in r]
         out[key] = round(float(np.median(vals)), 2) if vals else None
     if out["floor_db"] is not None and out["short_gap_floor_db"] is not None:

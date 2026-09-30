@@ -521,7 +521,7 @@ def _cmd_voiceprint(args: argparse.Namespace) -> int:
 
     from .ffmpeg import FFmpegError
     from .voicenote import VoiceNoteError
-    from .voiceprint import (compare, readers_apart, readers_apart_summary, readers_apart_text, seams, seams_summary,
+    from .voiceprint import (SEAM_KEYS, compare, readers_apart, readers_apart_summary, readers_apart_text, seams, seams_summary,
                              seams_text, summarize, table, timeline, timeline_text, voiceprint)
 
     if args.timeline:
@@ -567,8 +567,7 @@ def _cmd_voiceprint(args: argparse.Namespace) -> int:
             if ours:
                 print("\nours, clip by clip:")
                 for c in ours:
-                    cells = "  ".join(f"{k}={c[k]}" for k in ("fall_ms", "rise_ms", "depth_db", "floor_db", "floor_sd_db",
-                                                              "swell_db", "floor_step_db") if c.get(k) is not None)
+                    cells = "  ".join(f"{k}={c[k]}" for k in SEAM_KEYS if c.get(k) is not None)
                     print(f"{Path(c['path']).name}: {c['pauses']} pauses, {c['short_gaps']} short gaps  {cells}")
         return 0
 

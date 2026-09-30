@@ -648,10 +648,11 @@ def test_pitch_is_read_the_same_before_and_after_the_phone_chain(tmp_path):
     assert b["f0_median_hz"] == pytest.approx(a["f0_median_hz"], rel=0.04)
 
 
-def _seam_clip(path, fall_ms=0.0, floor_db=-50.0, wander_db=0.0, swell_db=0.0, gap_floor_db=None, seed=1):
+def _seam_clip(path, fall_ms=0.0, floor_db=-50.0, wander_db=0.0, swell_db=0.0, gap_floor_db=None, seed=1, notches=()):
     """Three bursts of a 130 Hz voice with two 1 s pauses between them (and a 150 ms gap inside the last burst), each burst
     falling to the floor over `fall_ms`; the floor is noise at `floor_db`, wandering by `wander_db` (5 Hz) and rising by
-    `swell_db` over each pause, and at `gap_floor_db` (else the same) inside the short gap."""
+    `swell_db` over each pause, and at `gap_floor_db` (else the same) inside the short gap. The floor drops out to nothing for
+    20 ms (a fade out and in over 10 ms) at each of `notches` (seconds)."""
     np = pytest.importorskip("numpy")
     rate = 16000
     rng = np.random.RandomState(seed)
@@ -672,7 +673,10 @@ def _seam_clip(path, fall_ms=0.0, floor_db=-50.0, wander_db=0.0, swell_db=0.0, g
     if gap_floor_db is not None:
         gap = (t >= 4.9) & (t < 5.05)
         level[gap] = gap_floor_db
-    x = voice + 10 ** (level / 20) * rng.randn(len(t))
+    noise = 10 ** (level / 20) * rng.randn(len(t))
+    for c in notches:
+        noise *= np.minimum(1.0, np.abs(t - c) / 0.010)
+    x = voice + noise
     with wave.open(str(path), "wb") as wf:
         wf.setnchannels(1)
         wf.setsampwidth(2)
@@ -701,6 +705,17 @@ def test_seams_read_a_wandering_or_swelling_floor(tmp_path):
     assert steady["floor_sd_db"] < 0.6 and abs(steady["swell_db"]) < 1.5
     assert wander["floor_sd_db"] > 1.5 > steady["floor_sd_db"]  # a floor that moves from one 50 ms to the next
     assert 4 < swell["swell_db"] < 9 and swell["floor_sd_db"] > steady["floor_sd_db"]  # an AGC letting go of the floor
+
+
+def test_seams_count_the_dropouts_in_a_floor(tmp_path):
+    """A looped room bed joined bare dropped out for 20 ms at every join. A plain floor has none."""
+    from noirstudio.voiceprint import seams
+
+    plain = seams(_seam_clip(tmp_path / "plain.wav", fall_ms=40))
+    notched = seams(_seam_clip(tmp_path / "notched.wav", fall_ms=40, notches=(1.7, 1.95, 2.2, 3.8, 4.05, 4.3)))
+    assert plain["dips_per_s"] == 0
+    assert notched["dips_per_s"] >= 2  # three in the 0.8 s inside each pause
+    assert notched["floor_db"] == pytest.approx(plain["floor_db"], abs=1.0)  # the median floor does not show them
 
 
 def test_seams_do_not_time_a_fall_that_barely_clears_the_floor(tmp_path):

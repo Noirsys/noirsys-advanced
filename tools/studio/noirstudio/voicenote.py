@@ -791,8 +791,17 @@ def matched(style: NoteStyle, ref: dict) -> NoteStyle:
                    kbps=max(6, min(256, int(kbps))) if kbps else style.kbps)
 
 
+ROOM_JOIN_S = 0.04  # how long two stretches of his room, and the end of the loop and its start, are crossfaded
+
+
 def room_tone(real: Path, out: Path, min_s: float = 0.2) -> Optional[dict]:
     """His room, lifted from one of his real notes: its quiet stretches, joined into a WAV to loop.
+
+    The stretches are joined with equal-power crossfades and the WAV closes on itself the same way (its end runs into its
+    start when it loops), so that the room is one floor with no join in it. The first version faded every stretch out and in
+    over 10 ms and joined them bare: every join, and every turn of the loop, was a dropout in the floor, 5 to 15 ms wide and
+    up to 12 dB deep on a stand-in, once in about a second, in every note built with `--room`. In a pause the room is all
+    there is to hear, and a floor that drops out every second is a "little cliff" that has nothing to do with the speech.
 
     Returns None when the note has no room in it (noise-suppressed, or too little silence).
     """
@@ -806,11 +815,28 @@ def room_tone(real: Path, out: Path, min_s: float = 0.2) -> Optional[dict]:
     spans = [(a + edge, b - edge) for a, b in silences(real, ref["noise_db"] + 14, min_s) if b - a >= min_s + 2 * edge]
     if sum(b - a for a, b in spans) < 0.5:
         return None
-    chains = [f"[0:a]atrim={a:.3f}:{b:.3f},asetpts=PTS-STARTPTS,afade=t=in:d=0.01,"
-              f"afade=t=out:st={b - a - 0.01:.3f}:d=0.01[s{i}]" for i, (a, b) in enumerate(spans)]
-    graph = ";".join(chains) + ";" + "".join(f"[s{i}]" for i in range(len(spans))) + f"concat=n={len(spans)}:v=0:a=1[out]"
+    xf = ROOM_JOIN_S
+    join = f"acrossfade=d={xf}:c1=qsin:c2=qsin"  # equal power: two stretches of noise do not add up to a dip or a swell
+    trims = [f"[0:a]atrim={a:.3f}:{b:.3f},asetpts=PTS-STARTPTS[s{i}]" for i, (a, b) in enumerate(spans)]
+    steps, last = [], "s0"
+    for i in range(1, len(spans)):
+        steps.append(f"[{last}][s{i}]{join}[x{i}]")
+        last = f"x{i}"
+    steps.append(f"[{last}]anull[out]")
     out.parent.mkdir(parents=True, exist_ok=True)
-    ffmpeg.run(["-y", "-i", str(real), "-filter_complex", graph, "-map", "[out]", "-ac", "1", "-ar", "48000",
-                "-c:a", "pcm_s16le", str(out)])
-    return {"path": str(out), "seconds": round(sum(b - a for a, b in spans), 2), "stretches": len(spans),
+    joined = out.with_name(out.stem + ".join.wav")
+    try:
+        ffmpeg.run(["-y", "-i", str(real), "-filter_complex", ";".join(trims + steps), "-map", "[out]", "-ac", "1",
+                    "-ar", "48000", "-c:a", "pcm_s16le", str(joined)])
+        length = ffmpeg.probe_duration(joined)
+        if length < 4 * xf:  # too short to spare a head and a tail: it loops with one join in it
+            shutil.move(str(joined), str(out))
+        else:  # turn the end into the start's neighbour: [head|middle|tail] -> [middle | tail crossfaded into head]
+            graph = (f"[0:a]atrim=0:{xf},asetpts=PTS-STARTPTS[h];[0:a]atrim={xf}:{length - xf:.4f},asetpts=PTS-STARTPTS[m];"
+                     f"[0:a]atrim={length - xf:.4f},asetpts=PTS-STARTPTS[t];[t][h]{join}[b];[m][b]concat=n=2:v=0:a=1[out]")
+            ffmpeg.run(["-y", "-i", str(joined), "-filter_complex", graph, "-map", "[out]", "-ac", "1", "-ar", "48000",
+                        "-c:a", "pcm_s16le", str(out)])
+    finally:
+        joined.unlink(missing_ok=True)
+    return {"path": str(out), "seconds": round(ffmpeg.probe_duration(out), 2), "stretches": len(spans),
             "noise_db": ref["noise_db"]}

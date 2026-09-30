@@ -2,6 +2,7 @@
 
 import json
 import re
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -485,6 +486,31 @@ def test_his_room_comes_from_a_real_note(clean, real_note, tmp_path):
     render(clean, tmp_path / "rebuilt.ogg", style)
     rebuilt = measure(tmp_path / "rebuilt.ogg")
     assert abs(rebuilt["lufs"] - real["lufs"]) < 0.6 and abs(rebuilt["noise_db"] - real["noise_db"]) < 2
+
+
+def test_his_room_has_no_dropouts_at_its_joins_or_where_it_loops(tmp_path):
+    """The room is looped under every pause, and in a pause it is all there is to hear: a join that dips (the stretches used to be
+    faded out and in over 10 ms and joined bare: 10 to 12 dB, once a second) is a little cliff in the floor."""
+    np = pytest.importorskip("numpy")
+    real = tmp_path / "white.ogg"
+    bursts = "+".join(f"between(t,{a},{a + 0.6})" for a in (0.3, 1.9, 3.5, 5.1, 6.7, 8.3))
+    speech = f"if({bursts},(0.3*sin(2*PI*140*t)+0.2*sin(2*PI*280*t))*(0.55+0.45*sin(2*PI*3.5*t)),0)"
+    ffmpeg.run(["-y", "-f", "lavfi", "-i", f"aevalsrc='{speech}':s=48000:d=9.5",
+                "-f", "lavfi", "-i", "anoisesrc=d=9.5:c=white:r=48000:a=0.01:seed=5",
+                "-filter_complex", "[0:a][1:a]amix=inputs=2:normalize=0[o]", "-map", "[o]",
+                "-c:a", "libopus", "-b:a", "48k", str(real)])
+    room = room_tone(real, tmp_path / "room.wav")
+    assert room and room["stretches"] >= 5 and room["seconds"] > 3.0
+    assert not list(tmp_path.glob("*.join.wav"))
+    raw = subprocess.run([ffmpeg.ffmpeg_path(), "-loglevel", "error", "-stream_loop", "2", "-i", str(tmp_path / "room.wav"),
+                          "-f", "f32le", "-ac", "1", "-ar", "16000", "-"], capture_output=True).stdout
+    x = np.frombuffer(raw, dtype="<f4")
+    n = 1 + (len(x) - 160) // 80  # 10 ms windows every 5 ms, three turns of the loop
+    level = 20 * np.log10(np.sqrt((x[np.arange(160)[None, :] + 80 * np.arange(n)[:, None]] ** 2).mean(axis=1)) + 1e-9)
+    assert len(x) / 16000 > 3 * room["seconds"] - 0.1
+    # Opus-coded noise wanders up to 5 dB under its median in 10 ms windows; the bare joins went 12 to 13 dB under it
+    assert np.median(level) - level.min() < 6.0
+    assert level.max() - np.median(level) < 4.0
 
 
 def test_a_noise_suppressed_note_gives_no_room_and_keeps_ours(tmp_path):
