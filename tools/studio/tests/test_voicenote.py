@@ -402,6 +402,66 @@ def test_reflow_fades_end_under_the_room_tone(tmp_path):
     assert cut["fade_out_ms"] == pytest.approx(cut["depth_db"] / 0.4, abs=1.5) or cut["fade_out_ms"] < cut["depth_db"] / 0.4  # bounded by the gap
 
 
+@pytest.mark.parametrize("seed", range(40))
+def test_reflow_holds_on_awkward_reads(tmp_path, seed):
+    """Whatever the clone and the aligner hand it (words run together, an alignment that runs backwards or off the end, stereo,
+    pauses asked before the first word, after the last, past it, twice at the same place): every pause is kept or left out once,
+    the read grows by exactly the pauses kept, the audio away from each cut is the read itself sample for sample, and the pauses are silent."""
+    import random
+    import wave
+
+    np = pytest.importorskip("numpy")
+    rng = random.Random(seed)
+    rate, channels = rng.choice([16000, 24000]), rng.choice([1, 1, 2])
+    spans, at = [], rng.choice([0.0, 0.2])
+    for _ in range(rng.choice([1, 2, 5, 12, 30])):
+        length = rng.uniform(0.06, 0.5)
+        spans.append((at, at + length))
+        at += length + rng.choice([0.0, 0.0, 0.02, 0.1, 0.4])
+    n = int((at + 0.3) * rate)
+    noise = np.random.RandomState(seed)
+    sig = noise.randn(n) * 10 ** (rng.choice([-60, -50]) / 20)
+    for a, b in spans:
+        tt = np.arange(int(b * rate) - int(a * rate)) / rate
+        sig[int(a * rate): int(a * rate) + len(tt)] += 0.1 * np.sin(2 * np.pi * rng.uniform(100, 300) * tt)
+    x = np.repeat(np.clip(np.rint(sig * 32768), -32768, 32767).astype("<i2")[:, None], channels, axis=1)
+    wav = tmp_path / "awkward.wav"
+    with wave.open(str(wav), "wb") as wf:
+        wf.setnchannels(channels)
+        wf.setsampwidth(2)
+        wf.setframerate(rate)
+        wf.writeframes(x.tobytes())
+    words = []
+    for i, (a, b) in enumerate(spans):
+        a, b = a + rng.uniform(-0.05, 0.05), b + rng.uniform(-0.05, 0.05)
+        if rng.random() < 0.05:
+            a, b = b, a  # an alignment that runs backwards
+        words.append(Word(f"w{i}", round(a, 3), round(b if rng.random() > 0.03 else at + 1.0, 3)))
+    asked = [(rng.choice([0, 1, rng.randint(0, len(words)), len(words), len(words) + 3]), round(rng.uniform(0.1, 2.0), 2))
+             for _ in range(rng.choice([0, 1, 3, 6]))]
+    if asked and rng.random() < 0.3:
+        asked.append(asked[0])
+    report: dict = {}
+    shifted = insert_pauses(wav, words, asked, report=report, gaps_only=rng.random() < 0.7, snap=rng.random() < 0.4, bed_db=-54.0)
+    with wave.open(str(wav), "rb") as wf:
+        got = np.frombuffer(wf.readframes(wf.getnframes()), dtype="<i2").reshape(-1, channels)
+    kept_all, cuts = report.get("kept", []), report.get("cuts", [])  # nothing asked: nothing to report
+    assert len(kept_all) + len(report.get("dropped", [])) == len(asked)
+    assert len(got) == n + sum(round(k["s"] * rate) for k in kept_all)
+    assert all(after.start >= before.start - 1e-9 for before, after in zip(words, shifted))
+    margin, src, dst, grown = int(0.001 * rate) + 3, 0, 0, 0  # at_s is rounded to a ms: stay that far from every cut
+    for cut, kept in zip(cuts, kept_all):
+        pos, out, length = round(cut["at_s"] * rate), round(cut["fade_out_ms"] / 1000 * rate), round(kept["s"] * rate)
+        if pos - out - margin > src:
+            assert (got[dst: dst + pos - out - margin - src] == x[src: pos - out - margin]).all()
+        if length > 2 * margin:
+            assert not got[pos + grown + margin: pos + grown + length - margin].any()
+        grown += length
+        src = max(src, pos + round(cut["fade_in_ms"] / 1000 * rate) + margin)
+        dst = src + grown
+    assert (got[dst:] == x[src:]).all()
+
+
 def test_a_pause_goes_in_after_the_words_tail_not_through_it(tmp_path):
     """The aligner put a word's end 140 ms before its sound had died away: the cut belongs where the sound has."""
     import wave
