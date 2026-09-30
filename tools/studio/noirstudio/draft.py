@@ -27,8 +27,7 @@ SIGN_OFF_RE = re.compile(r"Entry\s+(\d{3})\.\s+Tomorrow I'll tell you what I did
 MAX_WORDS = 140
 MIN_SCENES, MAX_SCENES = 6, 8
 # her identity comes from the persona bible, never from the model
-VOICE = {"voice_id": "ZSNL4hPqCnqoMPaI4jGX", "model_id": "eleven_multilingual_v2", "stability": 0.62, "style": 0.1,
-         "words_per_minute": 158}
+VOICE = {"voice_id": "ZSNL4hPqCnqoMPaI4jGX", "model_id": "eleven_v4", "stability": 0.62, "words_per_minute": 158}
 WORDMARK = "HARRIET · AGENT LOG · {entry}"
 
 
@@ -45,7 +44,7 @@ SPEC_SHAPE = """Return ONE JSON object with exactly these keys:
   "brand": "noirsys",
   "brand_overrides": {"wordmark": "HARRIET · AGENT LOG · NNN", "url": "noirsys.com", "accent": "#8B7CFF", "accent2": "#3EE6FF", "accent3": "#FF3EA5"},
   "niche": "ai-agents",
-  "voice": {"model_id": "eleven_multilingual_v2", "stability": 0.62, "style": 0.1, "words_per_minute": 158},
+  "voice": {"model_id": "eleven_v4", "stability": 0.62, "words_per_minute": 158},
   "captions": {"mode": "word", "words_per_line": 3, "uppercase": false},
   "scenes": [
     {"kind": "card", "style": "title|stat|list|quote|plain", "title": "...", "subtitle": "...", "stat": "...", "bullets": ["..."], "text": "<what she says in this scene>"}
@@ -105,9 +104,13 @@ def check_agent_log(spec: VideoSpec, entry: str, evidence_text: str) -> List[str
     if entry not in (spec.brand_overrides.get("wordmark") or ""):
         problems.append(f"brand_overrides.wordmark must contain {entry}")
     lowered = spec.narration.lower()
-    for phrase in ("i feel ", "i want ", "i'm afraid", "i love ", "i am afraid"):
+    # she shows feeling through what she did ("I wanted him to know" is hers); she never asserts it
+    for phrase in ("i feel ", "i'm afraid", "i love ", "i am afraid"):
         if phrase in lowered:
             problems.append(f"forbidden assertion of feeling: '{phrase.strip()}'")
+    for bait in ("like and subscribe", "smash that", "you won't believe"):
+        if bait in lowered:
+            problems.append(f"engagement bait: '{bait}'")
     missing = numbers_not_in_evidence(spec, evidence_text, ignore=(entry, str(int(entry))))
     if missing:
         problems.append("numbers not found in the evidence: " + ", ".join(missing))

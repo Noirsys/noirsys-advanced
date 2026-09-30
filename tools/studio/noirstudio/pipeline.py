@@ -94,7 +94,8 @@ def render(
             vr = voice_engine.synthesize(scene.text, spec.voice, wav)
             duration = scene.duration or vr.duration
             words = [w.shifted(cursor) for w in vr.words if w.start < duration]
-            voice_source = vr.provider
+            timings = str(vr.meta.get("timings", ""))  # live: where the caption timings came from
+            voice_source = f"{vr.provider} ({timings})" if timings else vr.provider
         else:
             duration = float(scene.duration or 2.0)
             ffmpeg.run(["-y", "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo", "-t", f"{duration:.3f}",
@@ -104,6 +105,8 @@ def render(
             duration = scene.duration
         # 2) visual
         visual_source, fallback = _render_visual(scene, spec, brand, avatar_img, video_engine, wav, base, badge, log)
+        if voice_source.startswith("elevenlabs (estimated"):  # live audio, but captions only estimated
+            fallback = "; ".join(x for x in (fallback, "caption timings estimated") if x)
         clip = base.with_suffix(".mp4")
         if visual_source.endswith(".mp4"):
             assemble.clip_from_video(Path(visual_source), wav, duration, spec.output, clip)
@@ -115,7 +118,7 @@ def render(
         scene_starts.append((label or scene.id, cursor))
         records.append(SceneRecord(scene.id, scene.kind, Path(visual_source).name, voice_source, cursor,
                                    duration, len(words), fallback))
-        log(f"  scene {idx:02d} {scene.id:<10} {scene.kind:<7} {duration:6.2f}s  {len(words):3d} words"
+        log(f"  scene {idx:02d} {scene.id:<10} {scene.kind:<7} {duration:6.2f}s  {len(words):3d} words  {voice_source}"
             + (f"  (fallback: {fallback})" if fallback else ""))
         cursor += duration
 
