@@ -25,6 +25,7 @@ noirstudio voicenote --say "his line" OUT.ogg --preset home --match REAL.ogg   #
 noirstudio voiceprint HIS.ogg ... --vs OURS.ogg ...              # how close our reads are to his real notes, in numbers (needs numpy)
 noirstudio voiceprint CLIP.ogg --timeline                        # inside one clip, 100 ms at a time: level, pitch, bursts (a laugh? a breath?)
 noirstudio voiceprint HIS.ogg ... --readers-apart               # where the two pitch readers part on real notes (needs parselmouth)
+noirstudio voiceprint HIS.ogg ... [--vs OURS.ogg ...] --seams   # the joins between speech and its pauses, and the floor inside them: his "cliffs" and "continuity", in numbers (needs numpy)
 noirstudio validate specs/<id>.yaml
 noirstudio render specs/<id>.yaml --out renders/<id>             # offline preview, no keys
 noirstudio render specs/<id>.yaml --out renders/<id> --live      # ELEVENLABS_API_KEY

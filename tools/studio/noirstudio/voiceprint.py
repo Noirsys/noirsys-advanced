@@ -511,6 +511,175 @@ def readers_apart_text(rows: Sequence[dict], summary: dict) -> str:
     return "\n".join(lines)
 
 
+# --- seams: what "continuity" is in a real note -----------------------------------------------
+
+SEAM_WIN = 160  # 10 ms at 16 kHz
+SEAM_HOP = 80  # 5 ms
+SEAM_PAUSE_S = 0.30  # a pause with an inside; a shorter gap is a breath between words
+SEAM_KEYS = ("fall_ms", "rise_ms", "depth_db", "floor_db", "floor_sd_db", "swell_db", "floor_step_db")
+SEAM_WHAT = {
+    "fall_ms": "how long speech takes to fall from 10 dB under its level to the floor (3 dB over it, or twice its wander) (small: a cliff)",
+    "rise_ms": "how long it takes to come back, from the last frame at the floor to 10 dB under the speech level",
+    "depth_db": "how far the pause floor is under the speech (dB)",
+    "floor_db": "the level of the floor inside a pause (dBFS)",
+    "floor_sd_db": "how much the floor wanders inside a pause, from 50 ms to 50 ms (dB, standard deviation)",
+    "swell_db": "the floor at the end of a pause minus the floor at its start (dB): an AGC letting go",
+    "floor_step_db": "the floor of the long pauses minus the floor of the short gaps between words (dB)",
+}
+
+
+def _fine_level(x):
+    """Level in dBFS of every 10 ms window, every 5 ms."""
+    np = _np()
+    n = 1 + (len(x) - SEAM_WIN) // SEAM_HOP
+    out = np.empty(n, dtype="float32")
+    for s in range(0, n, _BLOCK):
+        e = min(n, s + _BLOCK)
+        fr = x[np.arange(SEAM_WIN)[None, :] + SEAM_HOP * np.arange(s, e)[:, None]]
+        out[s:e] = 20 * np.log10(np.sqrt((fr ** 2).mean(axis=1)) + 1e-6)
+    return out
+
+
+def _speech_fine(level):
+    """Speech at 5 ms, with hysteresis: it starts over a gate well above the floor and lasts until the level is back near
+    it, so a floor that wanders a few dB does not turn a pause into speech. Gaps under 50 ms are closed and blips under 60 ms
+    dropped, as in `_speech`."""
+    np = _np()
+    p10, p95 = float(np.percentile(level, 10)), float(np.percentile(level, 95))
+    hi, lo = max(p10 + 14.0, p95 - 30.0), max(p10 + 6.0, p95 - 38.0)
+    on = np.zeros(len(level), dtype=bool)
+    state = False
+    for i, v in enumerate(level):
+        if not state and v > hi:
+            state = True
+        elif state and v < lo:
+            state = False
+        on[i] = state
+    for a, b, v in _runs(on):
+        if not v and a > 0 and b < len(on) and b - a < 10:
+            on[a:b] = True
+    for a, b, v in _runs(on):
+        if v and b - a < 12:
+            on[a:b] = False
+    return on
+
+
+def seams(path: Path) -> dict:
+    """The joins between speech and its pauses, and the floor inside them: what he hears as "cliffs" and "continuity".
+
+    Every pause of 0.3 s or more that has speech on both sides is measured on a 5 ms grid: how long speech takes to fall from
+    10 dB under its own level to 3 dB over the floor (`fall_ms`) and how long it takes to rise back (`rise_ms`); how deep the
+    floor is under the speech (`depth_db`); where the floor sits (`floor_db`) and how much it wanders from 50 ms to 50 ms
+    (`floor_sd_db`) and drifts between the start and end of the pause (`swell_db`, what an AGC letting go does); and whether
+    the floor of the long pauses is the same as the floor of the short gaps between words (`floor_step_db`). Returns the
+    per-pause rows and each metric's median over them."""
+    np = _np()
+    x = _decode(path)
+    level = _fine_level(x)
+    smooth = level.copy()  # a median of three neighbours: a single odd frame does not start or stop a search
+    smooth[1:-1] = np.median(np.stack([level[:-2], level[1:-1], level[2:]]), axis=0)
+    on = _speech_fine(level)
+    runs = _runs(on)
+    rows: List[dict] = []
+    short: List[float] = []
+    min_len = int(round(SEAM_PAUSE_S * 1000 / 5))
+    for i, (a, b, v) in enumerate(runs):
+        if v or i == 0 or i == len(runs) - 1:  # a pause with speech on both sides
+            continue
+        n = b - a
+        if 12 <= n < 50:  # 60 to 250 ms: a gap between words
+            inner = level[a + 4: b - 4]
+            if len(inner) >= 3:
+                short.append(float(np.median(inner)))
+            continue
+        if n < min_len:
+            continue
+        before = float(np.percentile(level[max(0, a - 60): a], 90))
+        after = float(np.percentile(level[b: b + 60], 90))
+        i0, i1 = a + 20, b - 12
+        row = {"start_s": round(a * SEAM_HOP / RATE, 3), "length_s": round(n * SEAM_HOP / RATE, 3),
+               "speech_before_db": round(before, 1), "speech_after_db": round(after, 1)}
+        if i1 - i0 >= 20:
+            inside = level[i0:i1]
+            floor = float(np.median(inside))
+            blocks = inside[: (len(inside) // 10) * 10].reshape(-1, 10).mean(axis=1)
+            row.update(floor_db=round(floor, 1), floor_sd_db=round(float(blocks.std()), 2),
+                       swell_db=round(float(level[i1 - 20:i1].mean() - level[i0:i0 + 20].mean()), 1),
+                       depth_db=round((before + after) / 2 - floor, 1))
+            # How long speech takes to reach the floor, and to come back from it. The searches run on a 3-frame median, and "at the
+            # floor" means within 3 dB of it or within twice the floor's own wander, whichever is more: on his loud-floor notes a
+            # frame 130 ms before an onset dipped and started the clock early (rise_ms 330 against a real 50). And when the speech
+            # clears the floor by less than the two thresholds need, there is no fall to time: it was 0 to 5 ms whatever it did.
+            near = floor + max(3.0, 2.0 * row["floor_sd_db"])
+            if min(before, after) - 10.0 - near >= 5.0:
+                j = a  # the last frame still within 10 dB of the speech before the pause, then down to the floor
+                while j > 0 and smooth[j] < before - 10:
+                    j -= 1
+                k = j
+                while k < b and smooth[k] > near:
+                    k += 1
+                if k < b:
+                    row["fall_ms"] = (k - j) * 5
+                j = b  # and back: the first frame within 10 dB of the speech after it, and the last frame at the floor before that
+                while j < len(smooth) - 1 and smooth[j] < after - 10:
+                    j += 1
+                k = j
+                while k > a and smooth[k] > near:
+                    k -= 1
+                if k > a:
+                    row["rise_ms"] = (j - k) * 5
+        rows.append(row)
+    out = {"path": str(path), "seconds": round(len(x) / RATE, 2), "pauses": len(rows), "rows": rows,
+           "short_gaps": len(short), "short_gap_floor_db": round(float(np.median(short)), 1) if short else None}
+    for key in SEAM_KEYS[:6]:
+        vals = [r[key] for r in rows if key in r]
+        out[key] = round(float(np.median(vals)), 2) if vals else None
+    if out["floor_db"] is not None and out["short_gap_floor_db"] is not None:
+        out["floor_step_db"] = round(out["floor_db"] - out["short_gap_floor_db"], 1)
+        for r in rows:
+            if "floor_db" in r:
+                r["floor_step_db"] = round(r["floor_db"] - out["short_gap_floor_db"], 1)
+    else:
+        out["floor_step_db"] = None
+    return out
+
+
+def seams_summary(clips: Sequence[dict]) -> dict:
+    """Every pause of every clip together: n, median and middle half of each metric."""
+    np = _np()
+    out: dict = {"clips": len(clips), "pauses": sum(c["pauses"] for c in clips)}
+    for key in SEAM_KEYS:
+        vals = [r[key] for c in clips for r in c["rows"] if key in r]
+        if vals:
+            q1, med, q3 = (float(v) for v in np.percentile(vals, [25, 50, 75]))
+            out[key] = {"n": len(vals), "median": round(med, 2), "q1": round(q1, 2), "q3": round(q3, 2)}
+    return out
+
+
+def seams_text(clips: Sequence[dict], summary: dict, ours: Optional[dict] = None) -> str:
+    """The per-clip lines and the pooled table; with `ours`, each metric says whether ours is inside his middle half."""
+    lines = []
+    for c in clips:
+        cells = "  ".join(f"{k}={c[k]}" for k in SEAM_KEYS if c.get(k) is not None)
+        lines.append(f"{Path(c['path']).name}: {c['pauses']} pauses, {c['short_gaps']} short gaps  {cells}")
+    lines.append(f"{summary['clips']} clips, {summary['pauses']} pauses")
+    head = f"{'metric':<14}{'n':>5}{'q1':>9}{'median':>9}{'q3':>9}" + (f"{'ours':>10}  verdict" if ours else "")
+    lines.append(head)
+    for key in SEAM_KEYS:
+        m = summary.get(key)
+        if not m:
+            continue
+        line = f"{key:<14}{m['n']:>5}{m['q1']:>9}{m['median']:>9}{m['q3']:>9}"
+        if ours and ours.get(key):
+            o = ours[key]["median"]
+            verdict = "inside his middle half" if m["q1"] <= o <= m["q3"] else ("below it" if o < m["q1"] else "above it")
+            line += f"{o:>10}  {verdict}"
+        lines.append(line)
+    for key in SEAM_KEYS:
+        lines.append(f"  {key}: {SEAM_WHAT[key]}")
+    return "\n".join(lines)
+
+
 def summarize(rows: Sequence[dict], min_speech_s: float = 2.0, max_speech_s: Optional[float] = None) -> dict:
     """Median and quartiles of every metric over the files with enough speech to read.
 

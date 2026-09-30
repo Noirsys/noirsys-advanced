@@ -646,3 +646,117 @@ def test_pitch_is_read_the_same_before_and_after_the_phone_chain(tmp_path):
     a, b = vp.voiceprint(read, levels=False), vp.voiceprint(processed, levels=False)
     assert b["f0_sd_st"] == pytest.approx(a["f0_sd_st"], abs=0.35)
     assert b["f0_median_hz"] == pytest.approx(a["f0_median_hz"], rel=0.04)
+
+
+def _seam_clip(path, fall_ms=0.0, floor_db=-50.0, wander_db=0.0, swell_db=0.0, gap_floor_db=None, seed=1):
+    """Three bursts of a 130 Hz voice with two 1 s pauses between them (and a 150 ms gap inside the last burst), each burst
+    falling to the floor over `fall_ms`; the floor is noise at `floor_db`, wandering by `wander_db` (5 Hz) and rising by
+    `swell_db` over each pause, and at `gap_floor_db` (else the same) inside the short gap."""
+    np = pytest.importorskip("numpy")
+    rate = 16000
+    rng = np.random.RandomState(seed)
+    t = np.arange(int(6.0 * rate)) / rate
+    bursts = [(0.3, 1.4), (2.4, 3.5), (4.5, 4.9), (5.05, 5.4)]
+    env = np.zeros_like(t)
+    for a, b in bursts:
+        env[(t >= a) & (t < b)] = 1.0
+        k = int(fall_ms / 1000 * rate)
+        if k:
+            i = int(b * rate)
+            env[i:i + k] = np.maximum(env[i:i + k], np.linspace(1.0, 0.0, k))
+    voice = 0.1 * np.sin(2 * np.pi * 130 * t) * env * (0.7 + 0.3 * np.sin(2 * np.pi * 4 * t))
+    level = floor_db + wander_db * np.sin(2 * np.pi * 5 * t)
+    for a, b in ((1.4, 2.4), (3.5, 4.5)):
+        mask = (t >= a) & (t < b)
+        level[mask] += swell_db * (t[mask] - a)
+    if gap_floor_db is not None:
+        gap = (t >= 4.9) & (t < 5.05)
+        level[gap] = gap_floor_db
+    x = voice + 10 ** (level / 20) * rng.randn(len(t))
+    with wave.open(str(path), "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(rate)
+        wf.writeframes((np.clip(x, -1, 1) * 32767).astype("<i2").tobytes())
+    return path
+
+
+def test_seams_tell_a_cliff_from_a_decay(tmp_path):
+    from noirstudio.voiceprint import seams
+
+    cliff = seams(_seam_clip(tmp_path / "cliff.wav", fall_ms=0))
+    decay = seams(_seam_clip(tmp_path / "decay.wav", fall_ms=150))
+    assert cliff["pauses"] == decay["pauses"] == 2 and cliff["short_gaps"] == 1
+    assert cliff["fall_ms"] < 15 and decay["fall_ms"] > 30  # speech that stops at once, and speech that dies away
+    assert cliff["fall_ms"] < decay["fall_ms"] / 2
+    assert 22 < cliff["depth_db"] < 32 and -52 < cliff["floor_db"] < -48  # 30 dB of voice over a floor at -50
+
+
+def test_seams_read_a_wandering_or_swelling_floor(tmp_path):
+    from noirstudio.voiceprint import seams
+
+    steady = seams(_seam_clip(tmp_path / "steady.wav", fall_ms=40))
+    wander = seams(_seam_clip(tmp_path / "wander.wav", fall_ms=40, wander_db=4.0))
+    swell = seams(_seam_clip(tmp_path / "swell.wav", fall_ms=40, swell_db=8.0))
+    assert steady["floor_sd_db"] < 0.6 and abs(steady["swell_db"]) < 1.5
+    assert wander["floor_sd_db"] > 1.5 > steady["floor_sd_db"]  # a floor that moves from one 50 ms to the next
+    assert 4 < swell["swell_db"] < 9 and swell["floor_sd_db"] > steady["floor_sd_db"]  # an AGC letting go of the floor
+
+
+def test_seams_do_not_time_a_fall_that_barely_clears_the_floor(tmp_path):
+    """Harriet checked the tool on his real notes: with speech only 12 dB over the floor the two thresholds are 1 dB apart and
+    the fall was always "0 ms"."""
+    np = pytest.importorskip("numpy")
+    from noirstudio.voiceprint import seams
+
+    rate = 16000
+    rng = np.random.RandomState(4)
+    t = np.arange(int(6.0 * rate)) / rate
+    amp = np.zeros_like(t)
+    amp[(t >= 0.3) & (t < 1.4)] = 0.1  # loud, then a pause
+    amp[(t >= 2.4) & (t < 3.0)] = 0.1  # loud again, then trailing off to a soft end (about 12 dB over the floor)
+    amp[(t >= 3.0) & (t < 3.5)] = 0.018
+    amp[(t >= 4.5) & (t < 5.4)] = 0.1
+    x = amp * np.sin(2 * np.pi * 130 * t) + 10 ** (-50 / 20) * rng.randn(len(t))
+    path = tmp_path / "soft.wav"
+    with wave.open(str(path), "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(rate)
+        wf.writeframes((np.clip(x, -1, 1) * 32767).astype("<i2").tobytes())
+    rows = seams(path)["rows"]
+    assert len(rows) == 2
+    assert "fall_ms" in rows[0] and rows[0]["fall_ms"] >= 0 and rows[0]["depth_db"] > 25  # the loud one is timed
+    assert rows[1]["speech_before_db"] - rows[1]["floor_db"] < 16 and "fall_ms" not in rows[1]  # the soft one is not guessed at
+
+
+def test_a_wandering_floor_does_not_start_the_rise_early(tmp_path):
+    """On his loud-floor notes a frame 130 ms before an onset that dipped under floor+3 dB started the clock: 330 ms for a 50 ms rise."""
+    from noirstudio.voiceprint import seams
+
+    calm = seams(_seam_clip(tmp_path / "calm.wav", fall_ms=40))
+    wandering = seams(_seam_clip(tmp_path / "wandering.wav", fall_ms=40, wander_db=6.0))
+    assert calm["rise_ms"] <= 20 and wandering["rise_ms"] <= 30  # the onsets are abrupt in both
+    assert wandering["floor_sd_db"] > 2  # and the second floor really does wander
+
+
+def test_seams_compare_the_floor_of_the_pauses_with_the_floor_of_the_gaps(tmp_path):
+    from noirstudio.voiceprint import seams
+
+    even = seams(_seam_clip(tmp_path / "even.wav", fall_ms=40))
+    louder_gaps = seams(_seam_clip(tmp_path / "gaps.wav", fall_ms=40, gap_floor_db=-47.5))
+    assert abs(even["floor_step_db"]) < 3  # the same background everywhere
+    assert -4 < louder_gaps["floor_step_db"] < -1.5  # the pauses sit 2.5 dB under the gaps between words (a gap much louder is not a gap: it is speech)
+
+
+def test_seams_cli_sets_ours_next_to_his(tmp_path, capsys):
+    his = [_seam_clip(tmp_path / f"his{i}.wav", fall_ms=100, seed=i) for i in (1, 2, 3)]
+    ours = _seam_clip(tmp_path / "ours.wav", fall_ms=0)
+    assert cli.main(["voiceprint", "--seams", *map(str, his), "--vs", str(ours)]) == 0
+    out = capsys.readouterr().out
+    assert "3 clips, 6 pauses" in out and "fall_ms" in out and "below it" in out  # ours falls faster than his middle half
+    assert "ours, clip by clip:" in out and "ours.wav: 2 pauses" in out
+    assert cli.main(["voiceprint", "--seams", str(his[0]), "--json"]) == 0
+    got = json.loads(capsys.readouterr().out)
+    assert got["his_summary"]["pauses"] == 2 and got["his"][0]["rows"][0]["length_s"] == pytest.approx(1.0, abs=0.1)
+    assert cli.main(["voiceprint", "--seams", str(tmp_path / "missing.wav")]) == 1  # nothing to measure: an error, not a crash

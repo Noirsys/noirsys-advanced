@@ -521,8 +521,8 @@ def _cmd_voiceprint(args: argparse.Namespace) -> int:
 
     from .ffmpeg import FFmpegError
     from .voicenote import VoiceNoteError
-    from .voiceprint import (compare, readers_apart, readers_apart_summary, readers_apart_text, summarize, table, timeline,
-                             timeline_text, voiceprint)
+    from .voiceprint import (compare, readers_apart, readers_apart_summary, readers_apart_text, seams, seams_summary,
+                             seams_text, summarize, table, timeline, timeline_text, voiceprint)
 
     if args.timeline:
         looked, failed = [], []
@@ -538,6 +538,39 @@ def _cmd_voiceprint(args: argparse.Namespace) -> int:
         else:
             print("\n\n".join(timeline_text(t) for t in looked))
         return 0 if looked else 1
+
+    if args.seams:
+        def read_seams(names):
+            done, bad = [], []
+            for name in names:
+                try:
+                    done.append(seams(Path(name)))
+                except (VoiceNoteError, FFmpegError, FileNotFoundError) as exc:
+                    bad.append(f"{name}: {str(exc).splitlines()[0]}")
+            return done, bad
+
+        his, failed = read_seams(args.paths)
+        ours, failed_ours = read_seams(args.vs or [])
+        failed += failed_ours
+        for line in failed:
+            print(f"skipped {line}", file=sys.stderr)
+        if not his:
+            print("no clip to measure the seams of", file=sys.stderr)
+            return 1
+        his_sum = seams_summary(his)
+        ours_sum = seams_summary(ours) if ours else None
+        if args.json:
+            print(json.dumps({"his": his, "his_summary": his_sum, "ours": ours, "ours_summary": ours_sum,
+                              "failed": failed}, indent=2))
+        else:
+            print(seams_text(his, his_sum, ours_sum))
+            if ours:
+                print("\nours, clip by clip:")
+                for c in ours:
+                    cells = "  ".join(f"{k}={c[k]}" for k in ("fall_ms", "rise_ms", "depth_db", "floor_db", "floor_sd_db",
+                                                              "swell_db", "floor_step_db") if c.get(k) is not None)
+                    print(f"{Path(c['path']).name}: {c['pauses']} pauses, {c['short_gaps']} short gaps  {cells}")
+        return 0
 
     if args.readers_apart:
         looked, failed, outside = [], [], 0
@@ -832,6 +865,10 @@ def build_parser() -> argparse.ArgumentParser:
     vp.add_argument("--readers-apart", action="store_true",
                     help="run Praat's tracker and the numpy autocorrelation on each clip, frame by frame, and say where they "
                     "part (frames only one reads, how far apart, the swing on the shared and on the plainly periodic frames)")
+    vp.add_argument("--seams", action="store_true",
+                    help="measure the joins between speech and its pauses and the floor inside them (how fast speech falls to the "
+                    "floor, how far the floor is under it, whether it wanders or swells, whether the pauses' floor is the floor of "
+                    "the gaps between words): what he hears as \"cliffs\" and \"continuity\". With --vs, ours are set next to his")
     vp.add_argument("--json", action="store_true")
     vp.set_defaults(fn=_cmd_voiceprint)
     return p

@@ -211,6 +211,89 @@ def test_the_fill_does_not_wander_when_the_reads_floor_does(tmp_path):
     assert -64 < min(body) and max(body) < -44  # and it is the read's own floor, not zeros and not a tail
 
 
+def _steps_around(after, rate, centre_s, span_s=0.012, hop_s=0.002):
+    """The level, 2 ms at a time, around a seam; returns the largest step between neighbours."""
+    import numpy as np
+
+    lv = [_window_db(after, rate, centre_s - span_s + hop_s * i, centre_s - span_s + hop_s * (i + 1))
+          for i in range(int(2 * span_s / hop_s))]
+    return max(abs(b - a) for a, b in zip(lv, lv[1:]))
+
+
+def test_words_that_touch_are_not_cut_with_a_step(tmp_path):
+    """The aligner said two words met at 1.4 s, in the middle of continuous speech: the pause went in with a 37 dB step in
+    2 ms at each end. A cliff that is not silence, and what he heard."""
+    import wave
+
+    np = pytest.importorskip("numpy")
+    rate = 48000
+    rng = np.random.RandomState(3)
+    t = np.arange(int(3.0 * rate)) / rate
+    voice = 0.2 * np.sin(2 * np.pi * 130 * t) * ((t > 0.2) & (t < 2.6)) * (0.7 + 0.3 * np.sin(2 * np.pi * 3 * t))
+    x = np.clip((voice + 10 ** (-55 / 20) * rng.randn(len(t))) * 32767, -32768, 32767).astype("<i2")
+    wav = tmp_path / "abut.wav"
+    with wave.open(str(wav), "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(rate)
+        wf.writeframes(x.tobytes())
+    shifted = insert_pauses(wav, [Word("a", 0.2, 1.4), Word("b", 1.4, 2.6)], [(1, 0.8)])  # words touching: no gap at all
+    assert shifted == [Word("a", 0.2, 1.4), Word("b", 2.2, 3.4)]
+    with wave.open(str(wav), "rb") as wf:
+        after = np.frombuffer(wf.readframes(wf.getnframes()), dtype="<i2").astype("float64") / 32768
+    assert len(after) == len(x) + int(0.8 * rate)  # exactly the pause was added
+    body = _window_db(after, rate, 1.6, 2.0)
+    assert body < -45  # a pause: the floor, not speech
+    starts = [c for c in np.arange(1.0, 1.9, 0.001) if _window_db(after, rate, c, c + 0.001) < -40]  # where the speech stopped
+    stop = starts[0]
+    assert _steps_around(after, rate, stop, span_s=0.06, hop_s=0.004) < 12  # it fades out over tens of ms, not in one step
+    begin = [c for c in np.arange(2.0, 2.6, 0.001) if _window_db(after, rate, c, c + 0.001) > -40][0]
+    assert _steps_around(after, rate, begin, span_s=0.04, hop_s=0.004) < 25  # and comes back in over 25 ms (a hard cut was 38 dB in 2 ms)
+
+
+def test_a_pause_goes_in_after_the_words_tail_not_through_it(tmp_path):
+    """The aligner put a word's end 140 ms before its sound had died away: the cut belongs where the sound has."""
+    import wave
+
+    np = pytest.importorskip("numpy")
+    rate = 48000
+    rng = np.random.RandomState(5)
+    t = np.arange(int(3.0 * rate)) / rate
+    env = ((t > 0.3) & (t < 1.1)).astype(float) + np.where((t >= 1.1) & (t < 1.25), np.linspace(1, 0, int((t >= 1.1).sum() and 0.15 * rate))[: int(((t >= 1.1) & (t < 1.25)).sum())] if False else 0.0, 0.0)
+    tail = (t >= 1.1) & (t < 1.25)
+    env[tail] = np.linspace(1.0, 0.0, tail.sum())  # the word's release, dying over 150 ms after its aligned end
+    env += ((t > 1.9) & (t < 2.7))
+    voice = 0.25 * np.sin(2 * np.pi * 140 * t) * env
+    x = np.clip((voice + 10 ** (-52 / 20) * rng.randn(len(t))) * 32767, -32768, 32767).astype("<i2")
+    wav = tmp_path / "tail.wav"
+    with wave.open(str(wav), "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(rate)
+        wf.writeframes(x.tobytes())
+    insert_pauses(wav, [Word("a", 0.3, 1.1), Word("b", 1.9, 2.7)], [(1, 1.0)])  # nominal cut: the middle of the gap, 1.5 s
+    with wave.open(str(wav), "rb") as wf:
+        after = np.frombuffer(wf.readframes(wf.getnframes()), dtype="<i2").astype("float64") / 32768
+    # the tail is all there (it dies away by itself over 1.1 to 1.25 s), and nothing after it is speech until the word b
+    assert _window_db(after, rate, 1.10, 1.12) > -25
+    assert _window_db(after, rate, 1.30, 1.40) < -45
+    lv = [_window_db(after, rate, 1.0 + 0.004 * i, 1.004 + 0.004 * i) for i in range(0, 100)]
+    assert max(abs(b - a) for a, b in zip(lv, lv[1:])) < 14  # no step anywhere across the release and the seam
+
+
+def test_a_pause_at_the_very_start_or_end_of_a_read_is_fine(tmp_path):
+    import wave
+
+    np = pytest.importorskip("numpy")
+    wav = tmp_path / "edges.wav"
+    _read_with_floor(wav)
+    n0 = wave.open(str(wav)).getnframes()
+    words = [Word("a", 0.3, 1.1), Word("b", 1.9, 2.7)]
+    shifted = insert_pauses(wav, words, [(0, 0.5), (2, 0.4)])  # before the first word, after the last
+    assert wave.open(str(wav)).getnframes() == n0 + int(0.9 * 48000)
+    assert shifted[0].start == pytest.approx(0.8) and shifted[1].end == pytest.approx(3.2, abs=0.01)
+
+
 def test_a_read_whose_floor_is_digital_silence_gets_silence_in_its_pause(tmp_path):
     import wave
 

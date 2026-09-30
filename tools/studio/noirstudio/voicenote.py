@@ -521,6 +521,31 @@ def _xfade(a, b):
     return a * np.cos(t) + b * np.sin(t)
 
 
+def _valley(x, lo: int, hi: int, near: int, rate: int, win_s: float = 0.005):
+    """The quietest 5 ms of `x[lo:hi]` (samples), where a cut is least heard; of the windows within 2 dB of the quietest, the
+    one nearest `near`. Returns (its centre sample, its level in dBFS), or (near, None) if the range is too short to look in."""
+    import numpy as np
+
+    w = max(2, int(win_s * rate))
+    lo, hi = max(0, lo), min(len(x), hi)
+    near = min(max(near, 0), len(x))
+    if hi - lo < w + 1:
+        return near, None
+    mono = x[lo:hi].astype("float64").mean(axis=1)
+    c = np.concatenate([[0.0], np.cumsum(mono ** 2)])
+    e = (c[w:] - c[:-w]) / w  # the energy of the window that starts at each sample
+    ok = np.flatnonzero(e <= e.min() * 1.585 + 1e-9)
+    best = ok[np.abs(lo + ok + w // 2 - near).argmin()]
+    return int(lo + best + w // 2), float(10 * np.log10(e[best] / 32768.0 ** 2 + 1e-12))
+
+
+def _bank_db(bank) -> float:
+    """The level of the fill in dBFS (all the bank's windows are at one level); -120 for a digital-silence floor."""
+    import numpy as np
+
+    return float(10 * np.log10((bank[0].astype("float64") ** 2).mean() / 32768.0 ** 2 + 1e-12)) if bank else -120.0
+
+
 def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[int, float]]) -> List[Word]:
     """Put the pauses back into the clean read, between the aligned words; returns shifted words.
 
@@ -528,8 +553,10 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
     the AGC lifts) down to nothing is an audible cliff, which is what he heard in the first takes ("weird dropoffs ... a
     small crossfade for artificial silences is necessary"). So each pause is filled with the read's own floor (windows from
     a narrow band around it, all at one level, so that the fill itself does not step), and joined to the audio on both sides
-    with a 20 ms equal-power crossfade that stays inside the gap between the words. A read whose floor is digital silence,
-    or that has no quiet stretch, gets silence, still faded.
+    with an equal-power crossfade. The cut is not put where the aligner says the words meet (it is out by tens of ms, and
+    two words can touch, which cut 37 dB in 2 ms) but at the quietest 5 ms within a few tens of ms of it, and the speech is
+    faded out over as long as its level there is over the floor (8 ms at the floor, 60 ms in the middle of a word) and back
+    in over at most 25 ms. A read whose floor is digital silence, or that has no quiet stretch, gets silence, still faded.
     """
     if not pauses:
         return list(words)
@@ -563,21 +590,29 @@ def insert_pauses(wav_path: Path, words: Sequence[Word], pauses: Sequence[Tuple[
     else:
         x = np.frombuffer(audio, dtype="<i2").reshape(-1, channels).astype("float32")
         bank = _quiet_bank(x, rate)
+        floor_db = _bank_db(bank)
         rng = random.Random(f"{len(x)}:{len(at)}:{round(sum(t for t, _, _ in at), 3)}")
         parts, last = [], 0
         for t, seconds, gap in at:
-            cut = min(len(x), round(t * rate))
+            near = round(t * rate)
+            reach = int(min(0.08, max(0.04, gap / 2 + 0.03)) * rate)  # the aligner is a few tens of ms out, and words can touch
+            cut, level = _valley(x, max(last + 1, near - reach), near + reach, near, rate)
+            cut = min(max(cut, last), len(x))
             n = round(seconds * rate)
-            f = min(int(0.02 * rate), int(0.4 * gap * rate), (cut - last) // 2, (len(x) - cut) // 2)
-            f = max(0, f)
-            fill = _fill(bank, n + 2 * f, channels, rate, rng)
-            parts.append(x[last: cut - f])
-            if f:
-                parts.append(_xfade(x[cut - f: cut], fill[:f]))
-            parts.append(fill[f: f + n])
-            if f:
-                parts.append(_xfade(fill[f + n:], x[cut: cut + f]))
-            last = cut + f
+            # how long the speech is faded out: 8 ms when the cut is already at the floor, up to 60 ms when it falls in speech,
+            # so that a pause never starts with a step (words that touch were cut 37 dB in 2 ms); the way in is shorter, 25 ms
+            over = 0.0 if level is None else max(0.0, level - floor_db)
+            f_out = int((0.008 + min(max(over - 6.0, 0.0), 24.0) / 24.0 * 0.052) * rate)
+            f_out = max(0, min(f_out, (cut - last) // 2))
+            f_in = max(0, min(int(0.025 * rate), f_out, (len(x) - cut) // 2))
+            fill = _fill(bank, n + f_out + f_in, channels, rate, rng)
+            parts.append(x[last: cut - f_out])
+            if f_out:
+                parts.append(_xfade(x[cut - f_out: cut], fill[:f_out]))
+            parts.append(fill[f_out: f_out + n])
+            if f_in:
+                parts.append(_xfade(fill[f_out + n:], x[cut: cut + f_in]))
+            last = cut + f_in
         parts.append(x[last:])
         data = np.clip(np.rint(np.concatenate(parts)), -32768, 32767).astype("<i2").tobytes()
     with wave.open(str(wav_path), "wb") as wf:
