@@ -23,6 +23,7 @@ noirstudio cut diary/<ep>.cuts.yaml --master EP.mp4 [--check]    # full / <=3:00
 noirstudio voicenote --say "his line" OUT.ogg --match REAL.ogg   # a lost voice note of his, rebuilt (ELEVENLABS_API_KEY)
 noirstudio voicenote --say "his line" OUT.ogg --preset home --match REAL.ogg   # the same, with the recipe measured from his real notes (swing 2.1 st, 104 Hz, pace, pauses, stumbles); opt-in until he has heard it; leave --noise-db alone (a pause with nothing under it is the dead silence he hears as fake)
 noirstudio voicenote --say "the same line" OUT2.ogg --preset home --room REAL.ogg --reuse OUT   # everything after the clone's read run again from the read (OUT.unswung.wav, OUT.words.json) that build kept: no key, no cost, the same pauses; a new bed, fill or pitch can be tried on the same read
+noirstudio voicenote --batch lines.json OUTDIR --preset home --stumble 0 --hesitate 3 --match REAL.ogg --lufs -18.2 --no-room --noise-db -54   # every line of a manifest, one recipe, resumable, stops if the account refuses a read; every read is kept (OUT.unswung.wav) so later changes are --reuse; add --report to see what OUTDIR holds
 noirstudio voiceprint HIS.ogg ... --vs OURS.ogg ...              # how close our reads are to his real notes, in numbers (needs numpy)
 noirstudio voiceprint CLIP.ogg --timeline                        # inside one clip, 100 ms at a time: level, pitch, bursts (a laugh? a breath?)
 noirstudio voiceprint HIS.ogg ... --readers-apart               # where the two pitch readers part on real notes (needs parselmouth)

@@ -412,6 +412,17 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
                             measure, plain_filler, prosody, rawify, render, reuse_read, roughen, room_tone, split_pauses,
                             stumbles)
 
+    if args.batch:  # every line of a manifest, each by this same command
+        from .voicebatch import run_batch
+
+        if args.say or args.measure or args.reuse or len(args.paths) != 1:
+            print("usage: voicenote --batch MANIFEST.json OUTDIR [options for every line]  (not with --say, --measure or --reuse)",
+                  file=sys.stderr)
+            return 1
+        return run_batch(args, _cmd_voicenote)
+    if args.report or args.only or args.suffix or args.force:
+        print("--only, --suffix, --force and --report go with --batch", file=sys.stderr)
+        return 1
     if args.preset:  # the recipe fills in what was not asked for; anything asked for wins
         for key, value in HOME_PRESET.items():
             if key == "raw":
@@ -476,9 +487,9 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
                 said = ElevenLabsVoice().synthesize(spoken, voice, clean_wav)
             heard = [Word(plain_filler(w.text), w.start, w.end) for w in said.words]  # and captioned as "um"
             src, aligned = said.audio_path, heard
+            unswung = src.with_name(out.stem + ".unswung.wav")  # the read as the clone made it, kept beside the note whatever is
+            shutil.copyfile(src, unswung)  # done to it next: a read costs money, and --reuse runs everything after it again for free
             if args.swing or args.pitch or args.pace:  # his pitch, swing and pace, on the speech before any pause goes in
-                unswung = src.with_name(out.stem + ".unswung.wav")
-                shutil.copyfile(src, unswung)
                 swung = prosody(unswung, src, args.swing, args.pitch, args.pace or 1.0)
                 k = swung["pace_effective"]
                 aligned = [Word(w.text, round(w.start * k, 3), round(w.end * k, 3)) for w in heard]
@@ -834,7 +845,16 @@ def build_parser() -> argparse.ArgumentParser:
 
     vn = sub.add_parser("voicenote", help="a lost voice note of his, rebuilt: his clone's read made to sound like his phone")
     vn.add_argument("paths", nargs="+", metavar="PATH",
-                    help="IN OUT (filter a clean read); OUT with --say; REAL with --measure. OUT .ogg is the note itself")
+                    help="IN OUT (filter a clean read); OUT with --say; REAL with --measure; OUTDIR with --batch. OUT .ogg is the note itself")
+    vn.add_argument("--batch", metavar="MANIFEST",
+                    help="build every line of a manifest ({\"lines\": [{\"id\": \"e02-1\", \"say\": \"...\"}]}) into OUTDIR (the PATH): "
+                    "OUTDIR/<id>.ogg with everything a build writes beside it, and a .out and .rc. Every option given here applies to "
+                    "every line. Resumable (a line already built is skipped), and it stops when the account refuses a read")
+    vn.add_argument("--only", metavar="IDS", help="with --batch: only these ids, comma-separated")
+    vn.add_argument("--suffix", default="", metavar="S", help="with --batch: appended to every id, for a second take of the same lines")
+    vn.add_argument("--force", action="store_true", help="with --batch: build a line again even if its note is there")
+    vn.add_argument("--report", action="store_true",
+                    help="with --batch: build nothing; print what OUTDIR holds (pauses asked, in and left out, per minute, the seams)")
     vn.add_argument("--say", metavar="TEXT", help="his line as the script has it, uh/um and all; [pause 1.2] marks where he "
                     "stops to think (default 0.8 s). His clone reads it (ELEVENLABS_API_KEY)")
     vn.add_argument("--reuse", metavar="PREFIX",

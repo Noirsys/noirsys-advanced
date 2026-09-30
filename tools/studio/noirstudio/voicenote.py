@@ -899,8 +899,9 @@ def reuse_read(prefix: Path, clean: Path, spoken: str, line: Optional[str] = Non
     """The clone's read and its word timings from an earlier build of the same line, so that everything after the read can be
     run again (a new pitch, a new pause fill, a new room) without asking for a new one: no key, no cost, and the same read.
 
-    `prefix` is the earlier build's output without its extension: `PREFIX.unswung.wav` (the read as the clone made it; only
-    builds that flattened or moved the pitch or slowed the speech keep one) and `PREFIX.words.json`. The line the clone would
+    `prefix` is the earlier build's output without its extension: `PREFIX.unswung.wav` (the read as the clone made it; every
+    build that asked the clone keeps one, but builds from before 2026-09-30 kept it only when they changed the pitch, the swing
+    or the pace) and `PREFIX.words.json`. The line the clone would
     be sent now must be the line it was sent then. Returns the read (copied to `clean`), the pauses that build put in and which
     of them it added itself; the word timings are worked back from that build's captions (its lead-in, its pauses and its pace
     taken off), to within a millisecond."""
@@ -910,8 +911,8 @@ def reuse_read(prefix: Path, clean: Path, spoken: str, line: Optional[str] = Non
     raw, meta_path = prefix.with_name(prefix.name + ".unswung.wav"), prefix.with_name(prefix.name + ".words.json")
     for path in (raw, meta_path):
         if not path.exists():
-            raise VoiceNoteError(f"nothing to reuse: {path} is missing (only a build that changed the pitch, swing or pace keeps "
-                                 "the read as the clone made it)")
+            raise VoiceNoteError(f"nothing to reuse: {path} is missing (a build keeps the read as the clone made it beside its "
+                                 "note; those from before 2026-09-30 kept it only if they changed the pitch, swing or pace)")
     meta = json.loads(meta_path.read_text(encoding="utf-8"))
     was = meta.get("spelled", meta.get("read"))
     if was not in (spoken, line):  # a build from before "um" was asked for as "ummm" sent the plain line
