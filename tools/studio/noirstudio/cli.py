@@ -440,6 +440,8 @@ def _cmd_voicenote(args: argparse.Namespace) -> int:
             room = room_tone(Path(args.room), out.with_name(out.stem + ".room.wav"))
             if room:
                 style = replace(style, room_tone=room["path"])
+                print(f"room: {room['stretches']} stretches of {Path(args.room).name} joined, {room['dropped']} put aside "
+                      f"(its opening and closing, and any off the room's level), {room['seconds']} s to loop", file=sys.stderr)
             else:
                 print(f"note: {args.room} has no room in it (noise-suppressed or no pauses); "
                       "using the synthetic room tone", file=sys.stderr)

@@ -495,6 +495,14 @@ def test_his_room_comes_from_a_real_note(clean, real_note, tmp_path):
     assert abs(rebuilt["lufs"] - real["lufs"]) < 0.6 and abs(rebuilt["noise_db"] - real["noise_db"]) < 2
 
 
+def test_cli_room_says_what_it_made_the_room_of(clean, real_note, tmp_path, capsys):
+    out = tmp_path / "rebuilt.ogg"
+    assert main(["voicenote", str(clean), str(out), "--room", str(real_note), "--noise-db", "-50"]) == 0
+    err = capsys.readouterr().err
+    assert "room: 3 stretches of real.ogg joined, 2 put aside" in err
+    assert (tmp_path / "rebuilt.room.wav").exists() and out.exists()
+
+
 def test_his_room_has_no_dropouts_at_its_joins_or_where_it_loops(tmp_path):
     """The room is looped under every pause, and in a pause it is all there is to hear: a join that dips (the stretches used to be
     faded out and in over 10 ms and joined bare: 10 to 12 dB, once a second) is a little cliff in the floor."""
