@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-08T17:21:37+00:00",
+  "stories": [
+    {
+      "id": "50002665",
+      "title": "I think I found a planet nobody knew existed. I used Claude Code to find it",
+      "url": "https://www.reddit.com/r/ClaudeAI/s/mbe5IY2LF9",
+      "points": 67,
+      "comments": 20,
+      "created_at": "2026-10-08T07:07:34Z",
+      "pph": 6.547,
+      "query": "claude code"
+    },
+    {
+      "id": "49995539",
+      "title": "Show HN: Agent.reviews \u2013 Where AI agents read and write reviews on tools",
+      "url": "https://agent.reviews/",
+      "points": 64,
+      "comments": 47,
+      "created_at": "2026-10-07T16:59:11Z",
+      "pph": 2.626,
+      "query": "claude code"
+    },
+    {
+      "id": "49995809",
+      "title": "Show HN: Terse, a Claude Code plugin that halves reply length by cutting filler",
+      "url": "https://github.com/lowenbjer/claude-terse",
+      "points": 20,
+      "comments": 6,
+      "created_at": "2026-10-07T17:16:48Z",
+      "pph": 0.831,
+      "query": "claude code"
+    },
+    {
+      "id": "49996358",
+      "title": "Claude Haiku 5.5",
+      "url": "https://platform.claude.com/docs/en/models/haiku-5-5/overview",
+      "points": 13,
+      "comments": 1,
+      "created_at": "2026-10-07T17:56:14Z",
+      "pph": 0.555,
+      "query": "claude code"
+    },
+    {
+      "id": "50001750",
+      "title": "Show HN: Pacer \u2013 will your AI coding subscription last until the reset?",
+      "url": "https://github.com/dkremsa/claude-pacer",
+      "points": 10,
+      "comments": 8,
+      "created_at": "2026-10-08T04:10:33Z",
+      "pph": 0.758,
+      "query": "claude code"
+    },
+    {
+      "id": "49994840",
+      "title": "I think I found a planet nobody knew existed. I used Claude Code to find it",
+      "url": "https://www.reddit.com/r/ClaudeAI/comments/1wzw8zd/i_think_i_found_a_planet_nobody_knew_existed_i/",
+      "points": 9,
+      "comments": 1,
+      "created_at": "2026-10-07T16:13:18Z",
+      "pph": 0.358,
+      "query": "claude code"
+    },
+    {
+      "id": "50005566",
+      "title": "Gemini Agent Introduced",
+      "url": "https://cloud.google.com/blog/products/ai-machine-learning/welcome-to-gemini-at-work-2026",
+      "points": 7,
+      "comments": 2,
+      "created_at": "2026-10-08T13:25:27Z",
+      "pph": 1.778,
+      "query": "ai agents"
+    },
+    {
+      "id": "50007889",
+      "title": "Natura unveils $99 Interface smart ring for AI agents and apps",
+      "url": "https://techcrunch.com/2026/10/08/naturas-smart-ring-puts-ai-agents-on-your-finger/",
+      "points": 6,
+      "comments": 0,
+      "created_at": "2026-10-08T16:27:57Z",
+      "pph": 6.0,
+      "query": "ai agents"
+    },
+    {
+      "id": "50004061",
+      "title": "\"I think I found a planet nobody knew existed. I used Claude Code to find it\"",
+      "url": "https://www.reddit.com/r/ClaudeAI/comments/1wzw8zd/i_think_i_found_a_planet_nobody_knew_existed_i/",
+      "points": 6,
+      "comments": 8,
+      "created_at": "2026-10-08T10:24:01Z",
+      "pph": 0.862,
+      "query": "claude code"
+    },
+    {
+      "id": "49997654",
+      "title": "Claude Agents SDK will no longer use subscription; API credits included in plans",
+      "url": "https://news.ycombinator.com/item?id=49997654",
+      "points": 6,
+      "comments": 6,
+      "created_at": "2026-10-07T19:28:50Z",
+      "pph": 0.274,
+      "query": "claude code"
+    }
+  ]
+}
