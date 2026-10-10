@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-10T15:50:17+00:00",
+  "stories": [
+    {
+      "id": "50031269",
+      "title": "`123456' password used in Danish CPR data breach",
+      "url": "https://cphpost.dk/2026-10-10/news/round-up/123456-password-used-in-massive-danish-cpr-data-breach/",
+      "points": 293,
+      "comments": 166,
+      "created_at": "2026-10-10T09:51:49Z",
+      "pph": 49.041,
+      "query": "mcp"
+    },
+    {
+      "id": "50031614",
+      "title": "Talorys \u2013 A self-hosted personal AI agent on Cloudflare's free tier",
+      "url": "https://github.com/rociiu/talorys",
+      "points": 115,
+      "comments": 62,
+      "created_at": "2026-10-10T10:52:09Z",
+      "pph": 23.144,
+      "query": "ai agents"
+    },
+    {
+      "id": "50027694",
+      "title": "Rewriting Prime Agent in Rust",
+      "url": "https://www.primeintellect.ai/blog/prime-agent-rust",
+      "points": 59,
+      "comments": 19,
+      "created_at": "2026-10-09T23:06:25Z",
+      "pph": 3.526,
+      "query": "ai agents"
+    },
+    {
+      "id": "50029330",
+      "title": "Anthropic Agents Tried to Fill Out Visa Forms on State Dept. Website",
+      "url": "https://www.nytimes.com/2026/10/09/technology/anthropic-rogue-ai-agents.html",
+      "points": 30,
+      "comments": 7,
+      "created_at": "2026-10-10T03:42:11Z",
+      "pph": 2.472,
+      "query": "ai agents"
+    },
+    {
+      "id": "50033517",
+      "title": "My personal AI agent posted my bank details on company Slack",
+      "url": "https://www.businessinsider.com/personal-ai-agent-grok-bot-posted-bank-details-company-slack-2026-10",
+      "points": 23,
+      "comments": 16,
+      "created_at": "2026-10-10T14:46:16Z",
+      "pph": 21.555,
+      "query": "ai agents"
+    },
+    {
+      "id": "50031438",
+      "title": "Rogue Anthropic AI agent gave police fake tip in unsolved murder case",
+      "url": "https://www.bbc.co.uk/news/articles/cqkg50j1yd5lo",
+      "points": 14,
+      "comments": 7,
+      "created_at": "2026-10-10T10:23:44Z",
+      "pph": 2.572,
+      "query": "ai agents"
+    },
+    {
+      "id": "50026819",
+      "title": "Show HN: Babytalk: Offline speech to text and text to speech on ESP32",
+      "url": "https://github.com/tlack/babytalk",
+      "points": 12,
+      "comments": 6,
+      "created_at": "2026-10-09T21:33:56Z",
+      "pph": 0.657,
+      "query": "claude code"
+    },
+    {
+      "id": "50030717",
+      "title": "Study on AI coding agents finds gains \"absorbed\" by human review \"bottleneck.\"",
+      "url": "https://arstechnica.com/ai/2026/10/ai-coding-agents-generate-more-code-but-not-more-software/",
+      "points": 9,
+      "comments": 3,
+      "created_at": "2026-10-10T07:55:10Z",
+      "pph": 1.137,
+      "query": "ai agents"
+    },
+    {
+      "id": "50030778",
+      "title": "Anthropic can't reliably control its AI agents, cuts internet access",
+      "url": "https://techcrunch.com/2026/10/09/anthropic-cant-reliably-control-its-ai-agents-its-cutting-off-its-internal-evals-from-the-live-internet-instead/",
+      "points": 7,
+      "comments": 3,
+      "created_at": "2026-10-10T08:07:20Z",
+      "pph": 0.907,
+      "query": "ai agents"
+    },
+    {
+      "id": "50030849",
+      "title": "Show HN: Open Components \u2013 UI Components standard for people, devs and AI agents",
+      "url": "https://opencomponents.dev/",
+      "points": 6,
+      "comments": 1,
+      "created_at": "2026-10-10T08:24:05Z",
+      "pph": 0.807,
+      "query": "ai agents"
+    }
+  ]
+}
