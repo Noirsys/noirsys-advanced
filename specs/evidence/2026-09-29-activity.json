@@ -1,0 +1,17 @@
+{
+  "collected_at": "2026-09-29T16:28:17+00:00",
+  "since": "1.day",
+  "repos": [
+    {
+      "path": "/home/runner/work/noirsys-advanced/noirsys-advanced",
+      "commits": [],
+      "totals": {
+        "commits": 0,
+        "files": 0,
+        "insertions": 0,
+        "deletions": 0
+      }
+    }
+  ],
+  "renders": []
+}
