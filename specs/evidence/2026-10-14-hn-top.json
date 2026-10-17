@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-14T15:00:54+00:00",
+  "stories": [
+    {
+      "id": "50079865",
+      "title": "Recreational Programming",
+      "url": "https://www.cphiri.dev/presentations/recreational-programming",
+      "points": 264,
+      "comments": 106,
+      "created_at": "2026-10-13T22:33:33Z",
+      "pph": 16.043,
+      "query": "mcp"
+    },
+    {
+      "id": "50072120",
+      "title": "How to engineer an AI harness for game development",
+      "url": "https://kylekukshtel.com/ai-harness-engineering-game-development-claude-code",
+      "points": 160,
+      "comments": 82,
+      "created_at": "2026-10-13T14:14:23Z",
+      "pph": 6.458,
+      "query": "claude code"
+    },
+    {
+      "id": "50070010",
+      "title": "Show HN: Spotatui, a Spotify TUI/GUI without web API rate limits",
+      "url": "https://github.com/LargeModGames/spotatui",
+      "points": 79,
+      "comments": 18,
+      "created_at": "2026-10-13T11:32:00Z",
+      "pph": 2.875,
+      "query": "claude code"
+    },
+    {
+      "id": "50085323",
+      "title": "TV4 postpones show after AI agent erases edited material",
+      "url": "https://swedenherald.com/article/tv4-postpones-the-challenge-until-2027-after-technical-failure-erases-edited-footage",
+      "points": 72,
+      "comments": 44,
+      "created_at": "2026-10-14T10:28:26Z",
+      "pph": 15.855,
+      "query": "ai agents"
+    },
+    {
+      "id": "50077619",
+      "title": "Show HN: Parsimony \u2013 an open-source benchmark for how much code AI models add",
+      "url": "https://parsimony.lasu.dev/",
+      "points": 72,
+      "comments": 16,
+      "created_at": "2026-10-13T19:50:31Z",
+      "pph": 3.755,
+      "query": "claude code"
+    },
+    {
+      "id": "50085306",
+      "title": "Pulsar at ESUG 2026 (new Smalltalk IDE)",
+      "url": "https://blog.lorenzano.eu/pulsar-at-esug-2026/",
+      "points": 52,
+      "comments": 8,
+      "created_at": "2026-10-14T10:26:53Z",
+      "pph": 11.386,
+      "query": "mcp"
+    },
+    {
+      "id": "50085259",
+      "title": "Agent erased full season of \"The Challenge Swe\": \"Hundreds of days of work gone\"",
+      "url": "https://www.aviaduct.com/?l=og+en&u=https%3A%2F%2Fwww.aftonbladet.se%2Fnojesbladet%2Fa%2F31oE8A%2Fthe-challenge-sverige-raderad-av-ai-bara-veckor-innan-premiaren",
+      "points": 50,
+      "comments": 57,
+      "created_at": "2026-10-14T10:21:13Z",
+      "pph": 10.726,
+      "query": "ai agents"
+    },
+    {
+      "id": "50086794",
+      "title": "CPI-U rises 7.2% annualized in September (3.7% YoY)",
+      "url": "https://www.bls.gov/news.release/cpi.nr0.htm?",
+      "points": 38,
+      "comments": 24,
+      "created_at": "2026-10-14T12:40:55Z",
+      "pph": 16.287,
+      "query": "mcp"
+    },
+    {
+      "id": "50073471",
+      "title": "Launch HN: Consus (YC F24) \u2013 LLM gateway for companies handling sensitive data",
+      "url": "https://news.ycombinator.com/item?id=50073471",
+      "points": 35,
+      "comments": 18,
+      "created_at": "2026-10-13T15:41:00Z",
+      "pph": 1.5,
+      "query": "claude code"
+    },
+    {
+      "id": "50085547",
+      "title": "The road we were told not to take",
+      "url": "https://www.aspendailynews.com/opinion/whiting-the-road-we-were-told-not-to-take-0b9fd0a3?taid=6acba476a2e9090001ef1611&utm_campaign=trueanthem&utm_medium=social&utm_source=twitter",
+      "points": 22,
+      "comments": 12,
+      "created_at": "2026-10-14T10:50:45Z",
+      "pph": 5.277,
+      "query": "mcp"
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-04T15:17:08+00:00",
+  "stories": [
+    {
+      "id": "49946567",
+      "title": "Getting the most out of Opus 5.5 in Claude and Claude Code",
+      "url": "https://claude.dev/blog/getting-the-most-out-of-opus-5-5/",
+      "points": 224,
+      "comments": 154,
+      "created_at": "2026-10-03T18:29:30Z",
+      "pph": 10.772,
+      "query": "claude code"
+    },
+    {
+      "id": "49937916",
+      "title": "Show HN: Made an open-source Lego AI generator",
+      "url": "https://github.com/anteloc/ldraw-nova",
+      "points": 149,
+      "comments": 49,
+      "created_at": "2026-10-02T20:00:15Z",
+      "pph": 3.443,
+      "query": "claude code"
+    },
+    {
+      "id": "49937304",
+      "title": "Show HN: Pi pod \u2013 Run your pi coding agent in sandboxes on your own server",
+      "url": "https://pipod.dev/",
+      "points": 108,
+      "comments": 41,
+      "created_at": "2026-10-02T19:10:38Z",
+      "pph": 2.449,
+      "query": "claude code"
+    },
+    {
+      "id": "49942434",
+      "title": "Show HN: Offrun \u2013 manage every coding agent from one workspace",
+      "url": "https://offrun.dev/",
+      "points": 75,
+      "comments": 63,
+      "created_at": "2026-10-03T08:40:17Z",
+      "pph": 2.45,
+      "query": "claude code"
+    },
+    {
+      "id": "49942103",
+      "title": "Show HN: Thoreau BASIC \u2013\u00a0What if BASIC hadn't gone out of fashion?",
+      "url": "https://thoreaubasic.com/",
+      "points": 73,
+      "comments": 40,
+      "created_at": "2026-10-03T07:28:54Z",
+      "pph": 2.295,
+      "query": "mcp"
+    },
+    {
+      "id": "49934037",
+      "title": "Ask HN: Is anybody producing good code with coding agents?",
+      "url": "https://news.ycombinator.com/item?id=49934037",
+      "points": 28,
+      "comments": 40,
+      "created_at": "2026-10-02T14:38:35Z",
+      "pph": 0.576,
+      "query": "claude code"
+    },
+    {
+      "id": "49939817",
+      "title": "Show HN: Television \u2013 an open source GUI for your agent harness",
+      "url": "https://television.run/",
+      "points": 7,
+      "comments": 1,
+      "created_at": "2026-10-02T23:25:04Z",
+      "pph": 0.176,
+      "query": "claude code"
+    },
+    {
+      "id": "49945978",
+      "title": "We diffed all 66 release pairs of the official MCP servers, 140 silent changes",
+      "url": "https://github.com/Paraphern/rugsnare",
+      "points": 6,
+      "comments": 0,
+      "created_at": "2026-10-03T17:10:06Z",
+      "pph": 0.271,
+      "query": "mcp"
+    },
+    {
+      "id": "49949172",
+      "title": "Show HN: jpm \u2013 a JavaScript package manager in Rust, every line by Claude Code",
+      "url": "https://getjpm.sh/",
+      "points": 6,
+      "comments": 4,
+      "created_at": "2026-10-04T00:11:58Z",
+      "pph": 0.398,
+      "query": "claude code"
+    },
+    {
+      "id": "49946139",
+      "title": "Show HN: UI for answering agent questions async",
+      "url": "https://docs.plannotator.ai/open-source/workflows/questions",
+      "points": 5,
+      "comments": 0,
+      "created_at": "2026-10-03T17:34:08Z",
+      "pph": 0.23,
+      "query": "ai agents"
+    }
+  ]
+}

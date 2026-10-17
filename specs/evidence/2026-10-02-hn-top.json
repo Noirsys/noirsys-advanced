@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-02T16:13:55+00:00",
+  "stories": [
+    {
+      "id": "49926726",
+      "title": "Show HN: Rhun, an open-source code editor written in assembly",
+      "url": "https://rhun.app/",
+      "points": 59,
+      "comments": 41,
+      "created_at": "2026-10-01T20:32:18Z",
+      "pph": 2.996,
+      "query": "claude code"
+    },
+    {
+      "id": "49927693",
+      "title": "Your Big Mac might cost more if McDonald's AI thinks people nearby can afford it",
+      "url": "https://neow.in/NGxhb3d6",
+      "points": 37,
+      "comments": 49,
+      "created_at": "2026-10-01T22:15:57Z",
+      "pph": 2.059,
+      "query": "mcp"
+    },
+    {
+      "id": "49932610",
+      "title": "Redditor buys used CPU, turns out it was banned on Valorant and they are SoL",
+      "url": "https://www.reddit.com/r/LinusTechTips/comments/1wvr096/wan_show_topic_redditor_buys_used_cpu_turns_out/",
+      "points": 34,
+      "comments": 20,
+      "created_at": "2026-10-02T12:12:58Z",
+      "pph": 8.466,
+      "query": "mcp"
+    },
+    {
+      "id": "49924943",
+      "title": "Show HN: Breadcrumb, record everything on your mac + context manager for AI",
+      "url": "https://innerloop.works/breadcrumb",
+      "points": 20,
+      "comments": 4,
+      "created_at": "2026-10-01T17:58:37Z",
+      "pph": 0.899,
+      "query": "mcp"
+    },
+    {
+      "id": "49933381",
+      "title": "Benchmarking retrieval for agents on messy real-world company knowledge",
+      "url": "https://www.kapa.ai/blog/company-knowledge-bench",
+      "points": 16,
+      "comments": 0,
+      "created_at": "2026-10-02T13:37:18Z",
+      "pph": 6.129,
+      "query": "ai agents"
+    },
+    {
+      "id": "49929121",
+      "title": "Best-of-Agent-Harnesses \u2013 Ranked list of 167 AI agent harnesses, rescored weekly",
+      "url": "https://github.com/ryanalberts/best-of-agent-harnesses",
+      "points": 7,
+      "comments": 0,
+      "created_at": "2026-10-02T01:57:56Z",
+      "pph": 0.491,
+      "query": "ai agents"
+    },
+    {
+      "id": "49930960",
+      "title": "Court Agrees with EFF: Utah's VPN Law Demands a Technical Impossibility",
+      "url": "https://www.eff.org/deeplinks/2026/10/court-agrees-eff-utahs-vpn-law-demands-technical-impossibility",
+      "points": 7,
+      "comments": 0,
+      "created_at": "2026-10-02T07:54:20Z",
+      "pph": 0.841,
+      "query": "mcp"
+    },
+    {
+      "id": "49934037",
+      "title": "Ask HN: Is anybody producing good code with coding agents?",
+      "url": "https://news.ycombinator.com/item?id=49934037",
+      "points": 6,
+      "comments": 5,
+      "created_at": "2026-10-02T14:38:35Z",
+      "pph": 3.776,
+      "query": "ai agents"
+    },
+    {
+      "id": "49928011",
+      "title": "Show HN: PhreshOS \u2013 OS for Web Apps",
+      "url": "https://github.com/PhreshOS/system",
+      "points": 6,
+      "comments": 2,
+      "created_at": "2026-10-01T22:55:02Z",
+      "pph": 0.347,
+      "query": "ai agents"
+    },
+    {
+      "id": "49931667",
+      "title": "OpenAI hacks 2nd Australian Government Department",
+      "url": "https://www.abc.net.au/news/2026-10-02/rogue-open-ai-agent-breach-nsw-government-website/107223108",
+      "points": 5,
+      "comments": 6,
+      "created_at": "2026-10-02T09:47:31Z",
+      "pph": 0.776,
+      "query": "ai agents"
+    }
+  ]
+}
