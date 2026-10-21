@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-21T15:05:05+00:00",
+  "stories": [
+    {
+      "id": "50175779",
+      "title": "Using Claude to reduce the attack surface of code",
+      "url": "https://www.anthropic.com/research/attack-surface-reduction",
+      "points": 104,
+      "comments": 71,
+      "created_at": "2026-10-21T03:36:43Z",
+      "pph": 9.065,
+      "query": "claude code"
+    },
+    {
+      "id": "50179857",
+      "title": "LayerFS: The filesystem for AI coding agents",
+      "url": "https://layerfs.ai/",
+      "points": 40,
+      "comments": 19,
+      "created_at": "2026-10-21T12:34:46Z",
+      "pph": 15.965,
+      "query": "ai agents"
+    },
+    {
+      "id": "50176129",
+      "title": "Nexus-CLI \u2013 Pure Go Bridge to DeepSeek R1/V3 with Claude Code and Ollama Support",
+      "url": "https://github.com/xamrayev/nexus-cli",
+      "points": 15,
+      "comments": 4,
+      "created_at": "2026-10-21T04:37:18Z",
+      "pph": 1.434,
+      "query": "claude code"
+    },
+    {
+      "id": "50180752",
+      "title": "Using thousands of AI agents to uncover new leads in biological data",
+      "url": "https://openai.com/index/scaling-ai-research-for-complex-biological-data/",
+      "points": 14,
+      "comments": 0,
+      "created_at": "2026-10-21T13:37:00Z",
+      "pph": 9.535,
+      "query": "ai agents"
+    },
+    {
+      "id": "50174185",
+      "title": "Show HN: One click flight booking in Claude",
+      "url": "https://mcp.bonbook.co/claude-setup",
+      "points": 5,
+      "comments": 2,
+      "created_at": "2026-10-20T23:36:17Z",
+      "pph": 0.323,
+      "query": "mcp"
+    },
+    {
+      "id": "50170201",
+      "title": "Show HN: Gauge CLI \u2013 Open-Source Hillclimbing for Agent Experience",
+      "url": "https://github.com/gauge-sh/gauge-cli",
+      "points": 5,
+      "comments": 0,
+      "created_at": "2026-10-20T18:01:22Z",
+      "pph": 0.237,
+      "query": "mcp"
+    },
+    {
+      "id": "50174129",
+      "title": "When AI agents take matters into their own hands",
+      "url": "https://www.economist.com/business/2026/10/15/when-ai-agents-take-matters-into-their-own-hands",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-10-20T23:30:40Z",
+      "pph": 0.257,
+      "query": "ai agents"
+    },
+    {
+      "id": "50179817",
+      "title": "Deep Fission signs 25-year power deal for planned Kansas nuclear project",
+      "url": "https://www.msn.com/en-us/money/general/deep-fission-signs-25-year-power-deal-for-planned-kansas-nuclear-project/ar-AA2fEDTy",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-10-21T12:30:54Z",
+      "pph": 1.556,
+      "query": "mcp"
+    },
+    {
+      "id": "50179308",
+      "title": "Show HN: Multiplayer AI",
+      "url": "https://synteny.vercel.app/",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-10-21T11:47:09Z",
+      "pph": 1.212,
+      "query": "claude code"
+    },
+    {
+      "id": "50177756",
+      "title": "Claude Code Spotted a Cryptominer on Mac While Building a Temperature App",
+      "url": "https://www.gadgetreview.com/claude-code-spotted-a-cryptominer-on-mac-while-helping-to-build-a-temperature-app",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-10-21T08:46:50Z",
+      "pph": 0.634,
+      "query": "claude code"
+    }
+  ]
+}
