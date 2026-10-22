@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-22T15:05:59+00:00",
+  "stories": [
+    {
+      "id": "50193170",
+      "title": "Faster than earcut: triangulating 3.7M map polygons in 489 ms",
+      "url": "https://globus.software/blog/2026/10/16/cutting-map-polygons/",
+      "points": 129,
+      "comments": 21,
+      "created_at": "2026-10-22T09:31:18Z",
+      "pph": 23.126,
+      "query": "mcp"
+    },
+    {
+      "id": "50183892",
+      "title": "Show HN: Omnara \u2013 Open-source alternative to Claude Managed Agents",
+      "url": "https://github.com/omnara-ai/omnara",
+      "points": 97,
+      "comments": 28,
+      "created_at": "2026-10-21T16:44:53Z",
+      "pph": 4.34,
+      "query": "claude code"
+    },
+    {
+      "id": "50182883",
+      "title": "Open-source, cross-harness memory for AI agents",
+      "url": "https://news.ycombinator.com/item?id=50182883",
+      "points": 17,
+      "comments": 11,
+      "created_at": "2026-10-21T15:42:38Z",
+      "pph": 0.727,
+      "query": "claude code"
+    },
+    {
+      "id": "50188865",
+      "title": "Ask HN: Are we giving away our civilization?",
+      "url": "https://news.ycombinator.com/item?id=50188865",
+      "points": 10,
+      "comments": 4,
+      "created_at": "2026-10-21T23:00:10Z",
+      "pph": 0.621,
+      "query": "claude code"
+    },
+    {
+      "id": "50192585",
+      "title": "Show HN: The fastest browser for AI agents to run browser automation",
+      "url": "https://ego-lite.apposters.com",
+      "points": 9,
+      "comments": 0,
+      "created_at": "2026-10-22T08:09:22Z",
+      "pph": 1.296,
+      "query": "ai agents"
+    },
+    {
+      "id": "50192223",
+      "title": "AI Agent Observability with OpenTelemetry",
+      "url": "https://signoz.io/blog/opentelemetry-ai-agent-observability/",
+      "points": 9,
+      "comments": 0,
+      "created_at": "2026-10-22T07:17:06Z",
+      "pph": 1.152,
+      "query": "ai agents"
+    },
+    {
+      "id": "50185318",
+      "title": "Archestra 1.4: OpenAPPA and Self Hosted Runtime for Claude Code and Codex",
+      "url": "https://github.com/archestra-ai/archestra/releases/tag/platform-v1.4.0",
+      "points": 8,
+      "comments": 0,
+      "created_at": "2026-10-21T18:21:42Z",
+      "pph": 0.386,
+      "query": "claude code"
+    },
+    {
+      "id": "50192140",
+      "title": "Claude Code install script is down",
+      "url": "https://downloads.claude.ai/claude-code-releases/bootstrap.sh",
+      "points": 7,
+      "comments": 0,
+      "created_at": "2026-10-22T07:05:49Z",
+      "pph": 0.875,
+      "query": "claude code"
+    },
+    {
+      "id": "50189771",
+      "title": "The Kessler Syndrome (where blowups multiply exponentially) applied to software",
+      "url": "https://news.ycombinator.com/item?id=50189771",
+      "points": 6,
+      "comments": 0,
+      "created_at": "2026-10-22T00:58:58Z",
+      "pph": 0.425,
+      "query": "ai agents"
+    },
+    {
+      "id": "50191278",
+      "title": "Lemoncode, Free Coding Agent",
+      "url": "https://lemoncode.ai/",
+      "points": 5,
+      "comments": 3,
+      "created_at": "2026-10-22T04:46:34Z",
+      "pph": 0.484,
+      "query": "ai agents"
+    }
+  ]
+}
