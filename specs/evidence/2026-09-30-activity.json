@@ -1,0 +1,550 @@
+{
+  "collected_at": "2026-09-30T16:22:27+00:00",
+  "since": "1.day",
+  "repos": [
+    {
+      "path": "/home/runner/work/noirsys-advanced/noirsys-advanced",
+      "commits": [
+        {
+          "sha": "37d67fcf0c",
+          "date": "2026-09-30T13:45:47Z",
+          "author": "vzbb",
+          "subject": "noirstudio splice: swap a stretch of one of his real notes for a rebuilt read",
+          "files": 4,
+          "insertions": 521,
+          "deletions": 0
+        },
+        {
+          "sha": "5d76c8e6d7",
+          "date": "2026-09-30T11:37:31Z",
+          "author": "vzbb",
+          "subject": "Docs: the channel promises \"all true, nothing invented\"; a rebuilt line is his words",
+          "files": 3,
+          "insertions": 4,
+          "deletions": 4
+        },
+        {
+          "sha": "0a88082a68",
+          "date": "2026-09-30T06:29:45-04:00",
+          "author": "Noirsys",
+          "subject": "Merge pull request #4 from Noirsys/vzbb/wonderful-ramanujan-4dbzrm",
+          "files": 0,
+          "insertions": 0,
+          "deletions": 0
+        },
+        {
+          "sha": "c60bc56696",
+          "date": "2026-09-30T06:43:30Z",
+          "author": "vzbb",
+          "subject": "CLAUDE.md: a clone read costs his credit; none on a past-due account without his yes",
+          "files": 1,
+          "insertions": 1,
+          "deletions": 0
+        },
+        {
+          "sha": "3f250cd399",
+          "date": "2026-09-30T06:43:18Z",
+          "author": "vzbb",
+          "subject": "voicenote --batch: an id with a dot in it (e02.1) is its own file, not e02.ogg",
+          "files": 2,
+          "insertions": 24,
+          "deletions": 8
+        },
+        {
+          "sha": "573feac89d",
+          "date": "2026-09-30T06:42:03Z",
+          "author": "vzbb",
+          "subject": "voicenote: a ~ in --match, --room, --reuse, --batch or a path is the home directory",
+          "files": 2,
+          "insertions": 17,
+          "deletions": 0
+        },
+        {
+          "sha": "991507b43d",
+          "date": "2026-09-30T06:38:00Z",
+          "author": "vzbb",
+          "subject": "voicenote --batch: a manifest of lines, one recipe, resumable, stops if the account refuses a read; every fresh read is kept",
+          "files": 6,
+          "insertions": 380,
+          "deletions": 8
+        },
+        {
+          "sha": "0110a080b6",
+          "date": "2026-09-30T06:22:11Z",
+          "author": "vzbb",
+          "subject": "tests: reflow holds on awkward reads (40 seeds: words run together, backwards alignments, stereo, pauses at either end and twice)",
+          "files": 1,
+          "insertions": 60,
+          "deletions": 0
+        },
+        {
+          "sha": "43046dcb46",
+          "date": "2026-09-30T06:02:57Z",
+          "author": "vzbb",
+          "subject": "voicenote: --new-pauses draws the pauses again on a reused read",
+          "files": 3,
+          "insertions": 16,
+          "deletions": 2
+        },
+        {
+          "sha": "20116767e6",
+          "date": "2026-09-30T06:00:34Z",
+          "author": "vzbb",
+          "subject": "voicenote: the real-quiet limit is 18 dB under the speech, not 24; --reuse takes a saved \"said\"",
+          "files": 5,
+          "insertions": 16,
+          "deletions": 4
+        },
+        {
+          "sha": "024dc33782",
+          "date": "2026-09-30T05:55:45Z",
+          "author": "vzbb",
+          "subject": "README: the recipe he called \"perfect\" (Q21) as exact flags",
+          "files": 1,
+          "insertions": 2,
+          "deletions": 0
+        },
+        {
+          "sha": "d4282d1cd0",
+          "date": "2026-09-30T05:51:03Z",
+          "author": "vzbb",
+          "subject": "voicenote: Q21's way of putting a pause in is the default (--pauses reflow)",
+          "files": 6,
+          "insertions": 229,
+          "deletions": 11
+        },
+        {
+          "sha": "ac8c084bc0",
+          "date": "2026-09-30T05:43:34Z",
+          "author": "vzbb",
+          "subject": "voicenote: a pause goes in only where the clone left a gap (--anywhere, --snap)",
+          "files": 6,
+          "insertions": 192,
+          "deletions": 18
+        },
+        {
+          "sha": "0e5101b494",
+          "date": "2026-09-30T05:31:19Z",
+          "author": "vzbb",
+          "subject": "voicenote: --reuse runs a build again from the read it kept; every build says where each pause went in",
+          "files": 6,
+          "insertions": 162,
+          "deletions": 10
+        },
+        {
+          "sha": "733d98d2a7",
+          "date": "2026-09-30T05:08:56Z",
+          "author": "vzbb",
+          "subject": "voicenote --room says what it made the room of",
+          "files": 2,
+          "insertions": 10,
+          "deletions": 0
+        },
+        {
+          "sha": "702abec767",
+          "date": "2026-09-30T05:07:11Z",
+          "author": "vzbb",
+          "subject": "voicenote: the room bed leaves out the note's own opening and closing and any stretch off the room's level",
+          "files": 5,
+          "insertions": 62,
+          "deletions": 14
+        },
+        {
+          "sha": "8f4e050f03",
+          "date": "2026-09-30T04:56:27Z",
+          "author": "vzbb",
+          "subject": "voicenote: a build says what its pause fill was made of (words.json \"fill\")",
+          "files": 3,
+          "insertions": 36,
+          "deletions": 9
+        },
+        {
+          "sha": "2f32e9765a",
+          "date": "2026-09-30T04:52:46Z",
+          "author": "vzbb",
+          "subject": "voicenote: the room bed no longer drops out at its joins; voiceprint --seams counts dropouts (dips_per_s)",
+          "files": 8,
+          "insertions": 91,
+          "deletions": 19
+        },
+        {
+          "sha": "ffd5fb2bfb",
+          "date": "2026-09-30T03:36:26Z",
+          "author": "vzbb",
+          "subject": "voicenote: a pause before a read that begins in speech is faded in, not spliced bare",
+          "files": 2,
+          "insertions": 16,
+          "deletions": 1
+        },
+        {
+          "sha": "89f523c990",
+          "date": "2026-09-30T03:07:45Z",
+          "author": "vzbb",
+          "subject": "stories/README: one exception to \"one test at a time\" \u2014 a version that fixes a defect found since may replace an unanswered one",
+          "files": 1,
+          "insertions": 1,
+          "deletions": 1
+        },
+        {
+          "sha": "d75d5e5ab0",
+          "date": "2026-09-30T03:07:09Z",
+          "author": "vzbb",
+          "subject": "CLAUDE.md: the voice rules now say what --stumble, the pause fill and --seams do",
+          "files": 1,
+          "insertions": 1,
+          "deletions": 1
+        },
+        {
+          "sha": "991f0d869e",
+          "date": "2026-09-30T03:02:18Z",
+          "author": "vzbb",
+          "subject": "voicenote: the pause fill is set to the floor measured between the words",
+          "files": 3,
+          "insertions": 48,
+          "deletions": 36
+        },
+        {
+          "sha": "55372b0296",
+          "date": "2026-09-30T02:56:30Z",
+          "author": "vzbb",
+          "subject": "voicenote: the pause fill takes its floor from the read's own between-word gaps",
+          "files": 3,
+          "insertions": 70,
+          "deletions": 17
+        },
+        {
+          "sha": "bc2b0730d8",
+          "date": "2026-09-30T02:46:21Z",
+          "author": "vzbb",
+          "subject": "voiceprint --seams: his \"cliffs\" and \"continuity\" in numbers; voicenote: a pause is cut in at the quietest spot, not where the aligner says",
+          "files": 8,
+          "insertions": 457,
+          "deletions": 15
+        },
+        {
+          "sha": "6779ce8e24",
+          "date": "2026-09-30T02:32:13Z",
+          "author": "vzbb",
+          "subject": "voicenote: the fillers --stumble adds are always um",
+          "files": 3,
+          "insertions": 15,
+          "deletions": 35
+        },
+        {
+          "sha": "55d261f59f",
+          "date": "2026-09-30T02:21:59Z",
+          "author": "vzbb",
+          "subject": "voicenote: \"um\" is asked of the clone as \"ummm\"; an automatic \"uh\" only after a vowel; remove a tail fix built on a misreading",
+          "files": 7,
+          "insertions": 80,
+          "deletions": 57
+        },
+        {
+          "sha": "07b0307e38",
+          "date": "2026-09-30T02:10:32Z",
+          "author": "vzbb",
+          "subject": "voicenote --stumble tops up a line that already stumbles; harriet commands find the repo's stories/ from any directory",
+          "files": 5,
+          "insertions": 64,
+          "deletions": 5
+        },
+        {
+          "sha": "92101d7323",
+          "date": "2026-09-30T02:04:23Z",
+          "author": "vzbb",
+          "subject": "voicenote: level-steady pause fill; voice: a dropped last word gets a time; activity: every branch counts",
+          "files": 8,
+          "insertions": 163,
+          "deletions": 12
+        },
+        {
+          "sha": "5c38eb75ad",
+          "date": "2026-09-30T01:46:49Z",
+          "author": "vzbb",
+          "subject": "voicenote: stumbles at the rate measured on his audio, with restarts",
+          "files": 3,
+          "insertions": 100,
+          "deletions": 41
+        },
+        {
+          "sha": "97af51f50f",
+          "date": "2026-09-30T01:29:27Z",
+          "author": "vzbb",
+          "subject": "voicenote: pauses filled with the read's own floor and crossfaded; --stumble",
+          "files": 6,
+          "insertions": 291,
+          "deletions": 38
+        },
+        {
+          "sha": "e292e356d9",
+          "date": "2026-09-29T23:32:46Z",
+          "author": "vzbb",
+          "subject": "llm: mend a nearly-JSON reply instead of throwing the dig away",
+          "files": 2,
+          "insertions": 27,
+          "deletions": 7
+        },
+        {
+          "sha": "f66950accb",
+          "date": "2026-09-29T23:20:48Z",
+          "author": "vzbb",
+          "subject": "voicenote --preset home: the recipe measured from his real notes in one flag",
+          "files": 5,
+          "insertions": 69,
+          "deletions": 6
+        },
+        {
+          "sha": "b21d1e5d35",
+          "date": "2026-09-29T23:14:41Z",
+          "author": "vzbb",
+          "subject": "stories/README: the hourly loop asks what he has said, before it sends him anything",
+          "files": 1,
+          "insertions": 5,
+          "deletions": 4
+        },
+        {
+          "sha": "93b4acdb51",
+          "date": "2026-09-29T23:08:56Z",
+          "author": "vzbb",
+          "subject": "strategy/04: P3 lands on his numbers on the tested ruler",
+          "files": 1,
+          "insertions": 1,
+          "deletions": 1
+        },
+        {
+          "sha": "ebb881c783",
+          "date": "2026-09-29T23:00:51Z",
+          "author": "vzbb",
+          "subject": "docs: take back the claim that room noise makes Praat read flat; name the octave errors",
+          "files": 3,
+          "insertions": 7,
+          "deletions": 5
+        },
+        {
+          "sha": "b639833481",
+          "date": "2026-09-29T22:51:01Z",
+          "author": "vzbb",
+          "subject": "strategy/04, README: his pitch numbers on the reader that was tested, and why Praat",
+          "files": 2,
+          "insertions": 2,
+          "deletions": 2
+        },
+        {
+          "sha": "d1d448f6f4",
+          "date": "2026-09-29T22:45:22Z",
+          "author": "vzbb",
+          "subject": "voiceprint --readers-apart: where Praat and the numpy reader part on real notes",
+          "files": 5,
+          "insertions": 230,
+          "deletions": 1
+        },
+        {
+          "sha": "362a239064",
+          "date": "2026-09-29T22:34:19Z",
+          "author": "vzbb",
+          "subject": "dig: a job that dies at her 30-minute limit says to send it in pieces",
+          "files": 4,
+          "insertions": 24,
+          "deletions": 3
+        },
+        {
+          "sha": "5fd79bc50b",
+          "date": "2026-09-29T22:18:36Z",
+          "author": "vzbb",
+          "subject": "dig: tell her the profile stores are his conversations with his other agents, not hers",
+          "files": 2,
+          "insertions": 2,
+          "deletions": 0
+        },
+        {
+          "sha": "9bc7cbcddf",
+          "date": "2026-09-29T21:26:25Z",
+          "author": "vzbb",
+          "subject": "harden the Harriet client and voiceprint after a code review",
+          "files": 9,
+          "insertions": 222,
+          "deletions": 28
+        },
+        {
+          "sha": "20f2c01499",
+          "date": "2026-09-29T21:10:27Z",
+          "author": "vzbb",
+          "subject": "voiceprint: a clip Praat refuses has no pitch, and the batch goes on",
+          "files": 2,
+          "insertions": 18,
+          "deletions": 1
+        },
+        {
+          "sha": "315c555b62",
+          "date": "2026-09-29T20:37:13Z",
+          "author": "vzbb",
+          "subject": "stories/README: the hourly loop, with the lessons of 2026-09-29 in it",
+          "files": 1,
+          "insertions": 8,
+          "deletions": 0
+        },
+        {
+          "sha": "b7bae33dc5",
+          "date": "2026-09-29T20:35:35Z",
+          "author": "vzbb",
+          "subject": "harriet: a provider 402 blocks the job instead of being kept as a reply; ping and retry",
+          "files": 6,
+          "insertions": 126,
+          "deletions": 4
+        },
+        {
+          "sha": "81dfff5628",
+          "date": "2026-09-29T20:23:01Z",
+          "author": "vzbb",
+          "subject": "dig: ask for his_words on every line of his, and flag the ones that are not his",
+          "files": 3,
+          "insertions": 44,
+          "deletions": 2
+        },
+        {
+          "sha": "8fc40e7c0a",
+          "date": "2026-09-29T20:14:00Z",
+          "author": "vzbb",
+          "subject": "stories/README: our requests land in her store as his messages; check a ruler before trusting a number from it",
+          "files": 1,
+          "insertions": 2,
+          "deletions": 0
+        },
+        {
+          "sha": "6cf209ff94",
+          "date": "2026-09-29T20:10:50Z",
+          "author": "vzbb",
+          "subject": "voiceprint: read pitch with Praat's tracker; take the 200 Hz high-pass out",
+          "files": 7,
+          "insertions": 174,
+          "deletions": 42
+        },
+        {
+          "sha": "676b832ea7",
+          "date": "2026-09-29T19:52:52Z",
+          "author": "vzbb",
+          "subject": "voiceprint --timeline: a step's top end is read on its sound frames only",
+          "files": 1,
+          "insertions": 1,
+          "deletions": 1
+        },
+        {
+          "sha": "d0bc6695e5",
+          "date": "2026-09-29T19:47:53Z",
+          "author": "vzbb",
+          "subject": "voiceprint --timeline: look inside one clip, a tenth of a second at a time",
+          "files": 5,
+          "insertions": 175,
+          "deletions": 3
+        },
+        {
+          "sha": "a3cd0b95b5",
+          "date": "2026-09-29T19:30:36Z",
+          "author": "vzbb",
+          "subject": "docs: the fixed pitch band and the seeded resynthesis",
+          "files": 1,
+          "insertions": 2,
+          "deletions": 2
+        },
+        {
+          "sha": "b18b816488",
+          "date": "2026-09-29T19:30:13Z",
+          "author": "vzbb",
+          "subject": "voiceprint: read pitch through a fixed band; prosody: seed Praat",
+          "files": 3,
+          "insertions": 62,
+          "deletions": 13
+        },
+        {
+          "sha": "d436ce01a8",
+          "date": "2026-09-29T19:20:51Z",
+          "author": "vzbb",
+          "subject": "docs: the measured voice gaps and the opt-in fixes",
+          "files": 3,
+          "insertions": 3,
+          "deletions": 2
+        },
+        {
+          "sha": "ea153b0975",
+          "date": "2026-09-29T18:23:16Z",
+          "author": "vzbb",
+          "subject": "voice: a stalled read is a VoiceError, and alignment is asked twice",
+          "files": 2,
+          "insertions": 48,
+          "deletions": 2
+        },
+        {
+          "sha": "02ebc111b7",
+          "date": "2026-09-29T18:21:15Z",
+          "author": "vzbb",
+          "subject": "voicenote --pitch --pace: his pitch level and his pace, and a swing that is measured",
+          "files": 4,
+          "insertions": 175,
+          "deletions": 42
+        },
+        {
+          "sha": "6d603248fc",
+          "date": "2026-09-29T18:00:14Z",
+          "author": "vzbb",
+          "subject": "voicenote --raw: place the automatic pauses by the script's punctuation",
+          "files": 2,
+          "insertions": 35,
+          "deletions": 7
+        },
+        {
+          "sha": "03bd9017e9",
+          "date": "2026-09-29T17:58:28Z",
+          "author": "vzbb",
+          "subject": "voicenote --swing: take the stereo WAV a clone's read arrives as",
+          "files": 2,
+          "insertions": 48,
+          "deletions": 1
+        },
+        {
+          "sha": "9ba4ffacd3",
+          "date": "2026-09-29T17:51:58Z",
+          "author": "vzbb",
+          "subject": "voicenote --raw: a line the way his transcripts read",
+          "files": 4,
+          "insertions": 81,
+          "deletions": 5
+        },
+        {
+          "sha": "586438411b",
+          "date": "2026-09-29T17:47:12Z",
+          "author": "vzbb",
+          "subject": "voicenote --hesitate: the thinking pauses he makes on his own; voiceprint --max-speech",
+          "files": 6,
+          "insertions": 172,
+          "deletions": 12
+        },
+        {
+          "sha": "02a8e9e986",
+          "date": "2026-09-29T17:40:56Z",
+          "author": "vzbb",
+          "subject": "voicenote --swing: flatten a read's pitch to the swing of his real notes",
+          "files": 5,
+          "insertions": 111,
+          "deletions": 7
+        },
+        {
+          "sha": "1e8a74115b",
+          "date": "2026-09-29T17:32:36Z",
+          "author": "vzbb",
+          "subject": "voiceprint: measure how close a read is to his real notes",
+          "files": 7,
+          "insertions": 501,
+          "deletions": 2
+        }
+      ],
+      "totals": {
+        "commits": 59,
+        "files": 213,
+        "insertions": 5504,
+        "deletions": 571,
+        "truncated": false
+      }
+    }
+  ],
+  "renders": []
+}
