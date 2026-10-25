@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-25T14:17:22+00:00",
+  "stories": [
+    {
+      "id": "50223777",
+      "title": "Bbtree: Fastest Ordered Map",
+      "url": "https://bbtree.xiangpeng.systems/post/",
+      "points": 136,
+      "comments": 16,
+      "created_at": "2026-10-24T18:22:14Z",
+      "pph": 6.828,
+      "query": "mcp"
+    },
+    {
+      "id": "50214373",
+      "title": "Show HN: Corgi, a helpful {agent, terminal} multiplexer",
+      "url": "https://corgi.computer/",
+      "points": 132,
+      "comments": 45,
+      "created_at": "2026-10-23T19:46:38Z",
+      "pph": 3.105,
+      "query": "claude code"
+    },
+    {
+      "id": "50222574",
+      "title": "Proton hosts Flock map revealing over 300k cameras, defying cease-and-desist",
+      "url": "https://www.tomshardware.com/software/maps/proton-hosts-flock-map-revealing-over-300-000-cameras-defying-cease-and-desist-threats-against-creator-privacy-focused-company-hosts-site-on-swiss-servers-says-users-have-the-right-to-know-whos-recording-them",
+      "points": 57,
+      "comments": 8,
+      "created_at": "2026-10-24T16:01:34Z",
+      "pph": 2.56,
+      "query": "mcp"
+    },
+    {
+      "id": "50225443",
+      "title": "Making My Blog Readable by AI Agents",
+      "url": "https://deallocatedobjects.com/posts/making-my-blog-readable-by-ai-agents",
+      "points": 24,
+      "comments": 3,
+      "created_at": "2026-10-24T21:21:33Z",
+      "pph": 1.418,
+      "query": "ai agents"
+    },
+    {
+      "id": "50219875",
+      "title": "Claude Code slyly adding users' emails to outbound HTTP",
+      "url": "https://twitter.com/chrislakin/status/2113358733548081528",
+      "points": 21,
+      "comments": 4,
+      "created_at": "2026-10-24T10:26:30Z",
+      "pph": 0.754,
+      "query": "claude code"
+    },
+    {
+      "id": "50231486",
+      "title": "Show HN: Open-Source Cybersecurity Platform Uses AI Agents to Protect Businesses",
+      "url": "https://medium.com/@thomasunise/this-open-source-cybersecurity-platform-uses-ai-agents-to-detect-threats-and-protect-businesses-762e65392b42",
+      "points": 15,
+      "comments": 3,
+      "created_at": "2026-10-25T13:41:19Z",
+      "pph": 15.0,
+      "query": "ai agents"
+    },
+    {
+      "id": "50231349",
+      "title": "Show HN: Farol \u2013 a risk map of a pull request for the person who approves it",
+      "url": "https://github.com/winnin/farol",
+      "points": 8,
+      "comments": 3,
+      "created_at": "2026-10-25T13:28:06Z",
+      "pph": 8.0,
+      "query": "mcp"
+    },
+    {
+      "id": "50214693",
+      "title": "Tell HN: Claude CLI doesn't exit anymore, not even with CTRL-C",
+      "url": "https://news.ycombinator.com/item?id=50214693",
+      "points": 8,
+      "comments": 1,
+      "created_at": "2026-10-23T20:14:51Z",
+      "pph": 0.19,
+      "query": "claude code"
+    },
+    {
+      "id": "50220381",
+      "title": "PSA: Do not use term \"vibe coding\"",
+      "url": "https://news.ycombinator.com/item?id=50220381",
+      "points": 7,
+      "comments": 11,
+      "created_at": "2026-10-24T11:47:54Z",
+      "pph": 0.264,
+      "query": "ai agents"
+    },
+    {
+      "id": "50219641",
+      "title": "Took apart Claude Code, then turned it into a free course on harness engineering",
+      "url": "https://news.ycombinator.com/item?id=50219641",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-10-24T09:48:38Z",
+      "pph": 0.14,
+      "query": "ai agents"
+    }
+  ]
+}
