@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-30T16:39:55+00:00",
+  "stories": [
+    {
+      "id": "50302334",
+      "title": "Backdoors in official Claude Code extensions",
+      "url": "https://cyberplace.social/@GossiTheDog/117528831681803563",
+      "points": 644,
+      "comments": 17,
+      "created_at": "2026-10-30T11:05:53Z",
+      "pph": 115.675,
+      "query": "claude code"
+    },
+    {
+      "id": "50301983",
+      "title": "Claude Code VS Code extension with backdoor released on Cursor marketplace",
+      "url": "https://doublepulsar.com/anthropic-hacked-to-deliver-remote-access-trojan-to-claude-developer-laptops-worldwide-1148a92baae2",
+      "points": 396,
+      "comments": 1,
+      "created_at": "2026-10-30T10:22:51Z",
+      "pph": 63.012,
+      "query": "claude code"
+    },
+    {
+      "id": "50296486",
+      "title": "We ran AI agent swarms in Minecraft and Mindustry",
+      "url": "https://labs.ycombinator.com/projects/games/index.html",
+      "points": 369,
+      "comments": 150,
+      "created_at": "2026-10-29T21:40:28Z",
+      "pph": 19.43,
+      "query": "ai agents"
+    },
+    {
+      "id": "50300683",
+      "title": "Backdoor in Claude Code for VS Code extension on the Cursor Marketplace",
+      "url": "https://phorion.io/blog/offical-claude-code-vsx-compromise/",
+      "points": 347,
+      "comments": 354,
+      "created_at": "2026-10-30T07:09:12Z",
+      "pph": 36.48,
+      "query": "claude code"
+    },
+    {
+      "id": "50291116",
+      "title": "Launch HN: Simantic (YC F26) \u2013 Firmware Simulation for AI Agents",
+      "url": "https://news.ycombinator.com/item?id=50291116",
+      "points": 76,
+      "comments": 28,
+      "created_at": "2026-10-29T15:56:32Z",
+      "pph": 3.074,
+      "query": "claude code"
+    },
+    {
+      "id": "50299004",
+      "title": "Show HN: Lasm \u2013 Write formally verified webapps in Lean for Node/serverless/edge",
+      "url": "https://github.com/Millillion/lasm",
+      "points": 33,
+      "comments": 20,
+      "created_at": "2026-10-30T02:05:41Z",
+      "pph": 2.265,
+      "query": "claude code"
+    },
+    {
+      "id": "50293979",
+      "title": "A Defense Contractor Gave Their AI Agent Access to a Secure Pentagon System",
+      "url": "https://www.wired.com/story/a-defense-contractor-gave-their-personal-ai-agent-access-to-a-secure-pentagon-system/",
+      "points": 20,
+      "comments": 6,
+      "created_at": "2026-10-29T18:47:56Z",
+      "pph": 0.915,
+      "query": "ai agents"
+    },
+    {
+      "id": "50300112",
+      "title": "Trojanized Claude Code Extension Plants an SSH Backdoor",
+      "url": "https://opensourcemalware.com/blog/trojanized-claude-code-extension-plants-persistent-ssh-backdoor",
+      "points": 19,
+      "comments": 2,
+      "created_at": "2026-10-30T05:20:20Z",
+      "pph": 1.677,
+      "query": "claude code"
+    },
+    {
+      "id": "50293361",
+      "title": "Show HN: phpClaw \u2013 AI agent runtime for PHP with tools, memory and guards",
+      "url": "https://github.com/phpclaw-php/phpclaw-monorepo",
+      "points": 12,
+      "comments": 4,
+      "created_at": "2026-10-29T18:06:22Z",
+      "pph": 0.532,
+      "query": "ai agents"
+    },
+    {
+      "id": "50301004",
+      "title": "Malicious Claude Code Extension Found in Cursor Marketplace",
+      "url": "https://cursor.com/blog/claude-code-extension-security-notice",
+      "points": 12,
+      "comments": 1,
+      "created_at": "2026-10-30T08:04:26Z",
+      "pph": 1.397,
+      "query": "claude code"
+    }
+  ]
+}

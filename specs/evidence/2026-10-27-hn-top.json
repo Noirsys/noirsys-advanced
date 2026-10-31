@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-27T15:50:40+00:00",
+  "stories": [
+    {
+      "id": "50246238",
+      "title": "Show HN: Hob - Open-source, on device alternative to Claude Cowork and ChatGPT",
+      "url": "https://github.com/FrigadeHQ/hob",
+      "points": 158,
+      "comments": 35,
+      "created_at": "2026-10-26T16:12:29Z",
+      "pph": 6.685,
+      "query": "claude code"
+    },
+    {
+      "id": "50253939",
+      "title": "I still teach OpenGL ES 3.0",
+      "url": "https://eliasfarhan.ch/graphics/cpp/2026/01/27/why-i-teach-opengles.html",
+      "points": 118,
+      "comments": 73,
+      "created_at": "2026-10-27T02:15:10Z",
+      "pph": 8.682,
+      "query": "mcp"
+    },
+    {
+      "id": "50259406",
+      "title": "Giving chat feedback gives Anthropic your data",
+      "url": "https://privacy.claude.com/en/articles/7996868-is-my-data-used-for-model-training",
+      "points": 94,
+      "comments": 49,
+      "created_at": "2026-10-27T13:56:15Z",
+      "pph": 49.292,
+      "query": "claude code"
+    },
+    {
+      "id": "50253664",
+      "title": "Chinese research vessels loiter near undersea cables more than any other nation",
+      "url": "https://www.tomshardware.com/tech-industry/chinese-research-vessels-loiter-near-pacific-undersea-cables-more-than-any-other-nation-report-finds-civilian-fleet-using-lawnmower-patterns-may-be-mapping-seafloor-for-future-sabotage",
+      "points": 11,
+      "comments": 0,
+      "created_at": "2026-10-27T01:34:55Z",
+      "pph": 0.771,
+      "query": "mcp"
+    },
+    {
+      "id": "50254873",
+      "title": "Looking for a tech job is a helpless data-entry nightmare",
+      "url": "https://news.ycombinator.com/item?id=50254873",
+      "points": 9,
+      "comments": 5,
+      "created_at": "2026-10-27T05:01:05Z",
+      "pph": 0.831,
+      "query": "ai agents"
+    },
+    {
+      "id": "50259246",
+      "title": "GitHub suspended my account, and I couldn't submit a support ticket",
+      "url": "https://news.ycombinator.com/item?id=50259246",
+      "points": 6,
+      "comments": 6,
+      "created_at": "2026-10-27T13:46:04Z",
+      "pph": 2.889,
+      "query": "mcp"
+    },
+    {
+      "id": "50258875",
+      "title": "Show HN: Markdown is 40\u00d7 more token-efficient with SQLite",
+      "url": "https://www.withnative.ai/research-and-posts/markdown-context-benchmark",
+      "points": 5,
+      "comments": 0,
+      "created_at": "2026-10-27T13:23:49Z",
+      "pph": 2.043,
+      "query": "ai agents"
+    },
+    {
+      "id": "50254751",
+      "title": "Tech market feels like a data entry job",
+      "url": "https://news.ycombinator.com/item?id=50254751",
+      "points": 5,
+      "comments": 2,
+      "created_at": "2026-10-27T04:37:18Z",
+      "pph": 0.446,
+      "query": "ai agents"
+    },
+    {
+      "id": "50251518",
+      "title": "The US AI Labs, Mapped: Founders, Revenue and the Money Behind Them",
+      "url": "https://codingplans.dev/briefs/us-model-labs-part-1/",
+      "points": 5,
+      "comments": 2,
+      "created_at": "2026-10-26T21:48:19Z",
+      "pph": 0.277,
+      "query": "mcp"
+    },
+    {
+      "id": "50260626",
+      "title": "AI review optimized for recall (catches more defects than Codex or Claude)",
+      "url": "https://github.com/quickchatai/quickreview",
+      "points": 5,
+      "comments": 2,
+      "created_at": "2026-10-27T15:15:57Z",
+      "pph": 5.0,
+      "query": "claude code"
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-28T16:34:29+00:00",
+  "stories": [
+    {
+      "id": "50259406",
+      "title": "Is my data used for model training?",
+      "url": "https://privacy.claude.com/en/articles/7996868-is-my-data-used-for-model-training",
+      "points": 222,
+      "comments": 115,
+      "created_at": "2026-10-27T13:56:15Z",
+      "pph": 8.334,
+      "query": "claude code"
+    },
+    {
+      "id": "50266373",
+      "title": "BYD\u2019s $10,000 EV blows a tire at nearly 90 mph \u2014 Watch what happens",
+      "url": "https://electrek.co/2026/10/27/byds-10k-ev-blows-tire-nearly-90-mph-watch-what-happens/",
+      "points": 20,
+      "comments": 18,
+      "created_at": "2026-10-27T21:53:15Z",
+      "pph": 1.07,
+      "query": "mcp"
+    },
+    {
+      "id": "50275626",
+      "title": "Dayjob: Tax \u2013 evaluating AI agents on 50 professional tax assignments",
+      "url": "https://surgehq.ai/blog/dayjob-tax",
+      "points": 15,
+      "comments": 13,
+      "created_at": "2026-10-28T15:46:30Z",
+      "pph": 15.0,
+      "query": "ai agents"
+    },
+    {
+      "id": "50259246",
+      "title": "GitHub suspended my account, and I couldn't submit a support ticket",
+      "url": "https://news.ycombinator.com/item?id=50259246",
+      "points": 8,
+      "comments": 13,
+      "created_at": "2026-10-27T13:46:04Z",
+      "pph": 0.298,
+      "query": "claude code"
+    },
+    {
+      "id": "50270583",
+      "title": "\"No human at the helm\": Delaware plan would let AI agents run businesses",
+      "url": "https://arstechnica.com/tech-policy/2026/10/no-human-at-the-helm-delaware-plan-would-let-ai-agents-run-entire-businesses/",
+      "points": 6,
+      "comments": 1,
+      "created_at": "2026-10-28T08:20:02Z",
+      "pph": 0.728,
+      "query": "ai agents"
+    },
+    {
+      "id": "50256421",
+      "title": "Linus Torvalds let Claude Code fix the Linux page cache. Reviewers found a race",
+      "url": "https://thenewstack.io/torvalds-claude-code-kernel/",
+      "points": 6,
+      "comments": 3,
+      "created_at": "2026-10-27T09:15:00Z",
+      "pph": 0.192,
+      "query": "claude code"
+    },
+    {
+      "id": "50260626",
+      "title": "AI review optimized for recall (catches more defects than Codex or Claude)",
+      "url": "https://github.com/quickchatai/quickreview",
+      "points": 5,
+      "comments": 4,
+      "created_at": "2026-10-27T15:15:57Z",
+      "pph": 0.198,
+      "query": "claude code"
+    },
+    {
+      "id": "50264163",
+      "title": "Necro-Economics Eyal Weizman",
+      "url": "https://news.ycombinator.com/item?id=50264163",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-10-27T19:06:45Z",
+      "pph": 0.186,
+      "query": "mcp"
+    },
+    {
+      "id": "50265699",
+      "title": "Show HN: CleanCode \u2013 Claude Code and Codex collaborating on one canvas",
+      "url": "https://github.com/chen-985211/cleancode",
+      "points": 4,
+      "comments": 5,
+      "created_at": "2026-10-27T20:57:26Z",
+      "pph": 0.204,
+      "query": "claude code"
+    },
+    {
+      "id": "50274358",
+      "title": "Show HN: Interview your analysts instead of auto-generating a semantic layer",
+      "url": "https://github.com/nodal-data/nodal-context",
+      "points": 3,
+      "comments": 2,
+      "created_at": "2026-10-28T14:35:23Z",
+      "pph": 1.511,
+      "query": "ai agents"
+    }
+  ]
+}

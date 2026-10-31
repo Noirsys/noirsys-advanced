@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-18T13:55:59+00:00",
+  "stories": [
+    {
+      "id": "50122951",
+      "title": "How the Claude Code team does code review",
+      "url": "https://claude.dev/blog/solving-code-review-at-anthropic/",
+      "points": 463,
+      "comments": 466,
+      "created_at": "2026-10-16T19:04:47Z",
+      "pph": 10.804,
+      "query": "claude code"
+    },
+    {
+      "id": "50129947",
+      "title": "MapQuest will now show you where Flock cameras are in your neighborhood",
+      "url": "https://www.engadget.com/2288729/mapquest-will-now-show-you-where-flock-cameras-are-in-your-neighborhood/",
+      "points": 310,
+      "comments": 50,
+      "created_at": "2026-10-17T10:59:31Z",
+      "pph": 11.506,
+      "query": "mcp"
+    },
+    {
+      "id": "50137950",
+      "title": "Show HN: Sphinx \u2013 A hook that quizzes you on your AI's code before shipping",
+      "url": "https://sphinx-six-theta.vercel.app/",
+      "points": 179,
+      "comments": 55,
+      "created_at": "2026-10-18T04:33:49Z",
+      "pph": 19.104,
+      "query": "ai agents"
+    },
+    {
+      "id": "50137820",
+      "title": "Show HN: 500 clocks in one 6.3 MB HTML file by Opus 5.5",
+      "url": "https://tkgally.github.io/500-clocks/",
+      "points": 54,
+      "comments": 19,
+      "created_at": "2026-10-18T04:04:58Z",
+      "pph": 5.482,
+      "query": "claude code"
+    },
+    {
+      "id": "50126384",
+      "title": "Show HN: Things to Do API",
+      "url": "https://thingstodoapi.com/",
+      "points": 50,
+      "comments": 24,
+      "created_at": "2026-10-16T23:58:34Z",
+      "pph": 1.317,
+      "query": "claude code"
+    },
+    {
+      "id": "50122776",
+      "title": "Show HN: Stoke Money \u2013 Personal finance app built around a cash flow forecast",
+      "url": "https://stoke.money",
+      "points": 32,
+      "comments": 20,
+      "created_at": "2026-10-16T18:54:47Z",
+      "pph": 0.744,
+      "query": "claude code"
+    },
+    {
+      "id": "50136378",
+      "title": "Zelensky says Musk-owned satellite system still restricted in Ukraine",
+      "url": "https://www.axios.com/2026/10/17/zelensky-starlink-elon-musk-trump",
+      "points": 24,
+      "comments": 6,
+      "created_at": "2026-10-17T23:56:51Z",
+      "pph": 1.716,
+      "query": "mcp"
+    },
+    {
+      "id": "50136848",
+      "title": "Russian Bot Activity Collapses by 84% After Strikes on Yandex Data Centers",
+      "url": "https://cpd.gov.ua/en/report/analytical-report-when-bots-go-silent-what-the-strikes-on-yandex-data-centers-affected/",
+      "points": 20,
+      "comments": 0,
+      "created_at": "2026-10-18T01:11:30Z",
+      "pph": 1.57,
+      "query": "mcp"
+    },
+    {
+      "id": "50136669",
+      "title": "We ran 53 open-source AI agents through behavioral tests and filed 37 bugs",
+      "url": "https://defuzex.ai/blog/we-ran-53-open-source-ai-agents-through-behavioral-tests-and-filed-37-bugs",
+      "points": 10,
+      "comments": 1,
+      "created_at": "2026-10-18T00:36:34Z",
+      "pph": 0.751,
+      "query": "ai agents"
+    },
+    {
+      "id": "50140638",
+      "title": "Germany's 17M Immigrants: Where They Come From",
+      "url": "https://www.visualcapitalist.com/cp/where-germanys-immigrants-come-from/",
+      "points": 9,
+      "comments": 11,
+      "created_at": "2026-10-18T12:46:35Z",
+      "pph": 7.78,
+      "query": "mcp"
+    }
+  ]
+}

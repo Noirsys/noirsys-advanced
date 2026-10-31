@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-31T15:41:48+00:00",
+  "stories": [
+    {
+      "id": "50300683",
+      "title": "Backdoor in Claude Code for VS Code extension on the Cursor Marketplace",
+      "url": "https://phorion.io/blog/offical-claude-code-vsx-compromise/",
+      "points": 937,
+      "comments": 537,
+      "created_at": "2026-10-30T07:09:12Z",
+      "pph": 28.792,
+      "query": "claude code"
+    },
+    {
+      "id": "50302334",
+      "title": "Backdoors in official Claude Code extensions",
+      "url": "https://cyberplace.social/@GossiTheDog/117528831681803563",
+      "points": 655,
+      "comments": 17,
+      "created_at": "2026-10-30T11:05:53Z",
+      "pph": 22.903,
+      "query": "claude code"
+    },
+    {
+      "id": "50301983",
+      "title": "Claude Code VS Code extension with backdoor released on Cursor marketplace",
+      "url": "https://doublepulsar.com/anthropic-hacked-to-deliver-remote-access-trojan-to-claude-developer-laptops-worldwide-1148a92baae2",
+      "points": 399,
+      "comments": 1,
+      "created_at": "2026-10-30T10:22:51Z",
+      "pph": 13.61,
+      "query": "claude code"
+    },
+    {
+      "id": "50305320",
+      "title": "Show HN: I built a multiplayer game where you're an aerial fighter cat",
+      "url": "https://catcopter.com",
+      "points": 81,
+      "comments": 42,
+      "created_at": "2026-10-30T15:29:40Z",
+      "pph": 3.347,
+      "query": "mcp"
+    },
+    {
+      "id": "50299004",
+      "title": "Show HN: Lasm \u2013 Write formally verified webapps in Lean for Node/serverless/edge",
+      "url": "https://github.com/Millillion/lasm",
+      "points": 36,
+      "comments": 20,
+      "created_at": "2026-10-30T02:05:41Z",
+      "pph": 0.957,
+      "query": "claude code"
+    },
+    {
+      "id": "50305218",
+      "title": "Show HN: Sketch Stadium \u2013 watch your agent play Pictionary",
+      "url": "https://sketch.wakeshift.ai/games/q5ucru",
+      "points": 35,
+      "comments": 10,
+      "created_at": "2026-10-30T15:23:11Z",
+      "pph": 1.44,
+      "query": "ai agents"
+    },
+    {
+      "id": "50315987",
+      "title": "Anthropic's Claude AI blocks video game cloning and reverse-engineering",
+      "url": "https://www.tomshardware.com/tech-industry/artificial-intelligence/anthropics-ai-model-is-now-blocking-attempts-at-video-game-recreation-and-cloning-users-also-claim-non-malicious-generic-reverse-engineering-tasks-are-blocked",
+      "points": 19,
+      "comments": 3,
+      "created_at": "2026-10-31T13:25:00Z",
+      "pph": 8.333,
+      "query": "claude code"
+    },
+    {
+      "id": "50300112",
+      "title": "Trojanized Claude Code Extension Plants an SSH Backdoor",
+      "url": "https://opensourcemalware.com/blog/trojanized-claude-code-extension-plants-persistent-ssh-backdoor",
+      "points": 19,
+      "comments": 2,
+      "created_at": "2026-10-30T05:20:20Z",
+      "pph": 0.553,
+      "query": "claude code"
+    },
+    {
+      "id": "50309730",
+      "title": "Defense Contractor Gave Their Personal AI Agent Access to Secure Pentagon System",
+      "url": "https://www.wired.com/story/a-defense-contractor-gave-their-personal-ai-agent-access-to-a-secure-pentagon-system/",
+      "points": 16,
+      "comments": 1,
+      "created_at": "2026-10-30T20:30:06Z",
+      "pph": 0.834,
+      "query": "ai agents"
+    },
+    {
+      "id": "50301004",
+      "title": "Malicious Claude Code Extension Found in Cursor Marketplace",
+      "url": "https://cursor.com/blog/claude-code-extension-security-notice",
+      "points": 12,
+      "comments": 1,
+      "created_at": "2026-10-30T08:04:26Z",
+      "pph": 0.379,
+      "query": "claude code"
+    }
+  ]
+}

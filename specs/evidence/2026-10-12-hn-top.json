@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-12T19:45:59+00:00",
+  "stories": [
+    {
+      "id": "50059523",
+      "title": "AI coding agents generate more code, but not more software",
+      "url": "https://arstechnica.com/ai/2026/10/ai-coding-agents-generate-more-code-but-not-more-software/",
+      "points": 154,
+      "comments": 124,
+      "created_at": "2026-10-12T17:14:01Z",
+      "pph": 60.8,
+      "query": "ai agents"
+    },
+    {
+      "id": "50059096",
+      "title": "Launch HN: Agent37 (YC F26) \u2013 Low-cost agent sandboxes for running agents",
+      "url": "https://news.ycombinator.com/item?id=50059096",
+      "points": 54,
+      "comments": 38,
+      "created_at": "2026-10-12T16:46:34Z",
+      "pph": 18.058,
+      "query": "ai agents"
+    },
+    {
+      "id": "50049588",
+      "title": "Show HN: Atticus \u2013 Hold-to-talk voice assistant for macOS that runs on Claude -p",
+      "url": "https://github.com/SaarthurR/atticus-mac",
+      "points": 36,
+      "comments": 5,
+      "created_at": "2026-10-12T00:15:12Z",
+      "pph": 1.845,
+      "query": "claude code"
+    },
+    {
+      "id": "50049132",
+      "title": "Show HN: BraiNOTES, handwritten notes on your lecture PDFs in a browser tab",
+      "url": "https://github.com/swimmingbrain/brainotes",
+      "points": 34,
+      "comments": 2,
+      "created_at": "2026-10-11T23:22:29Z",
+      "pph": 1.667,
+      "query": "mcp"
+    },
+    {
+      "id": "50050367",
+      "title": "Linus Torvalds Working on a Hefty Linux Kernel Improvement with Claude Code",
+      "url": "https://www.phoronix.com/news/Linus-Torvalds-Claude-Code",
+      "points": 25,
+      "comments": 1,
+      "created_at": "2026-10-12T01:57:00Z",
+      "pph": 1.403,
+      "query": "mcp"
+    },
+    {
+      "id": "50050553",
+      "title": "Do dentists know what they're doing?",
+      "url": "https://mapwriting.substack.com/p/dentists",
+      "points": 15,
+      "comments": 4,
+      "created_at": "2026-10-12T02:21:54Z",
+      "pph": 0.862,
+      "query": "mcp"
+    },
+    {
+      "id": "50038883",
+      "title": "Show HN: Littleguys \u2013 Claude Code, Codex and OpenClaw agents in your menu bar",
+      "url": "https://littleguys.hervalicio.us",
+      "points": 15,
+      "comments": 0,
+      "created_at": "2026-10-11T01:19:18Z",
+      "pph": 0.353,
+      "query": "claude code"
+    },
+    {
+      "id": "50058032",
+      "title": "Show HN: E2E \u2013 Open-source agentic testing framework for web, iOS and Android",
+      "url": "https://github.com/tester-army/e2e",
+      "points": 6,
+      "comments": 0,
+      "created_at": "2026-10-12T15:41:29Z",
+      "pph": 1.472,
+      "query": "ai agents"
+    },
+    {
+      "id": "50048464",
+      "title": "Inside McDonald's push to have AI price your Big Mac",
+      "url": "https://www.reuters.com/business/inside-mcdonalds-push-have-ai-price-your-big-mac-2026-09-29/",
+      "points": 6,
+      "comments": 2,
+      "created_at": "2026-10-11T22:16:04Z",
+      "pph": 0.279,
+      "query": "mcp"
+    },
+    {
+      "id": "50047627",
+      "title": "Show HN: I Cut my Agent Tokens By 50%",
+      "url": "https://news.ycombinator.com/item?id=50047627",
+      "points": 6,
+      "comments": 5,
+      "created_at": "2026-10-11T20:42:54Z",
+      "pph": 0.26,
+      "query": "mcp"
+    }
+  ]
+}

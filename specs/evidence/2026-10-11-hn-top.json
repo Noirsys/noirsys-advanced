@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-11T16:15:41+00:00",
+  "stories": [
+    {
+      "id": "50039092",
+      "title": "500B Tokens Later: Letting AI Agents Decompile a First-Person Shooter",
+      "url": "https://momo5502.com/posts/2026-10-09-game-decompilation/",
+      "points": 121,
+      "comments": 88,
+      "created_at": "2026-10-11T02:02:38Z",
+      "pph": 8.511,
+      "query": "ai agents"
+    },
+    {
+      "id": "50033517",
+      "title": "My personal AI agent posted my bank details on company Slack",
+      "url": "https://www.businessinsider.com/personal-ai-agent-grok-bot-posted-bank-details-company-slack-2026-10",
+      "points": 62,
+      "comments": 66,
+      "created_at": "2026-10-10T14:46:16Z",
+      "pph": 2.432,
+      "query": "ai agents"
+    },
+    {
+      "id": "50039630",
+      "title": "AI agents in a stand-up call",
+      "url": "https://atoll92.github.io/agent-standup/",
+      "points": 47,
+      "comments": 47,
+      "created_at": "2026-10-11T03:42:47Z",
+      "pph": 3.745,
+      "query": "ai agents"
+    },
+    {
+      "id": "50038883",
+      "title": "Show HN: Littleguys \u2013 Claude Code, Codex and OpenClaw agents in your menu bar",
+      "url": "https://littleguys.hervalicio.us",
+      "points": 15,
+      "comments": 0,
+      "created_at": "2026-10-11T01:19:18Z",
+      "pph": 1.004,
+      "query": "claude code"
+    },
+    {
+      "id": "50026819",
+      "title": "Show HN: Babytalk: Offline speech to text and text to speech on ESP32",
+      "url": "https://github.com/tlack/babytalk",
+      "points": 14,
+      "comments": 8,
+      "created_at": "2026-10-09T21:33:56Z",
+      "pph": 0.328,
+      "query": "claude code"
+    },
+    {
+      "id": "50038743",
+      "title": "Why your AI agents can't reach the tools you're signed in to, and how to fix it",
+      "url": "https://read.aindeev.com/p/why-your-ai-agents-cant-reach-the",
+      "points": 9,
+      "comments": 0,
+      "created_at": "2026-10-11T01:03:41Z",
+      "pph": 0.592,
+      "query": "ai agents"
+    },
+    {
+      "id": "50037852",
+      "title": "Show HN: ManimGX \u2013 Manim's API on a Rust/wgpu engine, for 3D videos in Python",
+      "url": "https://github.com/academa-labs/manimgx",
+      "points": 8,
+      "comments": 1,
+      "created_at": "2026-10-10T22:33:30Z",
+      "pph": 0.452,
+      "query": "ai agents"
+    },
+    {
+      "id": "50032872",
+      "title": "Show HN: World Watcher \u2013 a map to seamlessly watch public webcam streams",
+      "url": "https://worldwatcher.live/",
+      "points": 8,
+      "comments": 2,
+      "created_at": "2026-10-10T13:40:00Z",
+      "pph": 0.301,
+      "query": "mcp"
+    },
+    {
+      "id": "50039633",
+      "title": "Show HN: GSD Task Manager \u2013 an MCP server that gives your AI agent a task list",
+      "url": "https://github.com/vscarpenter/gsd-task-manager",
+      "points": 7,
+      "comments": 3,
+      "created_at": "2026-10-11T03:42:56Z",
+      "pph": 0.558,
+      "query": "ai agents"
+    },
+    {
+      "id": "50039318",
+      "title": "Rogue Anthropic AI agent gave police fake tip in unsolved murder case",
+      "url": "https://www.bbc.com/news/articles/cqkg50j1yd5lo",
+      "points": 6,
+      "comments": 4,
+      "created_at": "2026-10-11T02:41:19Z",
+      "pph": 0.442,
+      "query": "ai agents"
+    }
+  ]
+}
