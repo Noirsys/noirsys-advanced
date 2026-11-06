@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-19T16:56:00+00:00",
+  "stories": [
+    {
+      "id": "50140769",
+      "title": "Show HN: The Zelda timeline to catch up before the Ocarina of Time remake",
+      "url": "https://legendofhyrule.com/",
+      "points": 209,
+      "comments": 124,
+      "created_at": "2026-10-18T13:06:54Z",
+      "pph": 7.513,
+      "query": "claude code"
+    },
+    {
+      "id": "50145715",
+      "title": "Show HN: WhatsApp MCP running free on Cloudflare",
+      "url": "https://github.com/finereli/whatsapp-mcp",
+      "points": 143,
+      "comments": 73,
+      "created_at": "2026-10-18T21:36:10Z",
+      "pph": 7.398,
+      "query": "mcp"
+    },
+    {
+      "id": "50148855",
+      "title": "Tmux and Claude Code: Sessions, Send-Keys, and the Ceiling",
+      "url": "https://crystl.dev/guides/tmux-for-ai-agents/",
+      "points": 121,
+      "comments": 84,
+      "created_at": "2026-10-19T05:55:31Z",
+      "pph": 10.992,
+      "query": "ai agents"
+    },
+    {
+      "id": "50137820",
+      "title": "Show HN: 500 clocks in one 6.3 MB HTML file by Opus 5.5",
+      "url": "https://tkgally.github.io/500-clocks/",
+      "points": 72,
+      "comments": 29,
+      "created_at": "2026-10-18T04:04:58Z",
+      "pph": 1.954,
+      "query": "claude code"
+    },
+    {
+      "id": "50152541",
+      "title": "Show HN: KiviDB, a faster Redis-compatible memory database and vector cache",
+      "url": "https://github.com/kividbio/kividb",
+      "points": 42,
+      "comments": 14,
+      "created_at": "2026-10-19T13:53:52Z",
+      "pph": 13.835,
+      "query": "mcp"
+    },
+    {
+      "id": "50152877",
+      "title": "A hacker broke into John Deere and SharkNinja with an army of AI agents",
+      "url": "https://www.theverge.com/ai-artificial-intelligence/1013643/ai-agents-hack-john-deere-shark-ninja-cummins",
+      "points": 35,
+      "comments": 3,
+      "created_at": "2026-10-19T14:23:17Z",
+      "pph": 13.75,
+      "query": "ai agents"
+    },
+    {
+      "id": "50142323",
+      "title": "Torvalds use Claude for bottleneck fix, but race discovered",
+      "url": "https://thenewstack.io/torvalds-claude-code-kernel/",
+      "points": 16,
+      "comments": 1,
+      "created_at": "2026-10-18T16:08:48Z",
+      "pph": 0.646,
+      "query": "claude code"
+    },
+    {
+      "id": "50154029",
+      "title": "Launch HN: Laminar (YC S24) \u2013 We trained a model to catch silent agent failures",
+      "url": "https://news.ycombinator.com/item?id=50154029",
+      "points": 15,
+      "comments": 3,
+      "created_at": "2026-10-19T16:00:18Z",
+      "pph": 15.0,
+      "query": "ai agents"
+    },
+    {
+      "id": "50147576",
+      "title": "MapQuest lets you track Flock cameras",
+      "url": "https://mashable.com/tech/mapquest-fusers-can-find-nearby-flock-cameras",
+      "points": 13,
+      "comments": 1,
+      "created_at": "2026-10-19T02:13:11Z",
+      "pph": 0.884,
+      "query": "mcp"
+    },
+    {
+      "id": "50142714",
+      "title": "Tell HN: Massive amount of spam from \"Who Wants to be hired\"",
+      "url": "https://news.ycombinator.com/item?id=50142714",
+      "points": 10,
+      "comments": 3,
+      "created_at": "2026-10-18T16:44:40Z",
+      "pph": 0.413,
+      "query": "claude code"
+    }
+  ]
+}

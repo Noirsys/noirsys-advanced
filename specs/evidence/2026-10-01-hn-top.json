@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-01T16:59:56+00:00",
+  "stories": [
+    {
+      "id": "49922729",
+      "title": "Figma restricts MCP access to whitelisted clients, excluding Pi",
+      "url": "https://twitter.com/GayaniFigma/status/2105295629941350454",
+      "points": 92,
+      "comments": 39,
+      "created_at": "2026-10-01T15:10:46Z",
+      "pph": 50.558,
+      "query": "mcp"
+    },
+    {
+      "id": "49922736",
+      "title": "OpenID Foundation: Identity Management for Agentic AI [pdf] (2025)",
+      "url": "https://openid.net/wp-content/uploads/2025/10/Identity-Management-for-Agentic-AI.pdf",
+      "points": 39,
+      "comments": 6,
+      "created_at": "2026-10-01T15:11:10Z",
+      "pph": 21.511,
+      "query": "ai agents"
+    },
+    {
+      "id": "49910328",
+      "title": "Show HN: Parrot \u2013 Open-Source Smart Meeting Recorder with Co-Pilot on Mac",
+      "url": "https://openparrot.app",
+      "points": 34,
+      "comments": 28,
+      "created_at": "2026-09-30T15:33:12Z",
+      "pph": 1.336,
+      "query": "claude code"
+    },
+    {
+      "id": "49914005",
+      "title": "Show HN: Perspica \u2013 A semantic diff for reviewing code",
+      "url": "https://github.com/sshah03/perspica",
+      "points": 14,
+      "comments": 5,
+      "created_at": "2026-09-30T20:34:49Z",
+      "pph": 0.686,
+      "query": "claude code"
+    },
+    {
+      "id": "49919314",
+      "title": "US Government's new AI chatbot pulls back from debunking Trump",
+      "url": "https://techxplore.com/news/2026-10-ai-chatbot-debunking-trump.html",
+      "points": 9,
+      "comments": 0,
+      "created_at": "2026-10-01T08:45:18Z",
+      "pph": 1.092,
+      "query": "mcp"
+    },
+    {
+      "id": "49922447",
+      "title": "Nicolas Cage Says the MCU 'Is Becoming a Well-Funded and Glorified WWE'",
+      "url": "https://variety.com/2026/film/news/nicolas-cage-marvel-cinematic-universe-wwe-1236893541/",
+      "points": 7,
+      "comments": 6,
+      "created_at": "2026-10-01T14:52:26Z",
+      "pph": 3.294,
+      "query": "mcp"
+    },
+    {
+      "id": "49921762",
+      "title": "US-based Doxx raises $38M to create no log VPN",
+      "url": "https://refreshmiami.com/news/doxx-net-raises-38m-to-put-ai-agents-on-a-shorter-leash/",
+      "points": 6,
+      "comments": 10,
+      "created_at": "2026-10-01T13:56:21Z",
+      "pph": 1.961,
+      "query": "ai agents"
+    },
+    {
+      "id": "49919185",
+      "title": "Capitalism Can't Handle AI",
+      "url": "https://news.ycombinator.com/item?id=49919185",
+      "points": 6,
+      "comments": 8,
+      "created_at": "2026-10-01T08:27:21Z",
+      "pph": 0.702,
+      "query": "ai agents"
+    },
+    {
+      "id": "49918520",
+      "title": "Meta wants people to use 'AI agents' to do daily tasks. Why that's a problem",
+      "url": "https://theconversation.com/meta-wants-people-to-use-ai-agents-to-do-daily-tasks-for-them-heres-why-thats-a-problem-292962",
+      "points": 6,
+      "comments": 0,
+      "created_at": "2026-10-01T06:52:51Z",
+      "pph": 0.593,
+      "query": "ai agents"
+    },
+    {
+      "id": "49922799",
+      "title": "Show HN: Fast browser agent (using Jev) with deep reasoning as needed",
+      "url": "https://github.com/ironbee-ai/ironbee-express",
+      "points": 5,
+      "comments": 0,
+      "created_at": "2026-10-01T15:15:33Z",
+      "pph": 2.874,
+      "query": "ai agents"
+    }
+  ]
+}

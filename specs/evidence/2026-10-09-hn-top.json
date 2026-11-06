@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-09T16:57:20+00:00",
+  "stories": [
+    {
+      "id": "50018817",
+      "title": "Let your AI agents paint big arrows, boxes and text on your screen",
+      "url": "https://github.com/franzenzenhofer/big-arrow-on-the-screen",
+      "points": 270,
+      "comments": 112,
+      "created_at": "2026-10-09T11:03:48Z",
+      "pph": 45.823,
+      "query": "ai agents"
+    },
+    {
+      "id": "50002665",
+      "title": "I think I found a planet nobody knew existed. I used Claude Code to find it",
+      "url": "https://www.reddit.com/r/ClaudeAI/s/mbe5IY2LF9",
+      "points": 247,
+      "comments": 119,
+      "created_at": "2026-10-08T07:07:34Z",
+      "pph": 7.301,
+      "query": "claude code"
+    },
+    {
+      "id": "50014150",
+      "title": "Show HN: Edi Life OS \u2013 self-hosted life dashboard with an MCP server for AI",
+      "url": "https://github.com/edrisranjbar/lifeos",
+      "points": 39,
+      "comments": 15,
+      "created_at": "2026-10-09T00:02:19Z",
+      "pph": 2.305,
+      "query": "mcp"
+    },
+    {
+      "id": "50015042",
+      "title": "Receipt for sale of Jane, age 18, and her son, Henry, age 1",
+      "url": "https://loc.gov/pictures/resource/cph.3c25134/",
+      "points": 27,
+      "comments": 4,
+      "created_at": "2026-10-09T01:56:52Z",
+      "pph": 1.799,
+      "query": "mcp"
+    },
+    {
+      "id": "50012543",
+      "title": "The Gemini Agent",
+      "url": "https://cloud.google.com/blog/products/ai-machine-learning/welcome-to-gemini-at-work-2026",
+      "points": 18,
+      "comments": 2,
+      "created_at": "2026-10-08T21:26:28Z",
+      "pph": 0.922,
+      "query": "ai agents"
+    },
+    {
+      "id": "50001750",
+      "title": "Show HN: Pacer \u2013 will your AI coding subscription last until the reset?",
+      "url": "https://github.com/dkremsa/claude-pacer",
+      "points": 10,
+      "comments": 8,
+      "created_at": "2026-10-08T04:10:33Z",
+      "pph": 0.272,
+      "query": "claude code"
+    },
+    {
+      "id": "50014981",
+      "title": "MapRoulette security incident \u2013 October 2026",
+      "url": "https://community.openstreetmap.org/t/maproulette-security-incident-october-2026/148566",
+      "points": 6,
+      "comments": 0,
+      "created_at": "2026-10-09T01:44:30Z",
+      "pph": 0.394,
+      "query": "mcp"
+    },
+    {
+      "id": "50004061",
+      "title": "\"I think I found a planet nobody knew existed. I used Claude Code to find it\"",
+      "url": "https://www.reddit.com/r/ClaudeAI/comments/1wzw8zd/i_think_i_found_a_planet_nobody_knew_existed_i/",
+      "points": 6,
+      "comments": 8,
+      "created_at": "2026-10-08T10:24:01Z",
+      "pph": 0.196,
+      "query": "claude code"
+    },
+    {
+      "id": "50015503",
+      "title": "Robium \u2013 Physical AI harness for coding agents",
+      "url": "https://github.com/robium-ai/robium",
+      "points": 5,
+      "comments": 0,
+      "created_at": "2026-10-09T03:06:26Z",
+      "pph": 0.361,
+      "query": "ai agents"
+    },
+    {
+      "id": "50020652",
+      "title": "Safeguard agents in plain English with decision models",
+      "url": "https://berget.ai/en/blog/guardrails-md-launch",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-10-09T13:58:01Z",
+      "pph": 1.338,
+      "query": "ai agents"
+    }
+  ]
+}

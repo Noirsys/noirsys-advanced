@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-04T17:56:19+00:00",
+  "stories": [
+    {
+      "id": "50367125",
+      "title": "AMD expects to outsell Intel in Q4 for the first time in history",
+      "url": "https://www.tomshardware.com/pc-components/cpus/amd-expects-to-outsell-intel-in-q4-for-the-first-time-in-history-usd17b-guidance-would-exceed-intels-projections",
+      "points": 164,
+      "comments": 52,
+      "created_at": "2026-11-04T15:38:34Z",
+      "pph": 71.43,
+      "query": "mcp"
+    },
+    {
+      "id": "50358352",
+      "title": "Show HN: Uncracked City, detective game where you question LLM suspects that lie",
+      "url": "https://uncracked.city",
+      "points": 116,
+      "comments": 56,
+      "created_at": "2026-11-03T21:20:03Z",
+      "pph": 5.63,
+      "query": "claude code"
+    },
+    {
+      "id": "50358314",
+      "title": "Show HN: Kairos \u2013 Open-source risk and fraud decisioning platform",
+      "url": "https://github.com/finic-ai/kairos",
+      "points": 100,
+      "comments": 30,
+      "created_at": "2026-11-03T21:16:48Z",
+      "pph": 4.841,
+      "query": "claude code"
+    },
+    {
+      "id": "50364561",
+      "title": "A map of 5000+ midterm ads",
+      "url": "https://admap.org/",
+      "points": 63,
+      "comments": 24,
+      "created_at": "2026-11-04T12:18:35Z",
+      "pph": 11.192,
+      "query": "mcp"
+    },
+    {
+      "id": "50366117",
+      "title": "Ask HN: What's your current AI agentic setup?",
+      "url": "https://news.ycombinator.com/item?id=50366117",
+      "points": 56,
+      "comments": 67,
+      "created_at": "2026-11-04T14:37:22Z",
+      "pph": 16.888,
+      "query": "ai agents"
+    },
+    {
+      "id": "50366971",
+      "title": "YC's Garry Tan uses AI agents so much, he spends up to $200K a year on tokens",
+      "url": "https://techcrunch.com/2026/11/02/y-combinators-garry-tan-uses-ai-agents-so-much-he-spends-up-to-200k-a-year-on-tokens/",
+      "points": 45,
+      "comments": 60,
+      "created_at": "2026-11-04T15:28:31Z",
+      "pph": 18.267,
+      "query": "ai agents"
+    },
+    {
+      "id": "50366811",
+      "title": "Show HN: Codemap \u2013 one-page interactive map of any Go repository",
+      "url": "https://github.com/peterretief/codemap",
+      "points": 27,
+      "comments": 11,
+      "created_at": "2026-11-04T15:18:24Z",
+      "pph": 10.258,
+      "query": "mcp"
+    },
+    {
+      "id": "50367004",
+      "title": "Letting users trust their own MCP clients, without opening a phishing hole",
+      "url": "https://streamvessel.com/blog/mcp-trusted-redirect-uris",
+      "points": 22,
+      "comments": 2,
+      "created_at": "2026-11-04T15:30:57Z",
+      "pph": 9.08,
+      "query": "mcp"
+    },
+    {
+      "id": "50358388",
+      "title": "British fintech Revolut slashes AI coding costs 10x by going self-hosted",
+      "url": "https://www.theregister.com/ai-and-ml/2026/11/03/british-fintech-revolut-slashes-ai-coding-costs-10x-by-cutting-out-claude-and-going-self-hosted/5307345",
+      "points": 19,
+      "comments": 1,
+      "created_at": "2026-11-03T21:23:42Z",
+      "pph": 0.925,
+      "query": "claude code"
+    },
+    {
+      "id": "50360720",
+      "title": "Running 17 Claude Code bots in a real company for $100/month",
+      "url": "https://botsinproduction.com/blog/what-10-claude-code-bots-cost-per-month/",
+      "points": 13,
+      "comments": 5,
+      "created_at": "2026-11-04T02:02:12Z",
+      "pph": 0.818,
+      "query": "claude code"
+    }
+  ]
+}
