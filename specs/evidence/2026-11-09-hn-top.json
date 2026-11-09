@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-09T20:38:43+00:00",
+  "stories": [
+    {
+      "id": "50415628",
+      "title": "Goldman Sachs is pulling Claude Code from its bankers and traders",
+      "url": "https://www.thestateofai.com/news/goldman-sachs-claude-code-traders-bankers",
+      "points": 874,
+      "comments": 470,
+      "created_at": "2026-11-08T18:16:07Z",
+      "pph": 33.135,
+      "query": "claude code"
+    },
+    {
+      "id": "50415750",
+      "title": "Playing Zork 1 on a CP/M emulator on Linux (2021)",
+      "url": "https://kevinboone.me/cpmzork.html",
+      "points": 43,
+      "comments": 17,
+      "created_at": "2026-11-08T18:33:50Z",
+      "pph": 1.649,
+      "query": "mcp"
+    },
+    {
+      "id": "50419019",
+      "title": "Tell HN: A flood of reports of Opus 5.5 being nerfed",
+      "url": "https://news.ycombinator.com/item?id=50419019",
+      "points": 23,
+      "comments": 14,
+      "created_at": "2026-11-08T23:49:19Z",
+      "pph": 1.105,
+      "query": "claude code"
+    },
+    {
+      "id": "50426070",
+      "title": "Ask HN: How do you evaluate the skills your AI agents use?",
+      "url": "https://news.ycombinator.com/item?id=50426070",
+      "points": 17,
+      "comments": 3,
+      "created_at": "2026-11-09T14:24:22Z",
+      "pph": 2.725,
+      "query": "ai agents"
+    },
+    {
+      "id": "50413970",
+      "title": "Show HN: Recalc \u2013 Spreadsheet where cells can be Claude Code or Codex terminals",
+      "url": "https://github.com/sshah03/recalc",
+      "points": 13,
+      "comments": 1,
+      "created_at": "2026-11-08T15:12:07Z",
+      "pph": 0.442,
+      "query": "claude code"
+    },
+    {
+      "id": "50421899",
+      "title": "WindyMaps \u2013 Free offline maps, 1h/1km weather and route trip planner",
+      "url": "https://windymapy.com",
+      "points": 10,
+      "comments": 2,
+      "created_at": "2026-11-09T06:40:44Z",
+      "pph": 0.716,
+      "query": "mcp"
+    },
+    {
+      "id": "50420729",
+      "title": "Anthropic, stop silently degrading models. You will undermine trust",
+      "url": "https://www.reddit.com/r/ClaudeCode/comments/1xqtslm/rant_anthropic_stop_silently_degrading_models/",
+      "points": 8,
+      "comments": 0,
+      "created_at": "2026-11-09T03:34:45Z",
+      "pph": 0.469,
+      "query": "claude code"
+    },
+    {
+      "id": "50425018",
+      "title": "Our newest TPUs: 8tx and 8i Max, built for the agentic era",
+      "url": "https://blog.google/innovation-and-ai/infrastructure-and-cloud/global-network/tpu-8i-max-and-8tx/",
+      "points": 7,
+      "comments": 4,
+      "created_at": "2026-11-09T13:02:50Z",
+      "pph": 0.921,
+      "query": "ai agents"
+    },
+    {
+      "id": "50426990",
+      "title": "Show HN: One TUI to Manage MCP Servers for Claude Code and Codex",
+      "url": "https://toolshed.run",
+      "points": 7,
+      "comments": 0,
+      "created_at": "2026-11-09T15:31:03Z",
+      "pph": 1.365,
+      "query": "mcp"
+    },
+    {
+      "id": "50430154",
+      "title": "Claude Fable 5.2",
+      "url": "https://platform.claude.com/docs/en/models/fable-5-2/overview",
+      "points": 7,
+      "comments": 1,
+      "created_at": "2026-11-09T19:10:40Z",
+      "pph": 4.77,
+      "query": "claude code"
+    }
+  ]
+}
