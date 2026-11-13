@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-10T17:40:30+00:00",
+  "stories": [
+    {
+      "id": "50431144",
+      "title": "Claude Fable 5.2 scores 65 on Artificial Analysis, highest so far",
+      "url": "https://artificialanalysis.ai/models/claude-fable-5-2",
+      "points": 363,
+      "comments": 261,
+      "created_at": "2026-11-09T20:04:55Z",
+      "pph": 16.811,
+      "query": "claude code"
+    },
+    {
+      "id": "50433079",
+      "title": "A year after the 100% AI mandate nobody understands our code",
+      "url": "https://www.reddit.com/r/ClaudeCode/comments/1xq2n3t/a_year_after_the_100_ai_mandate_nobody/",
+      "points": 144,
+      "comments": 183,
+      "created_at": "2026-11-09T22:19:12Z",
+      "pph": 7.44,
+      "query": "claude code"
+    },
+    {
+      "id": "50435105",
+      "title": "Formalizing CPython",
+      "url": "https://broyojo.com/python-formalization/",
+      "points": 118,
+      "comments": 54,
+      "created_at": "2026-11-10T01:56:48Z",
+      "pph": 7.502,
+      "query": "mcp"
+    },
+    {
+      "id": "50433891",
+      "title": "ssh2RCE",
+      "url": "https://ssh2rce.com/",
+      "points": 27,
+      "comments": 13,
+      "created_at": "2026-11-09T23:31:51Z",
+      "pph": 1.488,
+      "query": "mcp"
+    },
+    {
+      "id": "50426990",
+      "title": "Show HN: One TUI to Manage MCP Servers for Claude Code and Codex",
+      "url": "https://toolshed.run",
+      "points": 7,
+      "comments": 0,
+      "created_at": "2026-11-09T15:31:03Z",
+      "pph": 0.268,
+      "query": "claude code"
+    },
+    {
+      "id": "50426559",
+      "title": "Show HN: Thrum \u2013 run Claude Code, Codex and other coding agents as one team",
+      "url": "https://thrum.team/",
+      "points": 6,
+      "comments": 8,
+      "created_at": "2026-11-09T14:59:42Z",
+      "pph": 0.225,
+      "query": "claude code"
+    },
+    {
+      "id": "50439141",
+      "title": "Show HN: Cosh \u2013 An open-source AI agent orchestrator",
+      "url": "https://github.com/DiegoZaluski/co-sh",
+      "points": 5,
+      "comments": 2,
+      "created_at": "2026-11-10T12:05:13Z",
+      "pph": 0.895,
+      "query": "ai agents"
+    },
+    {
+      "id": "50435672",
+      "title": "Show HN: ZTHR \u2013 what replaces code review when AI agents write all the code",
+      "url": "https://zthr.ai/",
+      "points": 5,
+      "comments": 4,
+      "created_at": "2026-11-10T03:21:56Z",
+      "pph": 0.349,
+      "query": "ai agents"
+    },
+    {
+      "id": "50440821",
+      "title": "The Linux TCP RCE is worse than we thought",
+      "url": "https://www.firezone.dev/blog/linux-tcp-flaw",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-11-10T14:23:22Z",
+      "pph": 1.217,
+      "query": "mcp"
+    },
+    {
+      "id": "50435819",
+      "title": "Ask HN: Are companies making money by using AI?",
+      "url": "https://news.ycombinator.com/item?id=50435819",
+      "points": 4,
+      "comments": 10,
+      "created_at": "2026-11-10T03:49:10Z",
+      "pph": 0.289,
+      "query": "claude code"
+    }
+  ]
+}

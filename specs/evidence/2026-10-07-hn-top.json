@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-07T17:23:32+00:00",
+  "stories": [
+    {
+      "id": "49981905",
+      "title": "Claude Code\u2019s suggested message feature: I think the real customer is the model",
+      "url": "https://www.zohaib.cc/blog/smartest-claude-code-feature",
+      "points": 255,
+      "comments": 149,
+      "created_at": "2026-10-06T18:00:34Z",
+      "pph": 10.905,
+      "query": "claude code"
+    },
+    {
+      "id": "49985861",
+      "title": "South Korea says AI agents appear to have been used to hack the country's banks",
+      "url": "https://www.reuters.com/world/south-koreas-lee-says-ai-appears-have-been-used-bank-hacks-2026-10-06/",
+      "points": 96,
+      "comments": 29,
+      "created_at": "2026-10-06T23:50:33Z",
+      "pph": 5.47,
+      "query": "ai agents"
+    },
+    {
+      "id": "49987765",
+      "title": "Show HN: NanoMuse \u2013 An open-source AI agent for your phone and computer",
+      "url": "https://github.com/nano-muse/nanoMuse",
+      "points": 54,
+      "comments": 18,
+      "created_at": "2026-10-07T03:30:44Z",
+      "pph": 3.89,
+      "query": "ai agents"
+    },
+    {
+      "id": "49979793",
+      "title": "Show HN: OpenChart \u2013 OSS TradingView alternative with your own AI agent",
+      "url": "https://github.com/longsurf-ai/openchart",
+      "points": 43,
+      "comments": 19,
+      "created_at": "2026-10-06T15:16:45Z",
+      "pph": 1.647,
+      "query": "claude code"
+    },
+    {
+      "id": "49984736",
+      "title": "Show HN: An AI agent runs ten web errands a day, every transcript published",
+      "url": "https://agentability.org/",
+      "points": 13,
+      "comments": 2,
+      "created_at": "2026-10-06T22:00:58Z",
+      "pph": 0.671,
+      "query": "ai agents"
+    },
+    {
+      "id": "49993120",
+      "title": "McDonald's sued for allegedly using AI tool to determine pricing for franchises",
+      "url": "https://www.theguardian.com/business/2026/oct/07/mcdonalds-ai-prices-lawsuit",
+      "points": 8,
+      "comments": 3,
+      "created_at": "2026-10-07T14:10:46Z",
+      "pph": 2.49,
+      "query": "mcp"
+    },
+    {
+      "id": "49991027",
+      "title": "MCP for agent-to-agent comms may be the riskiest protocol you've never heard of",
+      "url": "https://arstechnica.com/security/2026/10/vulnerability-in-agents-from-google-and-others-exposes-structural-flaw-in-mcp/",
+      "points": 6,
+      "comments": 0,
+      "created_at": "2026-10-07T11:02:28Z",
+      "pph": 0.945,
+      "query": "mcp"
+    },
+    {
+      "id": "49994822",
+      "title": "Show HN: Paste-preview \u2013 see and mark up images you paste into Claude Code",
+      "url": "https://github.com/alan890104/claude-code-paste-preview",
+      "points": 5,
+      "comments": 0,
+      "created_at": "2026-10-07T16:12:23Z",
+      "pph": 4.216,
+      "query": "claude code"
+    },
+    {
+      "id": "49995539",
+      "title": "Show HN: Agent.reviews \u2013 where AI agents read and write reviews on tools",
+      "url": "https://agent.reviews/",
+      "points": 4,
+      "comments": 2,
+      "created_at": "2026-10-07T16:59:11Z",
+      "pph": 4.0,
+      "query": "ai agents"
+    },
+    {
+      "id": "49994442",
+      "title": "Show HN: Luke \u2013 Voice planning for coding agents",
+      "url": "https://tryluke.dev/",
+      "points": 4,
+      "comments": 2,
+      "created_at": "2026-10-07T15:44:19Z",
+      "pph": 2.419,
+      "query": "mcp"
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-26T16:44:12+00:00",
+  "stories": [
+    {
+      "id": "50238739",
+      "title": "PaperPilot \u2013 Zero-Cloud, Pure-Rust PDF Engine with WASM and MCP",
+      "url": "https://github.com/KrushnaVardhanReddy/PaperPilot",
+      "points": 212,
+      "comments": 76,
+      "created_at": "2026-10-26T03:29:05Z",
+      "pph": 15.997,
+      "query": "mcp"
+    },
+    {
+      "id": "50234879",
+      "title": "Where the Romans Fought (interactive map)",
+      "url": "https://iosiflazaridis.github.io/battles-of-the-romans/",
+      "points": 137,
+      "comments": 53,
+      "created_at": "2026-10-25T18:58:14Z",
+      "pph": 6.294,
+      "query": "mcp"
+    },
+    {
+      "id": "50236748",
+      "title": "Proton Flock Camera Map",
+      "url": "https://proton.me/flock-camera-map",
+      "points": 114,
+      "comments": 27,
+      "created_at": "2026-10-25T22:39:42Z",
+      "pph": 6.307,
+      "query": "mcp"
+    },
+    {
+      "id": "50242843",
+      "title": "Brown student maps the hidden global labor powering AI",
+      "url": "https://www.brown.edu/news/2026-10-26/ai-data-workers",
+      "points": 96,
+      "comments": 79,
+      "created_at": "2026-10-26T12:58:27Z",
+      "pph": 25.513,
+      "query": "mcp"
+    },
+    {
+      "id": "50239748",
+      "title": "The result of the C++26 DIS ballot",
+      "url": "https://train-it.eu/blog/cpp26-contracts-the-ballot-result/",
+      "points": 56,
+      "comments": 87,
+      "created_at": "2026-10-26T06:11:52Z",
+      "pph": 5.314,
+      "query": "mcp"
+    },
+    {
+      "id": "50235909",
+      "title": "Show HN: AgentTrust \u2013 Zero-trust security and human approvals for AI agents",
+      "url": "https://github.com/SRN0129/Agenttrust",
+      "points": 12,
+      "comments": 1,
+      "created_at": "2026-10-25T20:46:50Z",
+      "pph": 0.601,
+      "query": "ai agents"
+    },
+    {
+      "id": "50236729",
+      "title": "Forget the plague, this is the disease that will kill us all",
+      "url": "https://mapwriting.substack.com/p/forget-the-plague-this-is-the-disease",
+      "points": 12,
+      "comments": 3,
+      "created_at": "2026-10-25T22:37:46Z",
+      "pph": 0.663,
+      "query": "mcp"
+    },
+    {
+      "id": "50242152",
+      "title": "Anthropic's Claude AI model accessed Georgia voter data in US",
+      "url": "https://www.theguardian.com/technology/2026/oct/26/anthropics-claude-ai-model-accessed-georgia-voter-data-in-us",
+      "points": 7,
+      "comments": 0,
+      "created_at": "2026-10-26T11:48:22Z",
+      "pph": 1.42,
+      "query": "claude code"
+    },
+    {
+      "id": "50237291",
+      "title": "Show HN: A 3D mesh playground for coding agents (three.js + manifold-3d)",
+      "url": "https://sketchagent.dev/s/yfYU6LhT",
+      "points": 5,
+      "comments": 2,
+      "created_at": "2026-10-26T00:02:39Z",
+      "pph": 0.3,
+      "query": "mcp"
+    },
+    {
+      "id": "50234725",
+      "title": "OpenAI's isolated AI agents found ways to talk to each other through CPU cache",
+      "url": "https://the-decoder.com/openais-isolated-ai-agents-found-ways-to-talk-to-each-other-through-cpu-cache/",
+      "points": 4,
+      "comments": 1,
+      "created_at": "2026-10-25T18:44:11Z",
+      "pph": 0.182,
+      "query": "mcp"
+    }
+  ]
+}
