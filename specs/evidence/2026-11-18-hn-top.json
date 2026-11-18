@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-18T18:47:00+00:00",
+  "stories": [
+    {
+      "id": "50529612",
+      "title": "How the Claude Code team thinks about verification",
+      "url": "https://claude.dev/blog/how-the-claude-code-team-thinks-about-verification/",
+      "points": 290,
+      "comments": 230,
+      "created_at": "2026-11-17T10:20:40Z",
+      "pph": 8.94,
+      "query": "claude code"
+    },
+    {
+      "id": "50547777",
+      "title": "AI agents ask better questions than KPMG accountants in audit trial",
+      "url": "https://europeanbusinessmagazine.com/ai-agents-better-questions-kpmg/",
+      "points": 98,
+      "comments": 53,
+      "created_at": "2026-11-18T15:49:34Z",
+      "pph": 33.137,
+      "query": "ai agents"
+    },
+    {
+      "id": "50546967",
+      "title": "The x86 CPU: From 4004 to 486",
+      "url": "https://pikuma.com/blog/history-of-x86-4004-to-486",
+      "points": 75,
+      "comments": 19,
+      "created_at": "2026-11-18T14:47:53Z",
+      "pph": 18.818,
+      "query": "mcp"
+    },
+    {
+      "id": "50547122",
+      "title": "A 4.5M-parameter TTS model runs 70x real-time on CPU and cost just $10 to train",
+      "url": "https://huggingface.co/n4ze3m/tiny-voca",
+      "points": 33,
+      "comments": 2,
+      "created_at": "2026-11-18T15:01:14Z",
+      "pph": 8.77,
+      "query": "mcp"
+    },
+    {
+      "id": "50549188",
+      "title": "Launch HN: Maritime (YC F26) \u2013 A managed cloud for production AI agents",
+      "url": "https://news.ycombinator.com/item?id=50549188",
+      "points": 15,
+      "comments": 8,
+      "created_at": "2026-11-18T17:26:28Z",
+      "pph": 11.174,
+      "query": "ai agents"
+    },
+    {
+      "id": "50550085",
+      "title": "Multi Agent Coordination Benchmark",
+      "url": "https://benchmarks.bespokelabs.ai/multi-agent-coordination-bench/",
+      "points": 13,
+      "comments": 1,
+      "created_at": "2026-11-18T18:28:05Z",
+      "pph": 13.0,
+      "query": "ai agents"
+    },
+    {
+      "id": "50548660",
+      "title": "Show HN: Mastra Factory, the open-source software factory we use to build Mastra",
+      "url": "https://news.ycombinator.com/item?id=50548660",
+      "points": 9,
+      "comments": 2,
+      "created_at": "2026-11-18T16:53:42Z",
+      "pph": 4.766,
+      "query": "ai agents"
+    },
+    {
+      "id": "50548480",
+      "title": "Show HN: Can an AI Agent Bypass Your Website Security?",
+      "url": "https://assess.poh.org/",
+      "points": 8,
+      "comments": 1,
+      "created_at": "2026-11-18T16:40:57Z",
+      "pph": 3.808,
+      "query": "ai agents"
+    },
+    {
+      "id": "50547106",
+      "title": "Data Minimization Is Imperative for the Age of AI Agents",
+      "url": "https://www.techpolicy.press/data-minimization-is-imperative-for-the-age-of-ai-agents/",
+      "points": 6,
+      "comments": 0,
+      "created_at": "2026-11-18T15:00:18Z",
+      "pph": 1.588,
+      "query": "ai agents"
+    },
+    {
+      "id": "50528196",
+      "title": "Show HN: Backplane \u2013 An AI Development Environment for Hardware",
+      "url": "https://backplaneworks.com/",
+      "points": 5,
+      "comments": 1,
+      "created_at": "2026-11-17T06:41:02Z",
+      "pph": 0.139,
+      "query": "claude code"
+    }
+  ]
+}

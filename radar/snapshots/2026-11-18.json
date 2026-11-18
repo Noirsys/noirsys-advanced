@@ -1,0 +1,930 @@
+{
+ "date": "2026-11-18",
+ "generated_at": "2026-11-18T18:47:00+00:00",
+ "quota_units": 0,
+ "errors": [],
+ "channels": {},
+ "videos": [],
+ "stories": [
+  {
+   "id": "50550085",
+   "title": "Multi Agent Coordination Benchmark",
+   "url": "https://benchmarks.bespokelabs.ai/multi-agent-coordination-bench/",
+   "points": 13,
+   "comments": 1,
+   "created_at": "2026-11-18T18:28:05Z",
+   "query": "ai agents",
+   "pph": 13.0
+  },
+  {
+   "id": "50550005",
+   "title": "Our new book on AI agents is out, and it hit #1",
+   "url": "https://newsletter.languagemodels.co/p/our-new-book-on-ai-agents-is-out",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T18:22:22Z",
+   "query": "ai agents",
+   "pph": 2.0
+  },
+  {
+   "id": "50549917",
+   "title": "AI chatbots and agents, ranked for your country (sovereignty first)",
+   "url": "https://botshub.com",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T18:16:10Z",
+   "query": "ai agents",
+   "pph": 1.0
+  },
+  {
+   "id": "50549883",
+   "title": "A free interactive course on AI agent governance",
+   "url": "https://studio.sinapsdata.com.br",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T18:13:47Z",
+   "query": "ai agents",
+   "pph": 1.0
+  },
+  {
+   "id": "50549651",
+   "title": "Show HN: Waku.One is a shared memory and a board for your team's AI agents",
+   "url": "https://www.waku.one/",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T17:56:15Z",
+   "query": "ai agents",
+   "pph": 2.0
+  },
+  {
+   "id": "50549500",
+   "title": "KradleBench: Multi-agent AI evals in Minecraft",
+   "url": "http://www.kradle.ai",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T17:46:24Z",
+   "query": "ai agents",
+   "pph": 0.99
+  },
+  {
+   "id": "50549263",
+   "title": "Show HN: WebCraft Pro \u2013 CI-enforced engineering standards for AI coding agents",
+   "url": "https://github.com/ViviBeri/webcraft-pro",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T17:31:31Z",
+   "query": "ai agents",
+   "pph": 0.795
+  },
+  {
+   "id": "50549188",
+   "title": "Launch HN: Maritime (YC F26) \u2013 A managed cloud for production AI agents",
+   "url": "https://news.ycombinator.com/item?id=50549188",
+   "points": 15,
+   "comments": 8,
+   "created_at": "2026-11-18T17:26:28Z",
+   "query": "ai agents",
+   "pph": 11.174
+  },
+  {
+   "id": "50548964",
+   "title": "Build a Basic AI Agent from Scratch: Agents and Sub-Agents",
+   "url": "https://www.ruxu.dev/articles/ai/build-an-ai-agent-agents-subagents/",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T17:12:54Z",
+   "query": "ai agents",
+   "pph": 0.638
+  },
+  {
+   "id": "50548832",
+   "title": "Stitch Loop: a long-running product agent that connects to codebase and metrics",
+   "url": "https://blog.google/innovation-and-ai/models-and-research/google-labs/stitch-loop/",
+   "points": 3,
+   "comments": 0,
+   "created_at": "2026-11-18T17:05:40Z",
+   "query": "ai agents",
+   "pph": 1.776
+  },
+  {
+   "id": "50548740",
+   "title": "Show HN: Klistra \u2013 A complete studio for spec-driven AI motion design and video",
+   "url": "https://klistra.ai/",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T16:58:53Z",
+   "query": "ai agents",
+   "pph": 1.11
+  },
+  {
+   "id": "50548687",
+   "title": "Show HN: Cloudish \u2013 Cloud for agents to deploy containers themselves",
+   "url": "https://www.cloudish.ai/",
+   "points": 2,
+   "comments": 1,
+   "created_at": "2026-11-18T16:55:55Z",
+   "query": "ai agents",
+   "pph": 1.08
+  },
+  {
+   "id": "50548660",
+   "title": "Show HN: Mastra Factory, the open-source software factory we use to build Mastra",
+   "url": "https://news.ycombinator.com/item?id=50548660",
+   "points": 9,
+   "comments": 2,
+   "created_at": "2026-11-18T16:53:42Z",
+   "query": "ai agents",
+   "pph": 4.766
+  },
+  {
+   "id": "50548480",
+   "title": "Show HN: Can an AI Agent Bypass Your Website Security?",
+   "url": "https://assess.poh.org/",
+   "points": 8,
+   "comments": 1,
+   "created_at": "2026-11-18T16:40:57Z",
+   "query": "ai agents",
+   "pph": 3.808
+  },
+  {
+   "id": "50548428",
+   "title": "We're Giving AI Agents the Keys to Our Computers. That's a Security Nightmare",
+   "url": "https://soargram.io/content/273880860",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T16:37:21Z",
+   "query": "ai agents",
+   "pph": 0.925
+  },
+  {
+   "id": "50548013",
+   "title": "Show HN: RedCat an open-source AI agent for your desktop",
+   "url": "https://github.com/manamaliahmad/redcat",
+   "points": 3,
+   "comments": 0,
+   "created_at": "2026-11-18T16:07:19Z",
+   "query": "ai agents",
+   "pph": 1.127
+  },
+  {
+   "id": "50547934",
+   "title": "Show HN: Dez \u2013 plaintext open source AI multimedia studio",
+   "url": "https://github.com/taoeffect/dez",
+   "points": 3,
+   "comments": 0,
+   "created_at": "2026-11-18T16:01:28Z",
+   "query": "ai agents",
+   "pph": 1.087
+  },
+  {
+   "id": "50547777",
+   "title": "AI agents ask better questions than KPMG accountants in audit trial",
+   "url": "https://europeanbusinessmagazine.com/ai-agents-better-questions-kpmg/",
+   "points": 98,
+   "comments": 53,
+   "created_at": "2026-11-18T15:49:34Z",
+   "query": "ai agents",
+   "pph": 33.137
+  },
+  {
+   "id": "50547290",
+   "title": "Agentic Video in Gemini",
+   "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-agentic-video-in-gemini/",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T15:13:45Z",
+   "query": "ai agents",
+   "pph": 0.563
+  },
+  {
+   "id": "50547214",
+   "title": "Show HN: Space-Core, a free browser MMO your own AI agent plays over MCP",
+   "url": "https://space-core.at/",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T15:07:56Z",
+   "query": "ai agents",
+   "pph": 0.548
+  },
+  {
+   "id": "50547106",
+   "title": "Data Minimization Is Imperative for the Age of AI Agents",
+   "url": "https://www.techpolicy.press/data-minimization-is-imperative-for-the-age-of-ai-agents/",
+   "points": 6,
+   "comments": 0,
+   "created_at": "2026-11-18T15:00:18Z",
+   "query": "ai agents",
+   "pph": 1.588
+  },
+  {
+   "id": "50547049",
+   "title": "Show HN: RockDesk \u2013 remote desktop control for AI agents",
+   "url": "https://rockdesk.io/",
+   "points": 2,
+   "comments": 1,
+   "created_at": "2026-11-18T14:56:05Z",
+   "query": "ai agents",
+   "pph": 0.52
+  },
+  {
+   "id": "50546841",
+   "title": "California sues OpenAI over AI agents escaping sandboxes, hacking firms",
+   "url": "https://www.bleepingcomputer.com/news/security/california-sues-openai-over-ai-agents-escaping-sandboxes-hacking-firms/",
+   "points": 4,
+   "comments": 0,
+   "created_at": "2026-11-18T14:38:17Z",
+   "query": "ai agents",
+   "pph": 0.965
+  },
+  {
+   "id": "50546796",
+   "title": "Show HN: Grand Treasure Island \u2013 GTA-style game on a real island, modeled by AI",
+   "url": "https://grandtreasureisland.vercel.app/",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T14:34:56Z",
+   "query": "ai agents",
+   "pph": 0.238
+  },
+  {
+   "id": "50546792",
+   "title": "Synthesizing Rollback Systems for Safer Agents",
+   "url": "https://www.basis.ai/blog/undo-for-agents/",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T14:34:44Z",
+   "query": "ai agents",
+   "pph": 0.238
+  },
+  {
+   "id": "50546770",
+   "title": "Hugging Face,chain: forensic brief on the'26 autonomous-agent production breach",
+   "url": "https://claude.ai/artifact/NU2YVW2a7VkysLqjCm5evD",
+   "points": 1,
+   "comments": 2,
+   "created_at": "2026-11-18T14:33:09Z",
+   "query": "ai agents",
+   "pph": 0.236
+  },
+  {
+   "id": "50546755",
+   "title": "Show HN: Project-M \u2013 Local shared memory for AI coding agents",
+   "url": "https://github.com/adityadebnath009/Project-M",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T14:31:10Z",
+   "query": "ai agents",
+   "pph": 0.235
+  },
+  {
+   "id": "50546557",
+   "title": "The financial rules AI agents break when chasing results",
+   "url": "https://www.unite.ai/the-financial-rules-ai-agents-break-when-chasing-results/",
+   "points": 3,
+   "comments": 1,
+   "created_at": "2026-11-18T14:13:21Z",
+   "query": "ai agents",
+   "pph": 0.658
+  },
+  {
+   "id": "50546374",
+   "title": "My agent org speedran a company",
+   "url": "https://perfloop.ai/blog/my-agent-org-speedran-a-company",
+   "points": 4,
+   "comments": 0,
+   "created_at": "2026-11-18T13:57:17Z",
+   "query": "ai agents",
+   "pph": 0.828
+  },
+  {
+   "id": "50546006",
+   "title": "Framework for evaluating agentic systems: reliability, behavior, and readiness",
+   "url": "https://deepsense.ai/blog/your-agent-passed-the-eval-should-you-ship-it/",
+   "points": 3,
+   "comments": 0,
+   "created_at": "2026-11-18T13:22:21Z",
+   "query": "ai agents",
+   "pph": 0.554
+  },
+  {
+   "id": "50549615",
+   "title": "MapQuest's Contrarian Comeback",
+   "url": "https://www.theguardian.com/us-news/2026/nov/18/mapquest-google-apple-navigation-app-flock",
+   "points": 3,
+   "comments": 0,
+   "created_at": "2026-11-18T17:53:43Z",
+   "query": "mcp",
+   "pph": 3.0
+  },
+  {
+   "id": "50549454",
+   "title": "Show HN: Goldcrest, a household financial model you fill in by talking",
+   "url": "https://app.getgoldcrest.com",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T17:42:50Z",
+   "query": "mcp",
+   "pph": 0.935
+  },
+  {
+   "id": "50548702",
+   "title": "Show HN: Maplibre-gl-pie-charts \u2013 WebGL pie charts for MapLibre and Mapbox",
+   "url": "https://github.com/zwang-geog/maplibre-gl-pie-charts",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T16:56:50Z",
+   "query": "mcp",
+   "pph": 1.089
+  },
+  {
+   "id": "50548121",
+   "title": "Exploring over 700 custom Call of Duty 2 maps in 3D",
+   "url": "https://sniklaus.com/codmaps",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T16:15:53Z",
+   "query": "mcp",
+   "pph": 0.794
+  },
+  {
+   "id": "50548065",
+   "title": "Polypane browser now has an Automation MCP",
+   "url": "https://polypane.app/automation/",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T16:12:11Z",
+   "query": "mcp",
+   "pph": 0.775
+  },
+  {
+   "id": "50547899",
+   "title": "Show HN: MET \u2013 a map of the people you've met while traveling",
+   "url": "https://met-app.github.io/",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T15:58:46Z",
+   "query": "mcp",
+   "pph": 0.357
+  },
+  {
+   "id": "50547887",
+   "title": "Show HN: Mopup \u2013 see what your builds and coding agents left on your Mac",
+   "url": "https://mopup.online/developers",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T15:58:08Z",
+   "query": "mcp",
+   "pph": 0.355
+  },
+  {
+   "id": "50547597",
+   "title": "Open-source mock MCP server to test clients and agents without real servers",
+   "url": "https://github.com/axium-lab/mcp-mock",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T15:36:50Z",
+   "query": "mcp",
+   "pph": 0.315
+  },
+  {
+   "id": "50547444",
+   "title": "Show HN: FLAC, MP3 and DST decoders, about 2x faster than FFmpeg's (MIT)",
+   "url": "https://orpheic.com/decoders/",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T15:26:18Z",
+   "query": "mcp",
+   "pph": 0.598
+  },
+  {
+   "id": "50547381",
+   "title": "Show HN: Windshift \u2013 the Jira alternative for people who liked Jira",
+   "url": "https://github.com/Windshiftapp/core",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T15:20:14Z",
+   "query": "mcp",
+   "pph": 0.58
+  },
+  {
+   "id": "50547304",
+   "title": "Show HN: Melt value of gold and silver jewellery, as an MCP server for Claude",
+   "url": "https://github.com/srinivasalokeshraju/Jewellery_value",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T15:15:16Z",
+   "query": "mcp",
+   "pph": 0.283
+  },
+  {
+   "id": "50547235",
+   "title": "Show HN: Terminess, a harness that runs the official Claude Code and Codex CLIs",
+   "url": "https://github.com/Terminess/terminess",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T15:09:12Z",
+   "query": "mcp",
+   "pph": 0.551
+  },
+  {
+   "id": "50547214",
+   "title": "Show HN: Space-Core, a free browser MMO your own AI agent plays over MCP",
+   "url": "https://space-core.at/",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T15:07:56Z",
+   "query": "mcp",
+   "pph": 0.548
+  },
+  {
+   "id": "50547122",
+   "title": "A 4.5M-parameter TTS model runs 70x real-time on CPU and cost just $10 to train",
+   "url": "https://huggingface.co/n4ze3m/tiny-voca",
+   "points": 33,
+   "comments": 2,
+   "created_at": "2026-11-18T15:01:14Z",
+   "query": "mcp",
+   "pph": 8.77
+  },
+  {
+   "id": "50547015",
+   "title": "GDPR and ToS Compliance MCP \u2013 scan your codebase for GDPR violations",
+   "url": "https://github.com/enrique-martin-182/gdpr-compliance-mcp",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T14:52:45Z",
+   "query": "mcp",
+   "pph": 0.512
+  },
+  {
+   "id": "50546971",
+   "title": "Java4Shell is a reason to use Java",
+   "url": "https://mccue.dev/pages/11-18-26-java4shell",
+   "points": 3,
+   "comments": 0,
+   "created_at": "2026-11-18T14:48:09Z",
+   "query": "mcp",
+   "pph": 0.754
+  },
+  {
+   "id": "50546967",
+   "title": "The x86 CPU: From 4004 to 486",
+   "url": "https://pikuma.com/blog/history-of-x86-4004-to-486",
+   "points": 75,
+   "comments": 19,
+   "created_at": "2026-11-18T14:47:53Z",
+   "query": "mcp",
+   "pph": 18.818
+  },
+  {
+   "id": "50546582",
+   "title": "More than one in four public MCP servers can take an action nobody can undo",
+   "url": "https://github.com/RinwallDev/rinwall/blob/master/research/2026-10-public-mcp-scan.md",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T14:15:42Z",
+   "query": "mcp",
+   "pph": 0.221
+  },
+  {
+   "id": "50546563",
+   "title": "Antipode \u2013 A local synth I built for my own music",
+   "url": "https://github.com/mchl-schrdng/antipode-audio",
+   "points": 2,
+   "comments": 2,
+   "created_at": "2026-11-18T14:13:48Z",
+   "query": "mcp",
+   "pph": 0.439
+  },
+  {
+   "id": "50546109",
+   "title": "Show HN: Hosting Market Insights \u2013 97.3% of domains mapped to 8,300 providers",
+   "url": "https://webhosting.today/market-insights/",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T13:32:12Z",
+   "query": "mcp",
+   "pph": 0.191
+  },
+  {
+   "id": "50545818",
+   "title": "\u00b5-Wire \u2013 USB on an ATtiny 10",
+   "url": "https://cpldcpu.com/2014/03/19/%c2%b5-wire-usb-on-an-attiny-10/",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T13:02:08Z",
+   "query": "mcp",
+   "pph": 0.348
+  },
+  {
+   "id": "50545743",
+   "title": "Show HN: Map showing if GTA 6 is out in your country",
+   "url": "https://ksvslk.github.io/gta6-launch-map/",
+   "points": 4,
+   "comments": 1,
+   "created_at": "2026-11-18T12:54:39Z",
+   "query": "mcp",
+   "pph": 0.681
+  },
+  {
+   "id": "50545722",
+   "title": "Prax Data Services \u2013 sanctions, bank, CVE and dependency checks as MCP tools",
+   "url": "https://mcp.orabrain.com",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T12:52:39Z",
+   "query": "mcp",
+   "pph": 0.169
+  },
+  {
+   "id": "50545691",
+   "title": "Show HN: VI Engine \u2013 MCP-connected AI marketing workspace with approval gates",
+   "url": "https://viengine.social",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T12:49:59Z",
+   "query": "mcp",
+   "pph": 0.168
+  },
+  {
+   "id": "50544950",
+   "title": "Show HN: Korean company registry for AI agents \u2013 free MCP server and CSV batch",
+   "url": "https://comepass.xyz/?lang=en",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T11:24:17Z",
+   "query": "mcp",
+   "pph": 0.136
+  },
+  {
+   "id": "50544699",
+   "title": "C++ Optimizations in MSVC Build Tools 14.52",
+   "url": "https://devblogs.microsoft.com/cppblog/c-optimizations-in-msvc-build-tools-14-52/",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T10:57:49Z",
+   "query": "mcp",
+   "pph": 0.256
+  },
+  {
+   "id": "50544566",
+   "title": "Show HN: Prototype of a product management tool for AI agent companies",
+   "url": "https://featurestream-prototype.vercel.app/",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T10:42:09Z",
+   "query": "mcp",
+   "pph": 0.247
+  },
+  {
+   "id": "50543700",
+   "title": "MCP OAuth 2.1: PKCE, Resource Metadata and Client ID Metadata Documents",
+   "url": "https://www.permit.io/blog/oauth-on-mcp",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T08:55:43Z",
+   "query": "mcp",
+   "pph": 0.101
+  },
+  {
+   "id": "50541419",
+   "title": "Show HN: Director's Lookbook, named looks for image, video and music prompts",
+   "url": "https://directorslookbook.app/",
+   "points": 4,
+   "comments": 2,
+   "created_at": "2026-11-18T03:16:28Z",
+   "query": "mcp",
+   "pph": 0.258
+  },
+  {
+   "id": "50541265",
+   "title": "Who decides what AI treats as facts, and how they verify it?",
+   "url": "https://uka-135-map.pplx.app",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T02:52:40Z",
+   "query": "mcp",
+   "pph": 0.063
+  },
+  {
+   "id": "50549500",
+   "title": "KradleBench: Multi-agent AI evals in Minecraft",
+   "url": "http://www.kradle.ai",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T17:46:24Z",
+   "query": "claude code",
+   "pph": 0.99
+  },
+  {
+   "id": "50548740",
+   "title": "Show HN: Klistra \u2013 A complete studio for spec-driven AI motion design and video",
+   "url": "https://klistra.ai/",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T16:58:53Z",
+   "query": "claude code",
+   "pph": 1.11
+  },
+  {
+   "id": "50548660",
+   "title": "Show HN: Mastra Factory, the open-source software factory we use to build Mastra",
+   "url": "https://news.ycombinator.com/item?id=50548660",
+   "points": 9,
+   "comments": 2,
+   "created_at": "2026-11-18T16:53:42Z",
+   "query": "claude code",
+   "pph": 4.766
+  },
+  {
+   "id": "50547874",
+   "title": "Show HN: A simple Kanban job application tracker",
+   "url": "https://github.com/dmreedy/job-board",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T15:56:51Z",
+   "query": "claude code",
+   "pph": 0.353
+  },
+  {
+   "id": "50547444",
+   "title": "Show HN: FLAC, MP3 and DST decoders, about 2x faster than FFmpeg's (MIT)",
+   "url": "https://orpheic.com/decoders/",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T15:26:18Z",
+   "query": "claude code",
+   "pph": 0.598
+  },
+  {
+   "id": "50547235",
+   "title": "Show HN: Terminess, a harness that runs the official Claude Code and Codex CLIs",
+   "url": "https://github.com/Terminess/terminess",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T15:09:12Z",
+   "query": "claude code",
+   "pph": 0.551
+  },
+  {
+   "id": "50547049",
+   "title": "Show HN: RockDesk \u2013 remote desktop control for AI agents",
+   "url": "https://rockdesk.io/",
+   "points": 2,
+   "comments": 1,
+   "created_at": "2026-11-18T14:56:05Z",
+   "query": "claude code",
+   "pph": 0.52
+  },
+  {
+   "id": "50546519",
+   "title": "Show HN: Indexed_bzip2 2.0 \u2013 I used AI to make bzip2 decompression 4x faster",
+   "url": "https://github.com/mxmlnkn/librapidarchive/releases/tag/v2.0.0",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T14:09:21Z",
+   "query": "claude code",
+   "pph": 0.432
+  },
+  {
+   "id": "50546393",
+   "title": "Show HN: TaroBird \u2013 An Open-Source IM for Codex, Claude Code and Other CLIs",
+   "url": "https://github.com/cloveric/tarobird",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-18T13:58:28Z",
+   "query": "claude code",
+   "pph": 0.416
+  },
+  {
+   "id": "50546121",
+   "title": "Attempts to improve skill discovery in Claude Code",
+   "url": "https://github.com/ydmitry/skill-finder",
+   "points": 1,
+   "comments": 1,
+   "created_at": "2026-11-18T13:33:05Z",
+   "query": "claude code",
+   "pph": 0.191
+  },
+  {
+   "id": "50543690",
+   "title": "I gave Claude Code a memory and it used 26% fewer tokens",
+   "url": "https://omnimem.org/",
+   "points": 3,
+   "comments": 2,
+   "created_at": "2026-11-18T08:54:45Z",
+   "query": "claude code",
+   "pph": 0.304
+  },
+  {
+   "id": "50541419",
+   "title": "Show HN: Director's Lookbook, named looks for image, video and music prompts",
+   "url": "https://directorslookbook.app/",
+   "points": 4,
+   "comments": 2,
+   "created_at": "2026-11-18T03:16:28Z",
+   "query": "claude code",
+   "pph": 0.258
+  },
+  {
+   "id": "50538584",
+   "title": "Show HN: Even Keel \u2013 a task queue for coding agents",
+   "url": "https://github.com/NamerekT/even-keel",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-17T21:39:51Z",
+   "query": "claude code",
+   "pph": 0.047
+  },
+  {
+   "id": "50538346",
+   "title": "Run tool calls from code with Code Mode",
+   "url": "https://code.claude.com/docs/en/code-mode",
+   "points": 4,
+   "comments": 0,
+   "created_at": "2026-11-17T21:20:17Z",
+   "query": "claude code",
+   "pph": 0.187
+  },
+  {
+   "id": "50537849",
+   "title": "prtop \u2013 htop for your merge requests to wake Claude Code",
+   "url": "https://tomycesaille.github.io/prtop/",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-17T20:39:12Z",
+   "query": "claude code",
+   "pph": 0.045
+  },
+  {
+   "id": "50536502",
+   "title": "Show HN: Eso-box: turn a spare laptop into an always-on Claude Code server",
+   "url": "https://github.com/blumalex/eso-box",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-17T19:04:01Z",
+   "query": "claude code",
+   "pph": 0.042
+  },
+  {
+   "id": "50535976",
+   "title": "Why and how I use Assisted-by with Claude Code and not Co-authored-by",
+   "url": "https://williamhuster.com/ai-attribution-assisted-by/",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-17T18:30:22Z",
+   "query": "claude code",
+   "pph": 0.082
+  },
+  {
+   "id": "50535730",
+   "title": "Show HN: Taster \u2013 Plain-English rules your AI agent can't forget or ignore",
+   "url": "https://github.com/rinkesh2010rpp/taster-ai",
+   "points": 3,
+   "comments": 0,
+   "created_at": "2026-11-17T18:15:54Z",
+   "query": "claude code",
+   "pph": 0.122
+  },
+  {
+   "id": "50535157",
+   "title": "Show HN: Faros Desktop, a local app to see your AI traces and extend your usage",
+   "url": "https://news.ycombinator.com/item?id=50535157",
+   "points": 4,
+   "comments": 2,
+   "created_at": "2026-11-17T17:42:22Z",
+   "query": "claude code",
+   "pph": 0.16
+  },
+  {
+   "id": "50533967",
+   "title": "Show HN: Crosshead - Working memory and persistent identity for agents",
+   "url": "https://crosshead.sh/",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-17T16:36:50Z",
+   "query": "claude code",
+   "pph": 0.076
+  },
+  {
+   "id": "50532284",
+   "title": "Open-Source Tools That Let Claude Code Create Videos Automatically",
+   "url": "https://medium.com/@ajseven/7-open-source-tools-that-let-claude-code-create-videos-automatically-32c0a0c04329",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-17T15:00:32Z",
+   "query": "claude code",
+   "pph": 0.036
+  },
+  {
+   "id": "50531602",
+   "title": "Show HN: Daily Scribe \u2013 a daily newspaper for Kindle you can write back to",
+   "url": "https://www.dailyscribe.ca",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-17T14:09:40Z",
+   "query": "claude code",
+   "pph": 0.07
+  },
+  {
+   "id": "50530664",
+   "title": "Claude Code Review Find bugs at the pace of agentic code",
+   "url": "https://claude.com/product/code-review",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-17T12:45:49Z",
+   "query": "claude code",
+   "pph": 0.033
+  },
+  {
+   "id": "50530028",
+   "title": "Why your Claude Code usage can charge you 2x up to 10x normal",
+   "url": "https://news.ycombinator.com/item?id=50530028",
+   "points": 2,
+   "comments": 0,
+   "created_at": "2026-11-17T11:26:19Z",
+   "query": "claude code",
+   "pph": 0.064
+  },
+  {
+   "id": "50529742",
+   "title": "Show HN: Wake, see what Claude Code did and where the tokens went",
+   "url": "https://rcruz.dev/wake/",
+   "points": 2,
+   "comments": 1,
+   "created_at": "2026-11-17T10:41:09Z",
+   "query": "claude code",
+   "pph": 0.062
+  },
+  {
+   "id": "50529612",
+   "title": "How the Claude Code team thinks about verification",
+   "url": "https://claude.dev/blog/how-the-claude-code-team-thinks-about-verification/",
+   "points": 290,
+   "comments": 230,
+   "created_at": "2026-11-17T10:20:40Z",
+   "query": "claude code",
+   "pph": 8.94
+  },
+  {
+   "id": "50528736",
+   "title": "DotShield \u2013 stop Claude Code and Cursor from reading your .env",
+   "url": "https://github.com/dot-shield/dotshield-releases",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-17T08:06:10Z",
+   "query": "claude code",
+   "pph": 0.029
+  },
+  {
+   "id": "50528300",
+   "title": "Claude Code Course: Credits Included",
+   "url": "https://news.ycombinator.com/item?id=50528300",
+   "points": 1,
+   "comments": 2,
+   "created_at": "2026-11-17T06:55:15Z",
+   "query": "claude code",
+   "pph": 0.028
+  },
+  {
+   "id": "50528196",
+   "title": "Show HN: Backplane \u2013 An AI Development Environment for Hardware",
+   "url": "https://backplaneworks.com/",
+   "points": 5,
+   "comments": 1,
+   "created_at": "2026-11-17T06:41:02Z",
+   "query": "claude code",
+   "pph": 0.139
+  },
+  {
+   "id": "50527557",
+   "title": "Show HN: Blobby \u2013 A design canvas that Claude, Cursor or Codex drives over MCP",
+   "url": "https://useblobby.com/",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-17T04:44:35Z",
+   "query": "claude code",
+   "pph": 0.026
+  },
+  {
+   "id": "50516154",
+   "title": "Show HN: Interpretability-guided weight edits for Gemma 270M, no training",
+   "url": "https://balajsaleem.github.io/weight-space-editing/",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-16T10:47:20Z",
+   "query": "interpretability",
+   "pph": 0.018
+  },
+  {
+   "id": "50549500",
+   "title": "KradleBench: Multi-agent AI evals in Minecraft",
+   "url": "http://www.kradle.ai",
+   "points": 1,
+   "comments": 0,
+   "created_at": "2026-11-18T17:46:24Z",
+   "query": "llm safety",
+   "pph": 0.99
+  }
+ ]
+}
