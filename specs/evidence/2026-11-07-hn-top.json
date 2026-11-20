@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-07T16:19:04+00:00",
+  "stories": [
+    {
+      "id": "50385272",
+      "title": "Claude Code sends your email address to websites",
+      "url": "https://github.com/anthropics/claude-code/issues/107757",
+      "points": 1583,
+      "comments": 507,
+      "created_at": "2026-11-05T22:17:15Z",
+      "pph": 37.663,
+      "query": "claude code"
+    },
+    {
+      "id": "50395866",
+      "title": "Perplexity launches AI agents for work",
+      "url": "https://www.perplexity.ai/en-GB/hub/blog/teammates-are-agents-for-complex-ongoing-work",
+      "points": 61,
+      "comments": 54,
+      "created_at": "2026-11-06T17:59:41Z",
+      "pph": 2.733,
+      "query": "ai agents"
+    },
+    {
+      "id": "50397325",
+      "title": "Show HN: Agents infer Lego mechanisms from sources, then animate them",
+      "url": "https://github.com/anteloc/ldraw-mecha/tree/v0.5.0",
+      "points": 30,
+      "comments": 1,
+      "created_at": "2026-11-06T19:41:20Z",
+      "pph": 1.454,
+      "query": "ai agents"
+    },
+    {
+      "id": "50394444",
+      "title": "AI coding agent setups from 663 Hacker News comments",
+      "url": "https://theainewsreport.com/2026-11-06-hn-agentic-setups-counted.html",
+      "points": 23,
+      "comments": 3,
+      "created_at": "2026-11-06T16:23:51Z",
+      "pph": 0.962,
+      "query": "ai agents"
+    },
+    {
+      "id": "50387890",
+      "title": "Claude Code, but for SEO",
+      "url": "https://twitter.com/brodieseo/status/2118299596292305356",
+      "points": 14,
+      "comments": 2,
+      "created_at": "2026-11-06T03:42:58Z",
+      "pph": 0.382,
+      "query": "claude code"
+    },
+    {
+      "id": "50394991",
+      "title": "Show HN: AegisKernel \u2013 Zero-trust POSIX runtime for AI agents in <0.016ms",
+      "url": "https://adikshatriyag-crypto.github.io/aegis-kernel/",
+      "points": 12,
+      "comments": 3,
+      "created_at": "2026-11-06T17:00:23Z",
+      "pph": 0.515,
+      "query": "ai agents"
+    },
+    {
+      "id": "50398485",
+      "title": "AI-supported woodworking: Building an up-and-over tool chest with a clever hinge",
+      "url": "https://portalworkers.com/blog/up-and-over-tool-chest/",
+      "points": 8,
+      "comments": 0,
+      "created_at": "2026-11-06T21:02:26Z",
+      "pph": 0.415,
+      "query": "mcp"
+    },
+    {
+      "id": "50396682",
+      "title": "\"No human at the helm\": Delaware plan would let AI agents run businesses",
+      "url": "https://arstechnica.com/tech-policy/2026/10/no-human-at-the-helm-delaware-plan-would-let-ai-agents-run-entire-businesses/",
+      "points": 7,
+      "comments": 0,
+      "created_at": "2026-11-06T18:55:43Z",
+      "pph": 0.327,
+      "query": "ai agents"
+    },
+    {
+      "id": "50402632",
+      "title": "Every processor die anyone has photographed",
+      "url": "https://sheets.works/data-viz/cpu-dies",
+      "points": 6,
+      "comments": 0,
+      "created_at": "2026-11-07T08:07:48Z",
+      "pph": 0.733,
+      "query": "mcp"
+    },
+    {
+      "id": "50397013",
+      "title": "Map of Bay Area tech since the 1960s",
+      "url": "https://tomorrowasusual.substack.com/p/living-maps-bay-area-tech-since-the",
+      "points": 6,
+      "comments": 1,
+      "created_at": "2026-11-06T19:19:18Z",
+      "pph": 0.286,
+      "query": "mcp"
+    }
+  ]
+}

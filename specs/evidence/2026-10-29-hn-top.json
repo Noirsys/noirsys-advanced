@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-29T16:51:40+00:00",
+  "stories": [
+    {
+      "id": "50284255",
+      "title": "Claude Code regularly sends each background agent\u2019s transcript to its model",
+      "url": "https://gist.github.com/flamerix-ai/c3905705cc4205e5de3011fa2e74efce",
+      "points": 527,
+      "comments": 212,
+      "created_at": "2026-10-29T03:33:42Z",
+      "pph": 39.625,
+      "query": "claude code"
+    },
+    {
+      "id": "50278101",
+      "title": "Claude Code found 14,219 photos of my face on my Android that I never took",
+      "url": "https://twitter.com/coolerwave/status/2115393243458207755",
+      "points": 16,
+      "comments": 1,
+      "created_at": "2026-10-28T18:00:40Z",
+      "pph": 0.7,
+      "query": "claude code"
+    },
+    {
+      "id": "50286306",
+      "title": "Tell HN: Claude Code adds your email to the prompt, the LLM sends it to websites",
+      "url": "https://news.ycombinator.com/item?id=50286306",
+      "points": 15,
+      "comments": 2,
+      "created_at": "2026-10-29T09:06:12Z",
+      "pph": 1.933,
+      "query": "claude code"
+    },
+    {
+      "id": "50291116",
+      "title": "Launch HN: Simantic (YC F26) \u2013 Firmware Simulation for AI Agents",
+      "url": "https://news.ycombinator.com/item?id=50291116",
+      "points": 12,
+      "comments": 6,
+      "created_at": "2026-10-29T15:56:32Z",
+      "pph": 12.0,
+      "query": "ai agents"
+    },
+    {
+      "id": "50288172",
+      "title": "Show HN: Pidgeon \u2013 Email inboxes for AI agents",
+      "url": "https://pidgeon.ai",
+      "points": 10,
+      "comments": 2,
+      "created_at": "2026-10-29T12:55:12Z",
+      "pph": 2.537,
+      "query": "ai agents"
+    },
+    {
+      "id": "50281226",
+      "title": "Show HN: Full Python 3.15 Implemented in 25k LoC C11",
+      "url": "https://news.ycombinator.com/item?id=50281226",
+      "points": 7,
+      "comments": 5,
+      "created_at": "2026-10-28T21:35:19Z",
+      "pph": 0.363,
+      "query": "claude code"
+    },
+    {
+      "id": "50286012",
+      "title": "\"No human at the helm\": Delaware plan would let AI agents run businesses",
+      "url": "https://arstechnica.com/tech-policy/2026/10/no-human-at-the-helm-delaware-plan-would-let-ai-agents-run-entire-businesses/",
+      "points": 5,
+      "comments": 1,
+      "created_at": "2026-10-29T08:28:13Z",
+      "pph": 0.596,
+      "query": "ai agents"
+    },
+    {
+      "id": "50284856",
+      "title": "Show HN: Fabivo \u2013 Furniture design from a photo to a numbered cut list",
+      "url": "https://www.fabivo.app/en",
+      "points": 5,
+      "comments": 0,
+      "created_at": "2026-10-29T05:21:10Z",
+      "pph": 0.434,
+      "query": "claude code"
+    },
+    {
+      "id": "50274358",
+      "title": "Show HN: Interview your analysts instead of auto-generating a semantic layer",
+      "url": "https://github.com/nodal-data/nodal-context",
+      "points": 5,
+      "comments": 4,
+      "created_at": "2026-10-28T14:35:23Z",
+      "pph": 0.19,
+      "query": "claude code"
+    },
+    {
+      "id": "50291424",
+      "title": "Show HN: Fast agentic video editing in the browser (Tella)",
+      "url": "https://news.ycombinator.com/item?id=50291424",
+      "points": 4,
+      "comments": 2,
+      "created_at": "2026-10-29T16:14:33Z",
+      "pph": 4.0,
+      "query": "ai agents"
+    }
+  ]
+}

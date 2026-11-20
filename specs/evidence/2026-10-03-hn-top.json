@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-03T14:40:59+00:00",
+  "stories": [
+    {
+      "id": "49937916",
+      "title": "Show HN: Made an open-source Lego AI generator",
+      "url": "https://github.com/anteloc/ldraw-nova",
+      "points": 124,
+      "comments": 47,
+      "created_at": "2026-10-02T20:00:15Z",
+      "pph": 6.638,
+      "query": "ai agents"
+    },
+    {
+      "id": "49926726",
+      "title": "Show HN: Rhun, an open-source code editor written in assembly",
+      "url": "https://rhun.app/",
+      "points": 61,
+      "comments": 49,
+      "created_at": "2026-10-01T20:32:18Z",
+      "pph": 1.447,
+      "query": "claude code"
+    },
+    {
+      "id": "49942865",
+      "title": "An AI agent emailed researchers for help. It told us why",
+      "url": "https://www.science.org/content/article/exclusive-ai-agent-emailed-hundreds-researchers-help-it-told-us-why",
+      "points": 44,
+      "comments": 71,
+      "created_at": "2026-10-03T10:07:08Z",
+      "pph": 9.64,
+      "query": "ai agents"
+    },
+    {
+      "id": "49942434",
+      "title": "Show HN: Offrun \u2013 manage every coding agent from one workspace",
+      "url": "https://offrun.dev/",
+      "points": 31,
+      "comments": 13,
+      "created_at": "2026-10-03T08:40:17Z",
+      "pph": 5.156,
+      "query": "claude code"
+    },
+    {
+      "id": "49934037",
+      "title": "Ask HN: Is anybody producing good code with coding agents?",
+      "url": "https://news.ycombinator.com/item?id=49934037",
+      "points": 26,
+      "comments": 35,
+      "created_at": "2026-10-02T14:38:35Z",
+      "pph": 1.082,
+      "query": "claude code"
+    },
+    {
+      "id": "49937239",
+      "title": "Apple is tightening macOS 'Full Disk Access' due to new risks from AI agents",
+      "url": "https://techcrunch.com/2026/10/02/apple-says-its-tightening-macos-full-disk-access-controls-due-to-new-risks-from-ai-agents/",
+      "points": 19,
+      "comments": 7,
+      "created_at": "2026-10-02T19:03:03Z",
+      "pph": 0.968,
+      "query": "ai agents"
+    },
+    {
+      "id": "49940653",
+      "title": "Show HN: Google Maps Scraper MCP",
+      "url": "https://gmapscrawl.com/google-maps-scraper-mcp",
+      "points": 9,
+      "comments": 5,
+      "created_at": "2026-10-03T01:46:39Z",
+      "pph": 0.697,
+      "query": "ai agents"
+    },
+    {
+      "id": "49938326",
+      "title": "Three AI agents, two countries, and one uneven world wide web",
+      "url": "https://royapakzad.substack.com/p/multilingual-ai-agents",
+      "points": 9,
+      "comments": 0,
+      "created_at": "2026-10-02T20:39:05Z",
+      "pph": 0.499,
+      "query": "ai agents"
+    },
+    {
+      "id": "49938271",
+      "title": "Apple will limit Mac disk access as AI agents 'substantially' increase risk",
+      "url": "https://www.theverge.com/tech/1004295/apple-limit-mac-disk-access-ai-agents",
+      "points": 9,
+      "comments": 1,
+      "created_at": "2026-10-02T20:33:32Z",
+      "pph": 0.497,
+      "query": "ai agents"
+    },
+    {
+      "id": "49936889",
+      "title": "After Abusing DMCA, Bricks & Minifigs Sues To Unmask Whoever Runs The BAM Map",
+      "url": "https://www.techdirt.com/2026/10/02/bricks-minifigs-really-doesnt-want-you-to-know-about-the-bam-map-sues-to-unmask-whoever-runs-it/",
+      "points": 8,
+      "comments": 1,
+      "created_at": "2026-10-02T18:29:44Z",
+      "pph": 0.396,
+      "query": "mcp"
+    }
+  ]
+}

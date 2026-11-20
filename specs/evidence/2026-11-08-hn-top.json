@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-08T16:37:14+00:00",
+  "stories": [
+    {
+      "id": "50385272",
+      "title": "Claude Code sends your email address to websites",
+      "url": "https://github.com/anthropics/claude-code/issues/107757",
+      "points": 1597,
+      "comments": 528,
+      "created_at": "2026-11-05T22:17:15Z",
+      "pph": 24.075,
+      "query": "claude code"
+    },
+    {
+      "id": "50407882",
+      "title": "Claude Code's \"Don't Ask Again\" exposes passwords in 1,122 public GitHub files",
+      "url": "https://apiiro.com/blog/coding-agents-leaking-secrets-github-dont-ask-again",
+      "points": 496,
+      "comments": 356,
+      "created_at": "2026-11-07T20:45:32Z",
+      "pph": 24.973,
+      "query": "claude code"
+    },
+    {
+      "id": "50405789",
+      "title": "How Long Can Life Wait?",
+      "url": "https://mceglowski.substack.com/p/how-long-can-life-wait",
+      "points": 145,
+      "comments": 91,
+      "created_at": "2026-11-07T16:22:59Z",
+      "pph": 5.982,
+      "query": "mcp"
+    },
+    {
+      "id": "50405782",
+      "title": "Every processor die anyone has photographed and given away",
+      "url": "https://sheets.works/data-viz/cpu-dies",
+      "points": 141,
+      "comments": 30,
+      "created_at": "2026-11-07T16:21:36Z",
+      "pph": 5.812,
+      "query": "mcp"
+    },
+    {
+      "id": "50414021",
+      "title": "Apple CEO Presses Software Chief to Pursue More Ambitious AI Strategy",
+      "url": "https://www.bloomberg.com/news/newsletters/2026-11-08/apple-explores-turning-siri-ai-into-chatgpt-dots-like-agent-ios-28-shake-up",
+      "points": 20,
+      "comments": 31,
+      "created_at": "2026-11-08T15:19:51Z",
+      "pph": 15.507,
+      "query": "ai agents"
+    },
+    {
+      "id": "50410253",
+      "title": "Show HN: Maple \u2013 Sub-2-BPW Moe Pruning to Run Gemma 4 26B at 45 TPS on a 6GB GPU",
+      "url": "https://github.com/AmSach/maple",
+      "points": 18,
+      "comments": 5,
+      "created_at": "2026-11-08T03:48:04Z",
+      "pph": 1.404,
+      "query": "mcp"
+    },
+    {
+      "id": "50387890",
+      "title": "Claude Code, but for SEO",
+      "url": "https://twitter.com/brodieseo/status/2118299596292305356",
+      "points": 14,
+      "comments": 2,
+      "created_at": "2026-11-06T03:42:58Z",
+      "pph": 0.23,
+      "query": "claude code"
+    },
+    {
+      "id": "50391647",
+      "title": "Ask HN: Is anyone running multi/always-on agents that don't cost a fortune?",
+      "url": "https://news.ycombinator.com/item?id=50391647",
+      "points": 6,
+      "comments": 5,
+      "created_at": "2026-11-06T12:40:14Z",
+      "pph": 0.115,
+      "query": "claude code"
+    },
+    {
+      "id": "50406105",
+      "title": "Tell HN: Hanzo AI Is Spamming From GitHub Contributions",
+      "url": "https://news.ycombinator.com/item?id=50406105",
+      "points": 5,
+      "comments": 3,
+      "created_at": "2026-11-07T17:06:04Z",
+      "pph": 0.213,
+      "query": "ai agents"
+    },
+    {
+      "id": "50404494",
+      "title": "Show HN: I made a guardrail against AI outreach slop (API/MCP)",
+      "url": "https://maildignity.com/",
+      "points": 5,
+      "comments": 0,
+      "created_at": "2026-11-07T13:48:09Z",
+      "pph": 0.186,
+      "query": "mcp"
+    }
+  ]
+}

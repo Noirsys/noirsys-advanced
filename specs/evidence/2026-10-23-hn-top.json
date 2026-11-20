@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-23T14:56:02+00:00",
+  "stories": [
+    {
+      "id": "50195488",
+      "title": "Show HN: OnKey \u2013 I'm a bad singer, so I built an app to show where I'm off-key",
+      "url": "https://github.com/dsmurrell/onkey",
+      "points": 112,
+      "comments": 55,
+      "created_at": "2026-10-22T14:04:44Z",
+      "pph": 4.506,
+      "query": "claude code"
+    },
+    {
+      "id": "50202766",
+      "title": "Mapping the Northern Sky",
+      "url": "https://www.maps.com/star-map-charts-stars-and-constellations-of-northern-hemisphere/",
+      "points": 42,
+      "comments": 10,
+      "created_at": "2026-10-22T23:56:39Z",
+      "pph": 2.802,
+      "query": "mcp"
+    },
+    {
+      "id": "50198936",
+      "title": "Show HN: agent-usage-guard \u2013 a Claude Code mod to protect your usage window",
+      "url": "https://github.com/rbartoli/agent-usage-guard",
+      "points": 24,
+      "comments": 9,
+      "created_at": "2026-10-22T18:02:38Z",
+      "pph": 1.149,
+      "query": "claude code"
+    },
+    {
+      "id": "50201469",
+      "title": "US banks are blocking third-party AI agents access to customer accounts",
+      "url": "https://www.reuters.com/legal/government/us-banks-detect-unauthorized-ai-agents-customer-accounts-axios-reports-2026-10-22/",
+      "points": 11,
+      "comments": 4,
+      "created_at": "2026-10-22T21:43:46Z",
+      "pph": 0.639,
+      "query": "ai agents"
+    },
+    {
+      "id": "50201860",
+      "title": "Show HN: CATT 0.2.1: Test agents/services against a Muse/Instinct-alike, in CI",
+      "url": "https://github.com/Coverage-Cat/consumer-agent-testing-tool",
+      "points": 7,
+      "comments": 2,
+      "created_at": "2026-10-22T22:18:40Z",
+      "pph": 0.421,
+      "query": "ai agents"
+    },
+    {
+      "id": "50192140",
+      "title": "Claude Code install script is down",
+      "url": "https://downloads.claude.ai/claude-code-releases/bootstrap.sh",
+      "points": 7,
+      "comments": 0,
+      "created_at": "2026-10-22T07:05:49Z",
+      "pph": 0.22,
+      "query": "claude code"
+    },
+    {
+      "id": "50195133",
+      "title": "Show HN: Skillstore \u2013 Expert skills your coding agent fetches as it works",
+      "url": "https://skillstore-jk.fly.dev/developers",
+      "points": 6,
+      "comments": 0,
+      "created_at": "2026-10-22T13:35:59Z",
+      "pph": 0.237,
+      "query": "claude code"
+    },
+    {
+      "id": "50199846",
+      "title": "Banks Are Struggling to Protect Customers from Their Own AI Agents",
+      "url": "https://www.motherjones.com/politics/2026/10/banks-ai-axios-agents-rogue-financial-decisions-security/",
+      "points": 5,
+      "comments": 0,
+      "created_at": "2026-10-22T19:23:44Z",
+      "pph": 0.256,
+      "query": "ai agents"
+    },
+    {
+      "id": "50202831",
+      "title": "Scoop: Unvetted AI agents are accessing U.S. bank accounts",
+      "url": "https://www.axios.com/2026/10/22/ai-agents-banks-unauthorized-accounts-access",
+      "points": 4,
+      "comments": 3,
+      "created_at": "2026-10-23T00:06:50Z",
+      "pph": 0.27,
+      "query": "ai agents"
+    },
+    {
+      "id": "50199840",
+      "title": "US Banks Blocking AI Agents in Accounts",
+      "url": "https://the-decoder.com/major-us-banks-are-locking-out-ai-agents-that-log-in-with-customer-credentials/",
+      "points": 4,
+      "comments": 1,
+      "created_at": "2026-10-22T19:22:23Z",
+      "pph": 0.204,
+      "query": "ai agents"
+    }
+  ]
+}

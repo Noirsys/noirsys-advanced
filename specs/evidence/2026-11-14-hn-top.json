@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-14T16:31:56+00:00",
+  "stories": [
+    {
+      "id": "50481187",
+      "title": "Elevated errors on claude.ai, Claude Code, and platform.claude.com",
+      "url": "https://status.claude.com/incidents/nn11wk485zfn",
+      "points": 489,
+      "comments": 389,
+      "created_at": "2026-11-13T10:18:13Z",
+      "pph": 16.177,
+      "query": "claude code"
+    },
+    {
+      "id": "50487228",
+      "title": "Show HN: Isometric SF \u2013 A pixel-art map of the SF Bay Area",
+      "url": "https://isometricsf.com/",
+      "points": 244,
+      "comments": 75,
+      "created_at": "2026-11-13T17:58:37Z",
+      "pph": 10.818,
+      "query": "mcp"
+    },
+    {
+      "id": "50491545",
+      "title": "Show HN: Live map of U.S. flights during tonight's FAA nationwide ground stop",
+      "url": "https://grounds.top/",
+      "points": 191,
+      "comments": 24,
+      "created_at": "2026-11-13T23:17:39Z",
+      "pph": 11.08,
+      "query": "mcp"
+    },
+    {
+      "id": "50492141",
+      "title": "Anthropic upgrades Claude Code Projects to run parallel AI workers",
+      "url": "https://claude.com/resources/articles/projects-redesigned",
+      "points": 93,
+      "comments": 89,
+      "created_at": "2026-11-14T00:28:11Z",
+      "pph": 5.79,
+      "query": "claude code"
+    },
+    {
+      "id": "50494696",
+      "title": "Ask HN: What are the most useful, concrete AI skills to independently learn?",
+      "url": "https://news.ycombinator.com/item?id=50494696",
+      "points": 64,
+      "comments": 47,
+      "created_at": "2026-11-14T06:56:42Z",
+      "pph": 6.676,
+      "query": "ai agents"
+    },
+    {
+      "id": "50497132",
+      "title": "Show HN: A terminal-native idle factory game, written in Rust with ratatui",
+      "url": "https://gitlab.com/snipedbywifi/terminactory",
+      "points": 55,
+      "comments": 7,
+      "created_at": "2026-11-14T14:05:54Z",
+      "pph": 22.597,
+      "query": "ai agents"
+    },
+    {
+      "id": "50480909",
+      "title": "Tell HN: Claude Code Is Down",
+      "url": "https://news.ycombinator.com/item?id=50480909",
+      "points": 37,
+      "comments": 21,
+      "created_at": "2026-11-13T09:51:59Z",
+      "pph": 1.207,
+      "query": "claude code"
+    },
+    {
+      "id": "50477704",
+      "title": "Anthropic carelessly killed a Claude Code feature users built on, no warning",
+      "url": "https://github.com/anthropics/claude-code/issues/109446",
+      "points": 26,
+      "comments": 7,
+      "created_at": "2026-11-13T03:13:43Z",
+      "pph": 0.697,
+      "query": "claude code"
+    },
+    {
+      "id": "50492877",
+      "title": "Llama.cpp hits v1.0 with a native app for macOS",
+      "url": "https://huggingface.co/blog/ggml-org/llama-cpp-v1",
+      "points": 24,
+      "comments": 3,
+      "created_at": "2026-11-14T02:05:37Z",
+      "pph": 1.662,
+      "query": "mcp"
+    },
+    {
+      "id": "50497137",
+      "title": "Show HN: Fursoy \u2013 Out-of-order RV64IMAFDV core in SystemVerilog (Linux 6.6)",
+      "url": "https://github.com/FURSOY/fursoy-cpu",
+      "points": 19,
+      "comments": 2,
+      "created_at": "2026-11-14T14:06:34Z",
+      "pph": 7.842,
+      "query": "mcp"
+    }
+  ]
+}

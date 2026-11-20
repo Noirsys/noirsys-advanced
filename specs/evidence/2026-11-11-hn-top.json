@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-11T17:50:44+00:00",
+  "stories": [
+    {
+      "id": "50452455",
+      "title": "Google SWE points 48 AI agents at NASA Lidar, finds unmapped Maya pyramid in 72h",
+      "url": "https://pietromiotti.com/latest/maya-site/?maya",
+      "points": 746,
+      "comments": 281,
+      "created_at": "2026-11-11T12:05:22Z",
+      "pph": 129.599,
+      "query": "ai agents"
+    },
+    {
+      "id": "50443812",
+      "title": "Show HN: Get your coding agent off ~2019 JavaScript, onto modern web primitives",
+      "url": "https://github.com/GoogleChrome/modern-web-guidance",
+      "points": 418,
+      "comments": 139,
+      "created_at": "2026-11-10T18:01:15Z",
+      "pph": 17.545,
+      "query": "claude code"
+    },
+    {
+      "id": "50449891",
+      "title": "Show HN: Black Ops II statically recompiled to native ARM64 macOS",
+      "url": "https://github.com/adrbn/bo2-mac",
+      "points": 119,
+      "comments": 54,
+      "created_at": "2026-11-11T04:56:47Z",
+      "pph": 9.225,
+      "query": "mcp"
+    },
+    {
+      "id": "50444380",
+      "title": "How do you keep up quality when you vibe-code?",
+      "url": "https://news.ycombinator.com/item?id=50444380",
+      "points": 33,
+      "comments": 31,
+      "created_at": "2026-11-10T18:41:15Z",
+      "pph": 1.425,
+      "query": "claude code"
+    },
+    {
+      "id": "50454951",
+      "title": "Show HN: Klad, a paint app your coding agent can drive (source-available)",
+      "url": "https://github.com/klad-app/klad",
+      "points": 24,
+      "comments": 9,
+      "created_at": "2026-11-11T16:00:50Z",
+      "pph": 13.102,
+      "query": "ai agents"
+    },
+    {
+      "id": "50454625",
+      "title": "Show HN: Yogurt \u2013 Free, private, open-source alternative to Granola",
+      "url": "https://github.com/FrigadeHQ/yogurt",
+      "points": 22,
+      "comments": 4,
+      "created_at": "2026-11-11T15:33:06Z",
+      "pph": 9.59,
+      "query": "mcp"
+    },
+    {
+      "id": "50452464",
+      "title": "Nvidia Vera CPU Review: 2TB/S Memory Bandwidth, a Real x86 Rival",
+      "url": "https://www.storagereview.com/review/nvidia-vera-cpu-review",
+      "points": 13,
+      "comments": 1,
+      "created_at": "2026-11-11T12:06:22Z",
+      "pph": 2.265,
+      "query": "mcp"
+    },
+    {
+      "id": "50449945",
+      "title": "My AI Agents Found an Unmapped Maya Site in Mexico",
+      "url": "https://pietromiotti.com/latest/maya-site/",
+      "points": 11,
+      "comments": 3,
+      "created_at": "2026-11-11T05:09:10Z",
+      "pph": 0.867,
+      "query": "ai agents"
+    },
+    {
+      "id": "50452257",
+      "title": "Show HN: Aq \u2013 an attention queue TUI for Claude Code",
+      "url": "https://github.com/nodo-labs-uk/attention-queue",
+      "points": 8,
+      "comments": 0,
+      "created_at": "2026-11-11T11:43:35Z",
+      "pph": 1.307,
+      "query": "claude code"
+    },
+    {
+      "id": "50455811",
+      "title": "Launch HN: Pomerado (YC F26) \u2013 Turn any website into an MCP for agents",
+      "url": "https://news.ycombinator.com/item?id=50455811",
+      "points": 7,
+      "comments": 2,
+      "created_at": "2026-11-11T17:11:56Z",
+      "pph": 7.0,
+      "query": "ai agents"
+    }
+  ]
+}

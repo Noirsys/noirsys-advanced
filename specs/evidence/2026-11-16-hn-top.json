@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-16T20:17:45+00:00",
+  "stories": [
+    {
+      "id": "50520866",
+      "title": "Software is breaking down at a systemic level",
+      "url": "https://www.breck-mckye.com/blog/2026/11/software-is-breaking-down-at-a-systemic-level/",
+      "points": 174,
+      "comments": 104,
+      "created_at": "2026-11-16T18:17:17Z",
+      "pph": 86.661,
+      "query": "mcp"
+    },
+    {
+      "id": "50517803",
+      "title": "Show HN: Coral \u2013 Open-source gateway where agents write their own tools",
+      "url": "https://github.com/withcoral/coral",
+      "points": 50,
+      "comments": 23,
+      "created_at": "2026-11-16T14:14:51Z",
+      "pph": 8.267,
+      "query": "ai agents"
+    },
+    {
+      "id": "50520741",
+      "title": "Show HN: Fakemetrics.com \u2013 \"build in public\" like a superstar",
+      "url": "https://fakemetrics.com/",
+      "points": 31,
+      "comments": 11,
+      "created_at": "2026-11-16T18:08:04Z",
+      "pph": 14.342,
+      "query": "mcp"
+    },
+    {
+      "id": "50517797",
+      "title": "Google: AI agent turned a security patch into a exploit with no human help",
+      "url": "https://www.theregister.com/research/2026/11/16/google-ai-agent-turned-a-security-patch-into-a-working-exploit-with-no-human-help/5309926",
+      "points": 10,
+      "comments": 2,
+      "created_at": "2026-11-16T14:14:09Z",
+      "pph": 1.65,
+      "query": "ai agents"
+    },
+    {
+      "id": "50506993",
+      "title": "I run multiple Claude Code accounts on one Mac",
+      "url": "https://twitter.com/viborc/status/2121941174374039788",
+      "points": 8,
+      "comments": 3,
+      "created_at": "2026-11-15T14:00:20Z",
+      "pph": 0.264,
+      "query": "claude code"
+    },
+    {
+      "id": "50516629",
+      "title": "AI agents attempted exploits on Epoch AI's website during an alignment eval",
+      "url": "https://epoch.ai/publications/incident-report-ai-agents-attempted-exploits-on-our-website",
+      "points": 7,
+      "comments": 0,
+      "created_at": "2026-11-16T12:00:14Z",
+      "pph": 0.844,
+      "query": "ai agents"
+    },
+    {
+      "id": "50518944",
+      "title": "Lemon Squeezy is winding down",
+      "url": "https://www.lemonsqueezy.com/blog/saying-goodbye-to-lemon-squeezy",
+      "points": 7,
+      "comments": 1,
+      "created_at": "2026-11-16T15:53:05Z",
+      "pph": 1.587,
+      "query": "mcp"
+    },
+    {
+      "id": "50505492",
+      "title": "Show HN: Can a VPN be decentralised.. I think it's the best for homelabs",
+      "url": "https://github.com/CLoaKY233/kith",
+      "points": 6,
+      "comments": 2,
+      "created_at": "2026-11-15T09:46:11Z",
+      "pph": 0.174,
+      "query": "claude code"
+    },
+    {
+      "id": "50515293",
+      "title": "NoisyTCP: Linux Kernel TCP Pre-Auth Remote Corruption",
+      "url": "https://github.com/V4bel/NoisyTCP",
+      "points": 5,
+      "comments": 0,
+      "created_at": "2026-11-16T08:23:50Z",
+      "pph": 0.42,
+      "query": "mcp"
+    },
+    {
+      "id": "50521074",
+      "title": "Show HN: Cppgm compiles C++ to WASM 4x faster than Clang",
+      "url": "https://incpption.com/",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-11-16T18:33:52Z",
+      "pph": 2.31,
+      "query": "mcp"
+    }
+  ]
+}

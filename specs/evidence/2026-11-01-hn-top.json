@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-01T16:45:07+00:00",
+  "stories": [
+    {
+      "id": "50319143",
+      "title": "TCP Use-After-Free: CVE-2026-98432 / CVSS 9.8",
+      "url": "https://atlasum.net/blog/cve-2026-98432-linux-ipv4-tcp-uaf",
+      "points": 600,
+      "comments": 296,
+      "created_at": "2026-10-31T19:16:30Z",
+      "pph": 27.937,
+      "query": "mcp"
+    },
+    {
+      "id": "50318189",
+      "title": "UK Green party drops longstanding opposition to nuclear power",
+      "url": "https://www.theguardian.com/politics/2026/oct/05/green-party-nuclear-power-policy",
+      "points": 223,
+      "comments": 282,
+      "created_at": "2026-10-31T17:37:22Z",
+      "pph": 9.641,
+      "query": "mcp"
+    },
+    {
+      "id": "50315987",
+      "title": "Anthropic's Claude AI blocks video game cloning and reverse-engineering",
+      "url": "https://www.tomshardware.com/tech-industry/artificial-intelligence/anthropics-ai-model-is-now-blocking-attempts-at-video-game-recreation-and-cloning-users-also-claim-non-malicious-generic-reverse-engineering-tasks-are-blocked",
+      "points": 72,
+      "comments": 43,
+      "created_at": "2026-10-31T13:25:00Z",
+      "pph": 2.634,
+      "query": "claude code"
+    },
+    {
+      "id": "50325662",
+      "title": "AI agent swarms in Minecraft fail to build civilization, drown in bureaucracy",
+      "url": "https://www.tomshardware.com/tech-industry/artificial-intelligence/ai-agent-swarms-unleashed-in-minecraft-to-build-a-thriving-civilization-50-agent-teams-fail-after-falling-into-paralyzing-bureaucracy",
+      "points": 69,
+      "comments": 26,
+      "created_at": "2026-11-01T13:47:24Z",
+      "pph": 23.294,
+      "query": "ai agents"
+    },
+    {
+      "id": "50321522",
+      "title": "Show HN: BBRouter \u2013 Ben Eater's 8-bit computer, simulated on 3D breadboards",
+      "url": "https://bbrouter.com/bbrouter/ben-eater-sap-1",
+      "points": 43,
+      "comments": 8,
+      "created_at": "2026-11-01T00:10:30Z",
+      "pph": 2.594,
+      "query": "mcp"
+    },
+    {
+      "id": "50322155",
+      "title": "Hermantown approves controversial Google Data Center during late night meeting",
+      "url": "https://www.mprnews.org/story/2026/10/31/hermantown-approves-controversial-google-data-center-during-late-night-meeting",
+      "points": 38,
+      "comments": 25,
+      "created_at": "2026-11-01T02:15:59Z",
+      "pph": 2.623,
+      "query": "mcp"
+    },
+    {
+      "id": "50305218",
+      "title": "Show HN: Sketch Stadium \u2013 watch your agent play Pictionary",
+      "url": "https://sketch.wakeshift.ai/games/q5ucru",
+      "points": 35,
+      "comments": 11,
+      "created_at": "2026-10-30T15:23:11Z",
+      "pph": 0.709,
+      "query": "claude code"
+    },
+    {
+      "id": "50320513",
+      "title": "Spooky C++",
+      "url": "https://www.nablag.com/spooky_cpp",
+      "points": 16,
+      "comments": 16,
+      "created_at": "2026-10-31T21:40:18Z",
+      "pph": 0.839,
+      "query": "mcp"
+    },
+    {
+      "id": "50316116",
+      "title": "DeepSeek open-sources dsh-superagent, a coding agent largely built by agents",
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype",
+      "points": 11,
+      "comments": 0,
+      "created_at": "2026-10-31T13:41:11Z",
+      "pph": 0.406,
+      "query": "ai agents"
+    },
+    {
+      "id": "50318471",
+      "title": "Show HN: Haris list jobs board for agents",
+      "url": "https://covenant-common.github.io/covenant-docs/docs/TERMINAL.html",
+      "points": 10,
+      "comments": 2,
+      "created_at": "2026-10-31T18:11:26Z",
+      "pph": 0.443,
+      "query": "mcp"
+    }
+  ]
+}

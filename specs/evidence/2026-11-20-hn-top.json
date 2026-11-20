@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-20T18:31:10+00:00",
+  "stories": [
+    {
+      "id": "50572503",
+      "title": "Frostbite: A new CPU architecture discovered, designed and verified by AI",
+      "url": "https://architectlabs.com/blog/frostbite",
+      "points": 495,
+      "comments": 276,
+      "created_at": "2026-11-20T10:01:41Z",
+      "pph": 58.294,
+      "query": "mcp"
+    },
+    {
+      "id": "50568861",
+      "title": "Vint Cerf on why TCP/IP was never patented",
+      "url": "https://seremot.com/p/vint-cerf-on-why-tcpip-was-never",
+      "points": 151,
+      "comments": 87,
+      "created_at": "2026-11-20T01:06:12Z",
+      "pph": 8.67,
+      "query": "mcp"
+    },
+    {
+      "id": "50562320",
+      "title": "Launch HN: Onlook (YC W25) \u2013 An open-source developer tool for designers",
+      "url": "https://github.com/onlook-dev/onlook/",
+      "points": 122,
+      "comments": 84,
+      "created_at": "2026-11-19T16:34:04Z",
+      "pph": 4.701,
+      "query": "claude code"
+    },
+    {
+      "id": "50569783",
+      "title": "Mapping every neuron in Qwen3-8B",
+      "url": "https://www.fermionresearch.com/research/mapping-every-neuron-in-qwen3-8b/",
+      "points": 30,
+      "comments": 2,
+      "created_at": "2026-11-20T03:26:51Z",
+      "pph": 1.99,
+      "query": "mcp"
+    },
+    {
+      "id": "50574772",
+      "title": "Llms.txt and MCP didn't move the needle",
+      "url": "https://backpackforlaravel.com/articles/opinions/llms-txt-and-mcp-didn-t-move-the-needle-for-us-here-s-what-did",
+      "points": 28,
+      "comments": 19,
+      "created_at": "2026-11-20T14:00:23Z",
+      "pph": 6.204,
+      "query": "mcp"
+    },
+    {
+      "id": "50573166",
+      "title": "Apple is building an AI agent",
+      "url": "https://www.theverge.com/tech/1038227/apple-ai-agent-engineer-job-listing",
+      "points": 16,
+      "comments": 11,
+      "created_at": "2026-11-20T11:22:27Z",
+      "pph": 2.239,
+      "query": "ai agents"
+    },
+    {
+      "id": "50556534",
+      "title": "Show HN: Zpup \u2013 Zdog style 3D scenes in JSON, SVG from any angle",
+      "url": "https://github.com/rxolve/zpup",
+      "points": 16,
+      "comments": 0,
+      "created_at": "2026-11-19T05:56:41Z",
+      "pph": 0.437,
+      "query": "claude code"
+    },
+    {
+      "id": "50566487",
+      "title": "Anthropic should give stock to Stack Overflow (and OpenAI too)",
+      "url": "https://news.ycombinator.com/item?id=50566487",
+      "points": 11,
+      "comments": 5,
+      "created_at": "2026-11-19T21:15:17Z",
+      "pph": 0.517,
+      "query": "claude code"
+    },
+    {
+      "id": "50550700",
+      "title": "Show HN: KradleBench \u2013 Multi-agent AI evals in Minecraft",
+      "url": "https://www.kradle.ai?1",
+      "points": 9,
+      "comments": 7,
+      "created_at": "2026-11-18T19:14:28Z",
+      "pph": 0.19,
+      "query": "llm safety"
+    },
+    {
+      "id": "50574412",
+      "title": "Show HN: Drive around my village in 3D",
+      "url": "https://cherwellvalleymotorclub.app",
+      "points": 6,
+      "comments": 5,
+      "created_at": "2026-11-20T13:32:42Z",
+      "pph": 1.206,
+      "query": "ai agents"
+    }
+  ]
+}
