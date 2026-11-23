@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-23T21:59:25+00:00",
+  "stories": [
+    {
+      "id": "50611402",
+      "title": "NariQ: BF16-level Qwen3.8-27B in a 10 GB file",
+      "url": "https://huggingface.co/nari-labs/Qwen3.8-27B-NariQ-GGUF",
+      "points": 88,
+      "comments": 13,
+      "created_at": "2026-11-23T13:42:38Z",
+      "pph": 10.628,
+      "query": "mcp"
+    },
+    {
+      "id": "50611099",
+      "title": "Sandboxing AI Coding Agents: Nono vs. Docker Sbx vs. Microsandbox vs. OpenShell",
+      "url": "https://kudelskisecurity.com/research/sandboxing-coding-agents",
+      "points": 12,
+      "comments": 0,
+      "created_at": "2026-11-23T13:11:15Z",
+      "pph": 1.363,
+      "query": "ai agents"
+    },
+    {
+      "id": "50594639",
+      "title": "Ask HN: How many of you have replaced your everyday apps with something custom?",
+      "url": "https://news.ycombinator.com/item?id=50594639",
+      "points": 7,
+      "comments": 6,
+      "created_at": "2026-11-21T23:22:29Z",
+      "pph": 0.15,
+      "query": "claude code"
+    },
+    {
+      "id": "50593862",
+      "title": "Show HN: It's now easy to install Linux on an Android Phone \u2013 Android2linux",
+      "url": "https://github.com/android2linux/android2linux",
+      "points": 6,
+      "comments": 2,
+      "created_at": "2026-11-21T21:34:54Z",
+      "pph": 0.124,
+      "query": "claude code"
+    },
+    {
+      "id": "50614327",
+      "title": "Show HN: A free creative suite, built in Rust, for AI collaboration",
+      "url": "https://codeyam.com/apps/cadyam",
+      "points": 5,
+      "comments": 3,
+      "created_at": "2026-11-23T16:17:11Z",
+      "pph": 0.877,
+      "query": "ai agents"
+    },
+    {
+      "id": "50605057",
+      "title": "\"IDEs kind of faded away\" \u2013 Nadella on VS Studio, as Claude Code takes the lead",
+      "url": "https://www.windowslatest.com/2026/11/23/the-thing-that-hit-us-satya-nadella-admits-vs-code-faded-in-six-months-after-a-decade-on-top-because-of-claude-code-and-some-developers-say-theyve-stopped-opening-it/",
+      "points": 5,
+      "comments": 1,
+      "created_at": "2026-11-22T23:13:10Z",
+      "pph": 0.22,
+      "query": "claude code"
+    },
+    {
+      "id": "50614258",
+      "title": "My AI coding agents spend most of their time waiting",
+      "url": "https://jurajb.dev/coding-agents-mostly-waiting/",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-11-23T16:13:37Z",
+      "pph": 0.694,
+      "query": "ai agents"
+    },
+    {
+      "id": "50608855",
+      "title": "Gartner: 40% of agentic AI projects will be canceled by the end of 2027",
+      "url": "https://www.gartner.com/en/articles/ai-agent-reality-check",
+      "points": 4,
+      "comments": 2,
+      "created_at": "2026-11-23T08:14:38Z",
+      "pph": 0.291,
+      "query": "ai agents"
+    },
+    {
+      "id": "50618858",
+      "title": "Show HN: Console.tty \u2013 terminal emulator in browser console",
+      "url": "https://github.com/cpendery/console.tty",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-11-23T20:35:16Z",
+      "pph": 2.852,
+      "query": "mcp"
+    },
+    {
+      "id": "50615937",
+      "title": "Tell HN: LinkedIn to block email and job title export starting in Dec",
+      "url": "https://news.ycombinator.com/item?id=50615937",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-11-23T17:44:07Z",
+      "pph": 0.94,
+      "query": "mcp"
+    }
+  ]
+}
