@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-24T20:36:00+00:00",
+  "stories": [
+    {
+      "id": "50632998",
+      "title": "Compiling web applications into verified operations for AI agents",
+      "url": "https://protocolis.co/paper/",
+      "points": 16,
+      "comments": 0,
+      "created_at": "2026-11-24T19:12:02Z",
+      "pph": 11.433,
+      "query": "ai agents"
+    },
+    {
+      "id": "50631691",
+      "title": "Anthropic and OpenAI employees fear unreleased AI models too unsafe to release",
+      "url": "https://tech.yahoo.com/ai/claude/articles/scoop-anthropic-openai-employees-fear-104505580.html",
+      "points": 14,
+      "comments": 13,
+      "created_at": "2026-11-24T17:46:41Z",
+      "pph": 4.961,
+      "query": "claude code"
+    },
+    {
+      "id": "50623965",
+      "title": "Show HN: Genesis Map \u2013 Visualize your agent's changes. See where they can break",
+      "url": "https://github.com/GenesisAgentInfra/genesis",
+      "points": 13,
+      "comments": 0,
+      "created_at": "2026-11-24T05:04:41Z",
+      "pph": 0.838,
+      "query": "mcp"
+    },
+    {
+      "id": "50628421",
+      "title": "Show HN: 3D story maps in JupyterLab, written in Python, run in the browser",
+      "url": "https://notebook.link/@arjxn-py/3d-nepal-flood",
+      "points": 10,
+      "comments": 2,
+      "created_at": "2026-11-24T14:09:26Z",
+      "pph": 1.552,
+      "query": "mcp"
+    },
+    {
+      "id": "50628121",
+      "title": "Show HN: Open-Interpretability Explain",
+      "url": "https://open-interpretability.com/posts/explain/index.html",
+      "points": 10,
+      "comments": 1,
+      "created_at": "2026-11-24T13:47:20Z",
+      "pph": 1.468,
+      "query": "interpretability"
+    },
+    {
+      "id": "50621878",
+      "title": "Tell HN: Claude Opus 4.5 turns one year old today",
+      "url": "https://news.ycombinator.com/item?id=50621878",
+      "points": 7,
+      "comments": 1,
+      "created_at": "2026-11-24T00:44:07Z",
+      "pph": 0.352,
+      "query": "claude code"
+    },
+    {
+      "id": "50633601",
+      "title": "Ask HN: Am I the only one whose AI hype is cooling down a lot?",
+      "url": "https://news.ycombinator.com/item?id=50633601",
+      "points": 6,
+      "comments": 3,
+      "created_at": "2026-11-24T19:51:01Z",
+      "pph": 6.0,
+      "query": "ai agents"
+    },
+    {
+      "id": "50624446",
+      "title": "Porting Rockbox to an Undocumented $9 Aliexpress 'YP3' MP3 Player with LLMs",
+      "url": "https://jayd.ml/2026/11/14/rockbox-on-yp3.html",
+      "points": 6,
+      "comments": 0,
+      "created_at": "2026-11-24T06:22:36Z",
+      "pph": 0.422,
+      "query": "mcp"
+    },
+    {
+      "id": "50608604",
+      "title": "Show HN: KradleBench \u2013 Multi-agent AI evals in Minecraft",
+      "url": "https://www.kradle.ai?1",
+      "points": 6,
+      "comments": 1,
+      "created_at": "2026-11-23T07:39:04Z",
+      "pph": 0.162,
+      "query": "llm safety"
+    },
+    {
+      "id": "50632503",
+      "title": "MCP servers can now ship skills, run tasks, and more with Claude",
+      "url": "https://claude.com/resources/articles/skills-over-mcp-tasks-and-more",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-11-24T18:38:57Z",
+      "pph": 2.05,
+      "query": "mcp"
+    }
+  ]
+}
