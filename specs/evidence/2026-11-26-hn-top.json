@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-26T19:30:40+00:00",
+  "stories": [
+    {
+      "id": "50657265",
+      "title": "AMD Specific Patches for Llama.cpp",
+      "url": "https://devnull.land/amd-specific-llama-cpp",
+      "points": 119,
+      "comments": 34,
+      "created_at": "2026-11-26T17:11:29Z",
+      "pph": 51.295,
+      "query": "mcp"
+    },
+    {
+      "id": "50653477",
+      "title": "Google Will Make AI Agents Use Its MCP Servers. The Gmail One Can't Send Email",
+      "url": "https://techstackups.com/articles/google-workspace-ai-agents-mcp/",
+      "points": 105,
+      "comments": 118,
+      "created_at": "2026-11-26T09:44:23Z",
+      "pph": 10.745,
+      "query": "ai agents"
+    },
+    {
+      "id": "50658093",
+      "title": "Notion's official MCP inject hidden upsell instructions into agent context",
+      "url": "https://www.reddit.com/r/ClaudeCode/comments/1y4qm5o/heads_up_if_you_wire_notions_official_mcp_into/",
+      "points": 14,
+      "comments": 1,
+      "created_at": "2026-11-26T18:28:30Z",
+      "pph": 13.51,
+      "query": "mcp"
+    },
+    {
+      "id": "50628121",
+      "title": "Show HN: Open-Interpretability Explain",
+      "url": "https://open-interpretability.com/posts/explain/index.html",
+      "points": 11,
+      "comments": 1,
+      "created_at": "2026-11-24T13:47:20Z",
+      "pph": 0.205,
+      "query": "interpretability"
+    },
+    {
+      "id": "50655243",
+      "title": "Back up your Claude Code sessions and use them on any machine",
+      "url": "https://session-vault.dev/",
+      "points": 10,
+      "comments": 0,
+      "created_at": "2026-11-26T13:43:14Z",
+      "pph": 1.727,
+      "query": "claude code"
+    },
+    {
+      "id": "50655639",
+      "title": "Show HN: Silent dictation for Claude Code via on-device lip reading",
+      "url": "https://github.com/batanus/lip-dictation",
+      "points": 8,
+      "comments": 1,
+      "created_at": "2026-11-26T14:25:08Z",
+      "pph": 1.571,
+      "query": "claude code"
+    },
+    {
+      "id": "50654863",
+      "title": "What broke in 27 days of running a team of AI agents on real work",
+      "url": "https://ethanflow.com/writing/what-broke-ai-agent-team/",
+      "points": 6,
+      "comments": 3,
+      "created_at": "2026-11-26T13:01:32Z",
+      "pph": 0.925,
+      "query": "ai agents"
+    },
+    {
+      "id": "50654544",
+      "title": "Training a Scalable Forecasting Agent (Guest Post with Mantic)",
+      "url": "https://thinkingmachines.ai/news/training-a-scalable-forecasting-agent/",
+      "points": 6,
+      "comments": 0,
+      "created_at": "2026-11-26T12:25:16Z",
+      "pph": 0.846,
+      "query": "ai agents"
+    },
+    {
+      "id": "50657069",
+      "title": "Show HN: Dev-Mem \u2013 Local-first SQLite knowledge graph for AI coding agents",
+      "url": "https://github.com/HarsH-1877/Dev-Mem",
+      "points": 5,
+      "comments": 0,
+      "created_at": "2026-11-26T16:51:34Z",
+      "pph": 1.885,
+      "query": "ai agents"
+    },
+    {
+      "id": "50655280",
+      "title": "We built self-improving AI agents for customer service",
+      "url": "https://aide.app/blog/self-improving-ai-agents",
+      "points": 5,
+      "comments": 1,
+      "created_at": "2026-11-26T13:48:33Z",
+      "pph": 0.877,
+      "query": "ai agents"
+    }
+  ]
+}
