@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-21T17:21:34+00:00",
+  "stories": [
+    {
+      "id": "50586292",
+      "title": "ClawDOS \u2013 An AI coding agent for DOS",
+      "url": "http://ricapar.net/ClawDOS/",
+      "points": 131,
+      "comments": 42,
+      "created_at": "2026-11-21T05:38:01Z",
+      "pph": 11.172,
+      "query": "ai agents"
+    },
+    {
+      "id": "50562320",
+      "title": "Launch HN: Onlook (YC W25) \u2013 An open-source developer tool for designers",
+      "url": "https://github.com/onlook-dev/onlook/",
+      "points": 125,
+      "comments": 85,
+      "created_at": "2026-11-19T16:34:04Z",
+      "pph": 2.562,
+      "query": "claude code"
+    },
+    {
+      "id": "50581403",
+      "title": "Show HN: OpenComputer \u2013 an open source alternative to Devin",
+      "url": "https://github.com/diggerhq/opencomputer",
+      "points": 111,
+      "comments": 36,
+      "created_at": "2026-11-20T20:19:56Z",
+      "pph": 5.279,
+      "query": "mcp"
+    },
+    {
+      "id": "50574772",
+      "title": "Llms.txt and MCP didn't move the needle",
+      "url": "https://backpackforlaravel.com/articles/opinions/llms-txt-and-mcp-didn-t-move-the-needle-for-us-here-s-what-did",
+      "points": 31,
+      "comments": 21,
+      "created_at": "2026-11-20T14:00:23Z",
+      "pph": 1.133,
+      "query": "mcp"
+    },
+    {
+      "id": "50566487",
+      "title": "Anthropic should give stock to Stack Overflow (and OpenAI too)",
+      "url": "https://news.ycombinator.com/item?id=50566487",
+      "points": 13,
+      "comments": 6,
+      "created_at": "2026-11-19T21:15:17Z",
+      "pph": 0.295,
+      "query": "claude code"
+    },
+    {
+      "id": "50550700",
+      "title": "Show HN: KradleBench \u2013 Multi-agent AI evals in Minecraft",
+      "url": "https://www.kradle.ai?1",
+      "points": 9,
+      "comments": 7,
+      "created_at": "2026-11-18T19:14:28Z",
+      "pph": 0.128,
+      "query": "llm safety"
+    },
+    {
+      "id": "50580443",
+      "title": "The place the frostbite CPU came from",
+      "url": "https://twitter.com/EV_Trapper/status/2123631975894302816",
+      "points": 8,
+      "comments": 2,
+      "created_at": "2026-11-20T19:25:08Z",
+      "pph": 0.365,
+      "query": "mcp"
+    },
+    {
+      "id": "50582662",
+      "title": "Ask HN: What's stopping us from putting agents in general purpose robots?",
+      "url": "https://news.ycombinator.com/item?id=50582662",
+      "points": 8,
+      "comments": 5,
+      "created_at": "2026-11-20T21:44:46Z",
+      "pph": 0.408,
+      "query": "claude code"
+    },
+    {
+      "id": "50587571",
+      "title": "Show HN: ClawVet \u2013 Offline AST scanner and rug-pull diff for AI agent skills",
+      "url": "https://clawvet.vercel.app/",
+      "points": 6,
+      "comments": 1,
+      "created_at": "2026-11-21T09:40:06Z",
+      "pph": 0.78,
+      "query": "ai agents"
+    },
+    {
+      "id": "50588860",
+      "title": "Mozilla Developer Spotlight: WebBrain \u2013 Open-source local-first AI browser agent",
+      "url": "https://blog.mozilla.org/addons/2026/11/20/developer-spotlight-webbrain/",
+      "points": 5,
+      "comments": 3,
+      "created_at": "2026-11-21T13:09:10Z",
+      "pph": 1.189,
+      "query": "ai agents"
+    }
+  ]
+}

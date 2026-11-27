@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-03T17:43:31+00:00",
+  "stories": [
+    {
+      "id": "50339913",
+      "title": "Launch HN: Momentic (YC W24) \u2013 Agents that catch bugs by using your app",
+      "url": "https://momentic.ai/",
+      "points": 158,
+      "comments": 108,
+      "created_at": "2026-11-02T17:05:25Z",
+      "pph": 6.414,
+      "query": "claude code"
+    },
+    {
+      "id": "50352757",
+      "title": "OpenAI seems to be silently re-enabling model training on Codex chats",
+      "url": "https://news.ycombinator.com/item?id=50352757",
+      "points": 137,
+      "comments": 47,
+      "created_at": "2026-11-03T14:53:41Z",
+      "pph": 48.397,
+      "query": "claude code"
+    },
+    {
+      "id": "50353457",
+      "title": "Tell HN: Please Vote",
+      "url": "https://news.ycombinator.com/item?id=50353457",
+      "points": 51,
+      "comments": 24,
+      "created_at": "2026-11-03T15:48:00Z",
+      "pph": 26.487,
+      "query": "mcp"
+    },
+    {
+      "id": "50354336",
+      "title": "Gitbook Breached",
+      "url": "https://news.ycombinator.com/item?id=50354336",
+      "points": 36,
+      "comments": 6,
+      "created_at": "2026-11-03T16:45:49Z",
+      "pph": 36.0,
+      "query": "ai agents"
+    },
+    {
+      "id": "50349222",
+      "title": "Open models can do 90 percent of agentic work at a twentieth of the cost",
+      "url": "https://www.theregister.com/ai-and-ml/2026/11/03/open-models-can-do-90-percent-of-agentic-work-at-a-twentieth-of-the-cost-of-a-frontier-llm-gartner/5307132",
+      "points": 25,
+      "comments": 4,
+      "created_at": "2026-11-03T07:46:36Z",
+      "pph": 2.513,
+      "query": "ai agents"
+    },
+    {
+      "id": "50350302",
+      "title": "AI agents hallucinate prices: LLM grounding with live data",
+      "url": "https://blog.apify.com/llm-grounding-with-live-data/",
+      "points": 15,
+      "comments": 0,
+      "created_at": "2026-11-03T10:41:28Z",
+      "pph": 2.132,
+      "query": "ai agents"
+    },
+    {
+      "id": "50346001",
+      "title": "Developers are downgrading their AI on purpose \u2013 and it's working",
+      "url": "https://thenewstack.io/claude-code-developer-refusals/",
+      "points": 14,
+      "comments": 7,
+      "created_at": "2026-11-02T23:53:41Z",
+      "pph": 0.785,
+      "query": "claude code"
+    },
+    {
+      "id": "50350673",
+      "title": "Ten harness patterns that you can apply to a real repo",
+      "url": "https://deepsense.ai/blog/harness-engineering-for-coding-agents-9-patterns-for-more-reliable-ai-assisted-development/",
+      "points": 12,
+      "comments": 1,
+      "created_at": "2026-11-03T11:31:11Z",
+      "pph": 1.934,
+      "query": "ai agents"
+    },
+    {
+      "id": "50351830",
+      "title": "Show HN: Remene \u2013 Understand your MRI and prepare questions for your doctor",
+      "url": "https://remene.si",
+      "points": 10,
+      "comments": 0,
+      "created_at": "2026-11-03T13:36:47Z",
+      "pph": 2.432,
+      "query": "ai agents"
+    },
+    {
+      "id": "50339956",
+      "title": "Anthropic confirms blocking reverse engineering requests",
+      "url": "https://www.tomshardware.com/tech-industry/artificial-intelligence/anthropic-confirms-new-claude-code-limits-to-prevent-game-cloning-users-report-opus-5-5-is-also-actively-blocking-reverse-engineering-tasks",
+      "points": 8,
+      "comments": 0,
+      "created_at": "2026-11-02T17:07:28Z",
+      "pph": 0.325,
+      "query": "claude code"
+    }
+  ]
+}

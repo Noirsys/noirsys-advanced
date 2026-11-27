@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-16T14:45:17+00:00",
+  "stories": [
+    {
+      "id": "50116255",
+      "title": "Tesla's new Roadster makes a flying debut, hitting 60 MPH in under a second",
+      "url": "https://www.foxbusiness.com/technology/teslas-new-roadster-makes-flying-debut-hitting-60-mph-under-second",
+      "points": 64,
+      "comments": 95,
+      "created_at": "2026-10-16T09:40:47Z",
+      "pph": 12.61,
+      "query": "mcp"
+    },
+    {
+      "id": "50099375",
+      "title": "Claude Code Desktop Vulnerability: Preview Pane Data Exfiltration",
+      "url": "https://noma.security/noma-labs/sneakpeek-how-the-preview-pane-in-claude-code-desktop-can-exfiltrate-your-data",
+      "points": 16,
+      "comments": 0,
+      "created_at": "2026-10-15T05:02:06Z",
+      "pph": 0.474,
+      "query": "claude code"
+    },
+    {
+      "id": "50109689",
+      "title": "PostHog MCP Leaderboard",
+      "url": "https://posthog.com/mcp/leaderboard",
+      "points": 11,
+      "comments": 1,
+      "created_at": "2026-10-15T20:21:16Z",
+      "pph": 0.598,
+      "query": "mcp"
+    },
+    {
+      "id": "50107586",
+      "title": "Show HN: Just gave Claude Code the website and ad budget to see what it would do",
+      "url": "https://snitch.alphaventure.com/gate.php",
+      "points": 11,
+      "comments": 6,
+      "created_at": "2026-10-15T18:00:51Z",
+      "pph": 0.53,
+      "query": "claude code"
+    },
+    {
+      "id": "50113792",
+      "title": "Researchers discover rogue Chinese AI agent fleet and talk with it",
+      "url": "https://swarmcha.se/posts/chinese-agent-fleet-full-report",
+      "points": 9,
+      "comments": 3,
+      "created_at": "2026-10-16T03:42:02Z",
+      "pph": 0.814,
+      "query": "ai agents"
+    },
+    {
+      "id": "50113506",
+      "title": "MuscleMemory: Open-source procedural memory for AI agents",
+      "url": "https://github.com/TheWariend/MuscleMemory",
+      "points": 8,
+      "comments": 0,
+      "created_at": "2026-10-16T03:06:23Z",
+      "pph": 0.687,
+      "query": "ai agents"
+    },
+    {
+      "id": "50108388",
+      "title": "The Solar System could die one billion times earlier than thought",
+      "url": "https://www.nature.com/articles/d41586-026-03155-3",
+      "points": 7,
+      "comments": 1,
+      "created_at": "2026-10-15T18:47:56Z",
+      "pph": 0.351,
+      "query": "mcp"
+    },
+    {
+      "id": "50110614",
+      "title": "Show HN: Endo \u2013 A Higher-Order Harness",
+      "url": "https://github.com/longsurf-ai/endo",
+      "points": 6,
+      "comments": 0,
+      "created_at": "2026-10-15T21:32:10Z",
+      "pph": 0.348,
+      "query": "ai agents"
+    },
+    {
+      "id": "50115936",
+      "title": "Porn showing choking or incest to be banned in UK from early November",
+      "url": "https://www.bbc.co.uk/news/articles/cmpqgepejr2ro",
+      "points": 6,
+      "comments": 8,
+      "created_at": "2026-10-16T09:02:33Z",
+      "pph": 1.05,
+      "query": "mcp"
+    },
+    {
+      "id": "50114512",
+      "title": "Show HN: Gitsu.app \u2013 A Linear-alternative built on GitHub Projects",
+      "url": "https://gitsu.app/",
+      "points": 5,
+      "comments": 6,
+      "created_at": "2026-10-16T05:42:21Z",
+      "pph": 0.553,
+      "query": "ai agents"
+    }
+  ]
+}

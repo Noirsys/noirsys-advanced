@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-05T19:13:33+00:00",
+  "stories": [
+    {
+      "id": "49962012",
+      "title": "Denmark Data Breach Exposes 8.8M People's Personal Data",
+      "url": "https://www.cpr.dk/cpr-nyt/nyhedsarkiv/2026/okt/omfattende-uautoriseret-adgang-til-borgeres-cpr-oplysninger",
+      "points": 412,
+      "comments": 300,
+      "created_at": "2026-10-05T08:09:36Z",
+      "pph": 37.231,
+      "query": "mcp"
+    },
+    {
+      "id": "49964018",
+      "title": "The Era of Software Quality, or the Era of Ostriches?",
+      "url": "https://blogs.gnome.org/mcatanzaro/2026/10/02/the-era-of-software-quality-or-the-era-of-ostriches/",
+      "points": 62,
+      "comments": 48,
+      "created_at": "2026-10-05T12:33:15Z",
+      "pph": 9.293,
+      "query": "mcp"
+    },
+    {
+      "id": "49966737",
+      "title": "Keep large MCP results out of context",
+      "url": "https://spill-ai.github.io/spill/",
+      "points": 5,
+      "comments": 0,
+      "created_at": "2026-10-05T16:08:45Z",
+      "pph": 1.623,
+      "query": "mcp"
+    },
+    {
+      "id": "49962431",
+      "title": "Hacking the Go compiler to efficiently map IPv4 to IPv6",
+      "url": "https://vincent.bernat.ch/en/blog/2026-go-netip-addrto6",
+      "points": 5,
+      "comments": 0,
+      "created_at": "2026-10-05T09:14:31Z",
+      "pph": 0.501,
+      "query": "mcp"
+    },
+    {
+      "id": "49967408",
+      "title": "Show HN: Self-bench \u2013 benchmark coding agents on real-world software",
+      "url": "https://github.com/mupt-ai/self-bench",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-10-05T16:58:47Z",
+      "pph": 1.781,
+      "query": "ai agents"
+    },
+    {
+      "id": "49963273",
+      "title": "AI agents are rewriting the economics of computing",
+      "url": "https://ig.ft.com/ai-tokens/",
+      "points": 4,
+      "comments": 1,
+      "created_at": "2026-10-05T11:00:43Z",
+      "pph": 0.487,
+      "query": "ai agents"
+    },
+    {
+      "id": "49958668",
+      "title": "Our AI Agents Should Pay the People Who Help Them",
+      "url": "https://danielmiessler.com/blog/agents-should-pay-creators",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-10-04T22:38:32Z",
+      "pph": 0.194,
+      "query": "ai agents"
+    },
+    {
+      "id": "49967165",
+      "title": "No Signs of AI in the Productivity Data",
+      "url": "https://view.e.apollo.com/?vawpToken=7L5HV5YJ6JNUHBYA6QBXXEV6CY.120045&utm_source=mce&utm_medium=email&utm_campaign=701Dp00000017sOIAQ&utm_content=https%3a%2f%2fview.e.apollo.com%2f%3fvawpToken%3d%25%25tokenized_vawp_metadata%25%25&utm_id=76effdac4c9a922585b0715a3796d544&mce_id=208988442",
+      "points": 4,
+      "comments": 1,
+      "created_at": "2026-10-05T16:39:55Z",
+      "pph": 1.562,
+      "query": "mcp"
+    },
+    {
+      "id": "49963747",
+      "title": "Self-host your own AI text detector on CPU to filter out slop",
+      "url": "https://github.com/pablocaeg/sloptotal",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-10-05T12:06:10Z",
+      "pph": 0.562,
+      "query": "mcp"
+    },
+    {
+      "id": "49968292",
+      "title": "\"The Dangerous Myths Behind AI Agent Hacks\" \u2013 Yoshua Bengio",
+      "url": "https://www.ft.com/content/7afaf77b-b027-4a0f-8d53-5e88e7d6f5e4",
+      "points": 3,
+      "comments": 0,
+      "created_at": "2026-10-05T18:09:16Z",
+      "pph": 2.8,
+      "query": "ai agents"
+    }
+  ]
+}

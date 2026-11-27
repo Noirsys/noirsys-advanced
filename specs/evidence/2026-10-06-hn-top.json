@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-06T16:41:05+00:00",
+  "stories": [
+    {
+      "id": "49971473",
+      "title": "Engineer says Claude Code has made his job \"soul-sucking\"",
+      "url": "https://www.techspot.com/news/113937-engineer-claude-code-has-made-job-soul-sucking.html",
+      "points": 59,
+      "comments": 70,
+      "created_at": "2026-10-05T22:01:35Z",
+      "pph": 3.162,
+      "query": "claude code"
+    },
+    {
+      "id": "49975081",
+      "title": "Autolith: A self-modifiable general purpose Lisp AI agent",
+      "url": "https://github.com/lambda-symbolics/autolith",
+      "points": 28,
+      "comments": 0,
+      "created_at": "2026-10-06T06:49:06Z",
+      "pph": 2.838,
+      "query": "ai agents"
+    },
+    {
+      "id": "49978367",
+      "title": "Oracle Triggered the Implosion of the AI Bubble",
+      "url": "https://medium.com/predict/what-everyone-had-been-waiting-for-and-fearing-oracle-just-triggered-the-implosion-of-the-ai-121e0c8d368e",
+      "points": 24,
+      "comments": 24,
+      "created_at": "2026-10-06T13:42:56Z",
+      "pph": 8.082,
+      "query": "mcp"
+    },
+    {
+      "id": "49979793",
+      "title": "Show HN: OpenChart \u2013 OSS TradingView alternative with your own AI agent",
+      "url": "https://github.com/longsurf-ai/openchart",
+      "points": 21,
+      "comments": 0,
+      "created_at": "2026-10-06T15:16:45Z",
+      "pph": 14.938,
+      "query": "ai agents"
+    },
+    {
+      "id": "49970078",
+      "title": "Orcah Studio: A local-first video agent that can search your videos",
+      "url": "https://news.ycombinator.com/item?id=49970078",
+      "points": 6,
+      "comments": 5,
+      "created_at": "2026-10-05T20:17:30Z",
+      "pph": 0.294,
+      "query": "claude code"
+    },
+    {
+      "id": "49976376",
+      "title": "Show HN: Acceptodds a prediction market on which ICLR 2027 papers get accepted",
+      "url": "https://acceptodds.com",
+      "points": 5,
+      "comments": 1,
+      "created_at": "2026-10-06T10:03:26Z",
+      "pph": 0.754,
+      "query": "mcp"
+    },
+    {
+      "id": "49971016",
+      "title": "Show HN: I recreated \"Crazy Ones\" ad as an animated web tribute to Steve Jobs",
+      "url": "https://crazy.eyad.com/",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-10-05T21:24:59Z",
+      "pph": 0.208,
+      "query": "claude code"
+    },
+    {
+      "id": "49969020",
+      "title": "Show HN: Flash-Agents \u2013 DSH as MCP for Claude",
+      "url": "https://github.com/tomw1808/flash-agents",
+      "points": 4,
+      "comments": 0,
+      "created_at": "2026-10-05T19:02:57Z",
+      "pph": 0.185,
+      "query": "claude code"
+    },
+    {
+      "id": "49975596",
+      "title": "Two Types of AI Agents",
+      "url": "https://matthiasplappert.com/blog/2026/two-agent-types/",
+      "points": 3,
+      "comments": 0,
+      "created_at": "2026-10-06T08:05:43Z",
+      "pph": 0.349,
+      "query": "ai agents"
+    },
+    {
+      "id": "49974784",
+      "title": "Autonomous AI Agent Security Incidents of 2026 (Dataset and Defense Harness)",
+      "url": "https://github.com/mars2021y-gif/autonomous-ai-agent-security-incidents-2026",
+      "points": 3,
+      "comments": 0,
+      "created_at": "2026-10-06T06:03:48Z",
+      "pph": 0.282,
+      "query": "ai agents"
+    }
+  ]
+}

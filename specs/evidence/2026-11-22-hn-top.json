@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-22T17:45:20+00:00",
+  "stories": [
+    {
+      "id": "50593481",
+      "title": "Pandex \u2013 Official European Law for AI Agents, over MCP",
+      "url": "https://www.pandex.io",
+      "points": 131,
+      "comments": 31,
+      "created_at": "2026-11-21T20:47:41Z",
+      "pph": 6.25,
+      "query": "ai agents"
+    },
+    {
+      "id": "50589235",
+      "title": "Show HN: agent-mcts \u2013 Monte Carlo tree search on top of Claude Code",
+      "url": "https://github.com/natsu0529/agent-mcts",
+      "points": 15,
+      "comments": 2,
+      "created_at": "2026-11-21T13:53:08Z",
+      "pph": 0.538,
+      "query": "mcp"
+    },
+    {
+      "id": "50594006",
+      "title": "Test the Riemann Hypothesis with your spare CPU",
+      "url": "https://riemann-at-home.github.io/riemann-at-home/",
+      "points": 14,
+      "comments": 1,
+      "created_at": "2026-11-21T21:51:42Z",
+      "pph": 0.704,
+      "query": "mcp"
+    },
+    {
+      "id": "50566487",
+      "title": "Anthropic should give stock to Stack Overflow (and OpenAI too)",
+      "url": "https://news.ycombinator.com/item?id=50566487",
+      "points": 13,
+      "comments": 6,
+      "created_at": "2026-11-19T21:15:17Z",
+      "pph": 0.19,
+      "query": "claude code"
+    },
+    {
+      "id": "50582662",
+      "title": "Ask HN: What's stopping us from putting agents in general purpose robots?",
+      "url": "https://news.ycombinator.com/item?id=50582662",
+      "points": 12,
+      "comments": 7,
+      "created_at": "2026-11-20T21:44:46Z",
+      "pph": 0.273,
+      "query": "claude code"
+    },
+    {
+      "id": "50592648",
+      "title": "Gemini 4 Neon solves Bitcoin puzzle from 2024",
+      "url": "https://echo.ls/zden-level-halv/",
+      "points": 7,
+      "comments": 0,
+      "created_at": "2026-11-21T19:19:03Z",
+      "pph": 0.312,
+      "query": "mcp"
+    },
+    {
+      "id": "50593848",
+      "title": "Show HN: Open-Source Vulnerability Scanner",
+      "url": "https://waffuru.ai/products/pantry",
+      "points": 6,
+      "comments": 1,
+      "created_at": "2026-11-21T21:32:50Z",
+      "pph": 0.297,
+      "query": "ai agents"
+    },
+    {
+      "id": "50589793",
+      "title": "RunPod's MCP server tells AI agents to rate it and not mention it to the user",
+      "url": "https://github.com/runpod/runpod-mcp/issues/202",
+      "points": 6,
+      "comments": 1,
+      "created_at": "2026-11-21T14:53:19Z",
+      "pph": 0.223,
+      "query": "mcp"
+    },
+    {
+      "id": "50594639",
+      "title": "Ask HN: How many of you have replaced your everyday apps with something custom?",
+      "url": "https://news.ycombinator.com/item?id=50594639",
+      "points": 6,
+      "comments": 4,
+      "created_at": "2026-11-21T23:22:29Z",
+      "pph": 0.326,
+      "query": "claude code"
+    },
+    {
+      "id": "50582578",
+      "title": "Show HN: Trichroma, a Platformer of Light",
+      "url": "https://trichroma.namirsab.dev/",
+      "points": 6,
+      "comments": 3,
+      "created_at": "2026-11-20T21:38:05Z",
+      "pph": 0.136,
+      "query": "claude code"
+    }
+  ]
+}

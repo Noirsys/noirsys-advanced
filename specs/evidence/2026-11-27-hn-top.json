@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-27T19:25:54+00:00",
+  "stories": [
+    {
+      "id": "50658093",
+      "title": "Notion's official MCP inject hidden upsell instructions into agent context",
+      "url": "https://www.reddit.com/r/ClaudeCode/comments/1y4qm5o/heads_up_if_you_wire_notions_official_mcp_into/",
+      "points": 59,
+      "comments": 22,
+      "created_at": "2026-11-26T18:28:30Z",
+      "pph": 2.364,
+      "query": "claude code"
+    },
+    {
+      "id": "50661218",
+      "title": "AI agents now control part of DeepMind's compute for Gemini experiments",
+      "url": "https://the-decoder.com/ai-agents-now-control-part-of-deepminds-compute-for-gemini-experiments-but-recursive-self-improvement-remains-distant/",
+      "points": 56,
+      "comments": 28,
+      "created_at": "2026-11-27T00:03:18Z",
+      "pph": 2.89,
+      "query": "ai agents"
+    },
+    {
+      "id": "50667062",
+      "title": "Making a 3D fantasy map like a 16th-Century atlas",
+      "url": "https://www.spritefusion.com/blog/making-a-fantasy-map-like-a-16th-century-atlas",
+      "points": 51,
+      "comments": 7,
+      "created_at": "2026-11-27T14:02:52Z",
+      "pph": 9.472,
+      "query": "mcp"
+    },
+    {
+      "id": "50655243",
+      "title": "Back up your Claude Code sessions and use them on any machine",
+      "url": "https://session-vault.dev/",
+      "points": 27,
+      "comments": 7,
+      "created_at": "2026-11-26T13:43:14Z",
+      "pph": 0.909,
+      "query": "claude code"
+    },
+    {
+      "id": "50665732",
+      "title": "Pizza history: AI agent's cardless purchase is a first for UK",
+      "url": "https://www.theguardian.com/business/2026/nov/27/ai-agent-cardless-transaction-pizza-papa-john-uk-fca-truelayer",
+      "points": 20,
+      "comments": 40,
+      "created_at": "2026-11-27T11:41:11Z",
+      "pph": 2.582,
+      "query": "ai agents"
+    },
+    {
+      "id": "50655639",
+      "title": "Show HN: Silent dictation for Claude Code via on-device lip reading",
+      "url": "https://github.com/batanus/lip-dictation",
+      "points": 18,
+      "comments": 2,
+      "created_at": "2026-11-26T14:25:08Z",
+      "pph": 0.62,
+      "query": "claude code"
+    },
+    {
+      "id": "50669286",
+      "title": "Lantern Promos \u2013 An MCP server for checking store discount codes",
+      "url": "https://lanternpromos.com/",
+      "points": 10,
+      "comments": 7,
+      "created_at": "2026-11-27T17:22:17Z",
+      "pph": 4.853,
+      "query": "mcp"
+    },
+    {
+      "id": "50657069",
+      "title": "Show HN: Dev-Mem \u2013 Local-first SQLite knowledge graph for AI coding agents",
+      "url": "https://github.com/HarsH-1877/Dev-Mem",
+      "points": 8,
+      "comments": 0,
+      "created_at": "2026-11-26T16:51:34Z",
+      "pph": 0.301,
+      "query": "ai agents"
+    },
+    {
+      "id": "50664781",
+      "title": "Muxlio: Durable workflow orchestration for AI agents and tools",
+      "url": "https://muxlio.github.io/muxlio/",
+      "points": 5,
+      "comments": 0,
+      "created_at": "2026-11-27T09:31:53Z",
+      "pph": 0.505,
+      "query": "ai agents"
+    },
+    {
+      "id": "50664795",
+      "title": "Show HN: Europe Instead \u2013 find the European version of the tools you use",
+      "url": "https://europeinstead.com",
+      "points": 5,
+      "comments": 1,
+      "created_at": "2026-11-27T09:33:14Z",
+      "pph": 0.506,
+      "query": "mcp"
+    }
+  ]
+}

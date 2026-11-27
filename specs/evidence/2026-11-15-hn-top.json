@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-15T16:58:27+00:00",
+  "stories": [
+    {
+      "id": "50497132",
+      "title": "Show HN: A terminal-native idle factory game, written in Rust with ratatui",
+      "url": "https://gitlab.com/snipedbywifi/terminactory",
+      "points": 160,
+      "comments": 40,
+      "created_at": "2026-11-14T14:05:54Z",
+      "pph": 5.953,
+      "query": "ai agents"
+    },
+    {
+      "id": "50492141",
+      "title": "Anthropic upgrades Claude Code Projects to run parallel AI workers",
+      "url": "https://claude.com/resources/articles/projects-redesigned",
+      "points": 99,
+      "comments": 95,
+      "created_at": "2026-11-14T00:28:11Z",
+      "pph": 2.444,
+      "query": "claude code"
+    },
+    {
+      "id": "50499114",
+      "title": "Claude asked to renumber pages deletes professor's syllabus, year of notes",
+      "url": "https://www.tomshardware.com/tech-industry/artificial-intelligence/rogue-claude-ai-tasked-with-renumbering-pages-accidentally-deletes-law-professors-entire-syllabus-one-year-of-lecture-notes-youre-right-to-be-angry-i-deleted-your-files-through-my-own-carelessness-humbled-agent-admits",
+      "points": 49,
+      "comments": 73,
+      "created_at": "2026-11-14T17:51:13Z",
+      "pph": 2.119,
+      "query": "ai agents"
+    },
+    {
+      "id": "50503930",
+      "title": "Show HN: Turbo-Browser-MCP \u2013 Batch forms, DOM deltas and submit guards for MCP",
+      "url": "https://github.com/Tthanh2k6/turbo-browser-mcp",
+      "points": 44,
+      "comments": 8,
+      "created_at": "2026-11-15T04:09:11Z",
+      "pph": 3.432,
+      "query": "mcp"
+    },
+    {
+      "id": "50501697",
+      "title": "The Chinese spy allegation that toppled Nvidia's CEO is starting to look shaky",
+      "url": "https://www.businessinsider.com/intelligence-jensen-huang-downfall-shaky-nvidia-china-spy-gpus-2026-11",
+      "points": 14,
+      "comments": 2,
+      "created_at": "2026-11-14T22:33:58Z",
+      "pph": 0.761,
+      "query": "mcp"
+    },
+    {
+      "id": "50496705",
+      "title": "Show HN: Shotoku \u2013 Local-first action governance and budget caps for AI agents",
+      "url": "https://www.shotoku.dev/",
+      "points": 11,
+      "comments": 1,
+      "created_at": "2026-11-14T13:02:53Z",
+      "pph": 0.394,
+      "query": "ai agents"
+    },
+    {
+      "id": "50495073",
+      "title": "Show HN: Gamma PDF \u2013 AI-native PDF reader, self-hosted",
+      "url": "https://gammapdf.com/",
+      "points": 11,
+      "comments": 3,
+      "created_at": "2026-11-14T08:08:11Z",
+      "pph": 0.335,
+      "query": "claude code"
+    },
+    {
+      "id": "50496631",
+      "title": "Show HN: Timon, an open-source AI workstation for coordinating agents",
+      "url": "https://github.com/ai-timon/timon",
+      "points": 7,
+      "comments": 0,
+      "created_at": "2026-11-14T12:52:01Z",
+      "pph": 0.249,
+      "query": "ai agents"
+    },
+    {
+      "id": "50499095",
+      "title": "FAA blames ground stop on equipment issue during telecoms network upgrade",
+      "url": "https://www.npr.org/2026/11/14/nx-s1-6040952/faa-ground-stop-airplane-travel",
+      "points": 6,
+      "comments": 3,
+      "created_at": "2026-11-14T17:49:24Z",
+      "pph": 0.259,
+      "query": "mcp"
+    },
+    {
+      "id": "50506993",
+      "title": "I run multiple Claude Code accounts on one Mac",
+      "url": "https://twitter.com/viborc/status/2121941174374039788",
+      "points": 6,
+      "comments": 1,
+      "created_at": "2026-11-15T14:00:20Z",
+      "pph": 2.021,
+      "query": "claude code"
+    }
+  ]
+}

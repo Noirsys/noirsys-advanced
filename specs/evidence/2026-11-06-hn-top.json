@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-11-06T17:24:52+00:00",
+  "stories": [
+    {
+      "id": "50385272",
+      "title": "Claude Code sends your email address to websites",
+      "url": "https://github.com/anthropics/claude-code/issues/107757",
+      "points": 1479,
+      "comments": 462,
+      "created_at": "2026-11-05T22:17:15Z",
+      "pph": 77.325,
+      "query": "claude code"
+    },
+    {
+      "id": "50387483",
+      "title": "Ask HN: What are forgotten topics in computing that deserve a new revisit?",
+      "url": "https://news.ycombinator.com/item?id=50387483",
+      "points": 38,
+      "comments": 34,
+      "created_at": "2026-11-06T02:40:42Z",
+      "pph": 2.579,
+      "query": "ai agents"
+    },
+    {
+      "id": "50387890",
+      "title": "Claude Code, but for SEO",
+      "url": "https://twitter.com/brodieseo/status/2118299596292305356",
+      "points": 14,
+      "comments": 2,
+      "created_at": "2026-11-06T03:42:58Z",
+      "pph": 1.022,
+      "query": "claude code"
+    },
+    {
+      "id": "50389479",
+      "title": "Stop running everything through LLMs: How I fixed my research agent",
+      "url": "https://www.tinyfish.ai/blog/inside-tinyresearch",
+      "points": 12,
+      "comments": 0,
+      "created_at": "2026-11-06T08:04:58Z",
+      "pph": 1.286,
+      "query": "ai agents"
+    },
+    {
+      "id": "50393235",
+      "title": "Show HN: Agentic Identity Broker, OAuth Delegation for AI Agents",
+      "url": "https://github.com/zalando-incubator/agentic-identity-broker",
+      "points": 11,
+      "comments": 3,
+      "created_at": "2026-11-06T15:07:47Z",
+      "pph": 4.814,
+      "query": "ai agents"
+    },
+    {
+      "id": "50385952",
+      "title": "Show HN: HackerRepos \u2013 HackerTube for repos mentioned on HN",
+      "url": "https://HackerRepos.fyi/",
+      "points": 10,
+      "comments": 3,
+      "created_at": "2026-11-05T23:18:43Z",
+      "pph": 0.552,
+      "query": "mcp"
+    },
+    {
+      "id": "50389498",
+      "title": "Living Maps: Bay Area tech since 1960s",
+      "url": "https://tomorrowasusual.com/living-maps/bay-area-tech/",
+      "points": 9,
+      "comments": 7,
+      "created_at": "2026-11-06T08:08:19Z",
+      "pph": 0.97,
+      "query": "mcp"
+    },
+    {
+      "id": "50389967",
+      "title": "Computer game Worms went from classroom to classic",
+      "url": "https://www.bbc.co.uk/news/articles/cmp8gd6l03g3o",
+      "points": 8,
+      "comments": 0,
+      "created_at": "2026-11-06T09:10:55Z",
+      "pph": 0.972,
+      "query": "mcp"
+    },
+    {
+      "id": "50391883",
+      "title": "A high school science teacher stumbled upon the first known T. Rex trackway",
+      "url": "https://www.cbc.ca/radio/asithappens/t-rex-trackway-9.7406432?cmp=rss",
+      "points": 7,
+      "comments": 0,
+      "created_at": "2026-11-06T13:07:55Z",
+      "pph": 1.634,
+      "query": "mcp"
+    },
+    {
+      "id": "50392336",
+      "title": "Epic framework for spec-driven development",
+      "url": "https://medium.com/@visrow/how-bad-is-your-spec-scoring-specs-for-ai-coding-agents-a7f2f0b5ed56",
+      "points": 5,
+      "comments": 0,
+      "created_at": "2026-11-06T13:56:27Z",
+      "pph": 1.439,
+      "query": "ai agents"
+    }
+  ]
+}

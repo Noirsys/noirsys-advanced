@@ -1,0 +1,106 @@
+{
+  "source": "Hacker News via Algolia API",
+  "collected_at": "2026-10-20T14:57:19+00:00",
+  "stories": [
+    {
+      "id": "50152466",
+      "title": "Maxwell: A new kind of model that sits between code and hardware",
+      "url": "https://heymaxwell.ai/",
+      "points": 117,
+      "comments": 52,
+      "created_at": "2026-10-19T13:47:56Z",
+      "pph": 4.651,
+      "query": "claude code"
+    },
+    {
+      "id": "50161408",
+      "title": "Show HN: Death Plan Switch, a self-hosted dead man's switch for solo devs",
+      "url": "https://deathplanswitch.com/",
+      "points": 81,
+      "comments": 59,
+      "created_at": "2026-10-20T04:37:43Z",
+      "pph": 7.844,
+      "query": "claude code"
+    },
+    {
+      "id": "50152541",
+      "title": "Show HN: KiviDB, a faster Redis-compatible memory database and vector cache",
+      "url": "https://github.com/kividbio/kividb",
+      "points": 68,
+      "comments": 42,
+      "created_at": "2026-10-19T13:53:52Z",
+      "pph": 2.714,
+      "query": "claude code"
+    },
+    {
+      "id": "50162712",
+      "title": "GCP Europe-West2 Outage",
+      "url": "https://news.ycombinator.com/item?id=50162712",
+      "points": 26,
+      "comments": 12,
+      "created_at": "2026-10-20T07:56:59Z",
+      "pph": 3.711,
+      "query": "mcp"
+    },
+    {
+      "id": "50162198",
+      "title": "Vite+ an excellent toolchain for AI agent development",
+      "url": "https://janmichalek.com/blog/vite-plus-agentni-vyvoj?lang=en",
+      "points": 23,
+      "comments": 19,
+      "created_at": "2026-10-20T06:40:49Z",
+      "pph": 2.779,
+      "query": "ai agents"
+    },
+    {
+      "id": "50155647",
+      "title": "Show HN: Open-source early-reading reader with phonics help",
+      "url": "https://github.com/finereli/yarareads",
+      "points": 22,
+      "comments": 9,
+      "created_at": "2026-10-19T17:58:54Z",
+      "pph": 1.049,
+      "query": "mcp"
+    },
+    {
+      "id": "50160198",
+      "title": "Show HN: Lights-on software factory boilerplate for Claude Code",
+      "url": "https://github.com/gojko/lights-on-software-factory",
+      "points": 15,
+      "comments": 8,
+      "created_at": "2026-10-20T01:22:00Z",
+      "pph": 1.104,
+      "query": "claude code"
+    },
+    {
+      "id": "50163896",
+      "title": "Show HN: Make AI coding agents verify its own work",
+      "url": "https://github.com/reticlehq/reticle",
+      "points": 11,
+      "comments": 6,
+      "created_at": "2026-10-20T10:20:33Z",
+      "pph": 2.385,
+      "query": "ai agents"
+    },
+    {
+      "id": "50157323",
+      "title": "New Walkman $5,899.99",
+      "url": "https://electronics.sony.com/audio/walkman-digital-recorders/walkman-mp3-players/p/nwwm1zm3",
+      "points": 9,
+      "comments": 11,
+      "created_at": "2026-10-19T20:02:24Z",
+      "pph": 0.476,
+      "query": "mcp"
+    },
+    {
+      "id": "50155440",
+      "title": "Show HN: MCP for Ordering Assembled PCBs",
+      "url": "https://provenmetal.com/mcp",
+      "points": 7,
+      "comments": 7,
+      "created_at": "2026-10-19T17:43:49Z",
+      "pph": 0.33,
+      "query": "mcp"
+    }
+  ]
+}
